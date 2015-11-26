@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 bochsout.txt
 *.o
 # Object files
@@ -33,3 +32,4 @@ bochsout.txt
 
 # Debug files
 *.dSYM/
+output/*

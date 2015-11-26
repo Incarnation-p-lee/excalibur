@@ -1,0 +1,28 @@
+<screen>
+Kernel get booted by GRUB in text mode. screen is a framebuffer that controls a
+screen of characters 80 * 25. 
+
+The framebuffer is accessible just like normal RAM, at address 0xB8000. Which
+dedicated video memory that has been memory-mapped via hardware into our linear
+address space.
+
+Each character represented in 16-bits, the offset form link (y * 80 + x) * 2.
+
+A charactor is ASCII encoded, 8 bits for representing a charactor, and rest for
+designating foreground and background colors, format as below:
+    15                       8            0
+    ---------------------------------------
+    | background | foreground | character |
+    ---------------------------------------
+
+And color encoding 16 different types.
+    black-0      blue-1           green-2        cyan-3
+    red-4        magenta-5        brown-6        light_grey-7
+    dary_grey-8  light_blue-9     light_green-10 light_cyan-11
+    light_red-12 light_megneta-13 light_brown-14 white-15
+
+VGA controller also has some ports on main I/O bus, from which you can send it
+with specific instructions. It has a control register at 0x3D4 and a data
+register at 0x3D5.
+
+

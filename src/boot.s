@@ -43,20 +43,3 @@ start:
     call main                    ; Call main function in C
     jmp $
 
-;
-; Multiboot
-; A standard to GRUB expects a kernel to comply, it is the way for the
-; bootloader to
-;     1. Know exactly what environment the kernel wants/needs when boot
-;     2. Allow the kernel to query the environment it is in
-;     3. Info bootloader how kernel loaded
-;
-; To make kernel multiboot compatible, should add a header structure in your
-; kernel (header located at first 4KB of the kernel).
-;
-; Calling Convention
-; Use __cdecl calling convention
-;     1. All parameters to a function are on stack
-;     2. Parameters pushed right-to-left
-;     3. Return value in eax
-;
