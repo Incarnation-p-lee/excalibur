@@ -71,7 +71,5 @@ sub create_compile_makefile {
     printf MAKEFILE "\t" . 'cc $(CFLAGS) -o $@ $<' . "\n";
 
     close MAKEFILE;
-
-    say "Makefile of module $file created.";
 }
 

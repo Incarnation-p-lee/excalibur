@@ -20,6 +20,9 @@ then
 fi
 mkdir -p $outdir
 
+## Generate C function declaration header file ##
+perl script/generate_declaration.pl $src_dir
+
 ## Generate sub-module Makefile ##
 # echo "== Generate Compile Makefile for Sub-Module =="
 perl script/produce_compile_makefile.pl $src_dir
@@ -44,4 +47,9 @@ perl script/produce_link_makefile.pl
 cd $outdir > /dev/null
 make
 cd - > /dev/null
+
+elf=$base/$outdir/kernel
+
+file $elf
+echo "Kernel Binary Build Sucess at <$elf>."
 
