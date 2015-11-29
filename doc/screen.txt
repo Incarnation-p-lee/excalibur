@@ -19,7 +19,7 @@ And color encoding 16 different types.
     black-0      blue-1           green-2        cyan-3
     red-4        magenta-5        brown-6        light_grey-7
     dary_grey-8  light_blue-9     light_green-10 light_cyan-11
-    light_red-12 light_megneta-13 light_brown-14 white-15
+    light_red-12 light_magneta-13 light_brown-14 white-15
 
 VGA controller also has some ports on main I/O bus, from which you can send it
 with specific instructions. It has a control register at 0x3D4 and a data

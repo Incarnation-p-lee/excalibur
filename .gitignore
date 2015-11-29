@@ -1,4 +1,5 @@
 bochsout.txt
+tags
 *.o
 # Object files
 *.o

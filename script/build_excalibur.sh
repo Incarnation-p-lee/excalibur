@@ -2,7 +2,7 @@
 
 base=$(pwd)
 root_dir=$(pwd | xargs basename)
-src_dir="$root_dir/src";
+src_dir="$base/src";
 
 if [ "$root_dir" != "excalibur" ]
 then
@@ -18,10 +18,10 @@ if [ -d $outdir ]
 then
     rm -rfv $outdir
 fi
-pwd
 mkdir -p $outdir
 
 ## Generate sub-module Makefile ##
+# echo "== Generate Compile Makefile for Sub-Module =="
 perl script/produce_compile_makefile.pl $src_dir
 
 ## Iterate sub-module and build objective file ##
@@ -36,6 +36,7 @@ do
 done
 
 ## Generate kernel link Makefile and prepare link script ##
+# echo "== Generate Link Makefile for Kernel binary =="
 cp -v script/link.ld $outdir
 perl script/produce_link_makefile.pl
 

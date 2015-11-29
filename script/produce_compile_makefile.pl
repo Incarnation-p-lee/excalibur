@@ -3,12 +3,13 @@ use strict;
 use 5.010;
 
 my $work_dir = shift @ARGV;
+my $include_dir = "$ENV{'PWD'}/src/inc";
 
 if ($work_dir eq "") {
     say "Please specify the work directory for makefile producing.";
     exit 1;
 } else {
-    $work_dir = $1 if $work_dir =~ /(\w+)\/?/;
+    $work_dir = $1 if $work_dir =~ /(\w+)\/?$/;
     &create_compile_makefile("$work_dir") if -e "$work_dir/main.c";
     &visit_workspace($work_dir);
 }
@@ -54,10 +55,13 @@ sub create_compile_makefile {
     ## handle main.c Makefile ##
     $file = "main" if -e "$location/main.c";
 
+    say "== Create Makefile for Module <$file> ==";
+
     open MAKEFILE, '>', "$dir/Makefile" or
         die "Failed to create makefile, $?\n";
 
     printf MAKEFILE "CFLAGS+=-nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32 -c\n";
+    printf MAKEFILE "CFLAGS+=-I$include_dir\n";
     printf MAKEFILE "ASFLAGS+=-felf\n\n";
     printf MAKEFILE "TARGET=$file.o\n";
     printf MAKEFILE 'all:$(TARGET)' ."\n\n";
@@ -69,22 +73,5 @@ sub create_compile_makefile {
     close MAKEFILE;
 
     say "Makefile of module $file created.";
-}
-
-sub create_link_makefile {
-    my $output = "output";
-
-    die "Failed to find output directory, $output." unless -d -e $output;
-
-    open MAKEFILE, '>', "$output/Makefile" or
-        die "Failed to create makefile, $?\n";
-
-    printf MAKEFILE "LDFLAGS+=-Tlink.ld -m elf_i386\n";
-    printf MAKEFILE "TARGET=kernel\n";
-    printf MAKEFILE 'all:$(TARGET)' ."\n\n";
-    printf MAKEFILE '$(TARGET):' . "\n";
-    printf MAKEFILE "\t" . 'ld $(LDFLAGS) -o $@ $?';
-
-    close MAKEFILE;
 }
 
