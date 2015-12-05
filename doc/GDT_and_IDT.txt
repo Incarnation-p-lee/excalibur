@@ -1,0 +1,35 @@
+<The GDT and IDT>
+The GDT and IDT are descriptor tables. They are arrays of flags and bit values
+describing the operation of either the segmentation system (GDT), or the interrupt
+vector table(IDT).
+
+<GDT> The Global Descriptor Table
+x86 architecture has two methods of memory protection and of providing virtual
+memory, segmentation and paging.
+
+<Segmentation>
+Every memory access is evaluated with respect to a segment. The memory address is
+added to the segment' base address, with the segmen length limits. The segment can
+be thought as a window in the address space.
+
+<Paging>
+The address space is split into blocks (4KB), called page. Each page can be mapped
+into physcial memory. Also unmapped.
+
+The GDT table is a list of segment descriptors, with set up a flat memory model. The
+segment window should start at 0x0 and extend to 0xFFFFFFFF. One thing a segment
+can do that paging can't, setting the ring level.
+
+<The Ring Level>
+A ring level is a privilege level, 0 being the most privileged and 3 to be the lase.
+Processes in ring 0 are running in kernel-mode, or supervisor-mode. As they can use
+all instructions like sti and cli. Normally, ring 1 and ring 2 unused.
+
+GRUB sets a GDT up for this case. 
+
+x86 architecture has 6 segmentation register. Each holds an offset into the GDT.
+They are:
+    cs -code segment, ds -data segment, es -extra segment
+    fs                gs                ss -stack segment
+  
+
