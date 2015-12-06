@@ -21,7 +21,7 @@ descriptor_table_gdt_init(void)
     descriptor_table_gdt_entry_set(4, 0, USR_DATA_SEG_LMT, USR_DATA_SEG_ACC,
         USR_DATA_SEG_FLAG);
 
-    // gdt_table_flush((uint32)&gdt_reg);
+    gdt_table_flush((uint32)&gdt_reg);
 }
 
 static inline void
