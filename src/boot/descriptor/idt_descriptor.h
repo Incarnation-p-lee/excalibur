@@ -4,9 +4,9 @@
 /*
  * Interrupt Descriptor Table Register
  * 47                         16 15                 0
- * --------------------------------------------------
+ * +----------------------------+-------------------+
  * | 32-bit Linear Base Address | 16-bit Table Limit|
- * --------------------------------------------------
+ * +----------------------------+-------------------+
  */
 struct idt_register {
     uint16 limit;
@@ -18,9 +18,9 @@ struct idt_register {
 /*
  * Descriptor Attribute
  *   7  6   5  4  3     0 7                  0
- * ---------------------- --------------------
+ * +---+-----+---+------+ +------------------+
  * | P | DPL | S | type | | unused, always 0 |
- * ---------------------- --------------------
+ * +---+-----+---+------+ +------------------+
  */
 struct idt_attribute {
     uint8 unused;
@@ -34,9 +34,9 @@ struct idt_attribute {
  * Interrupt Descriptor Table Entry
  * Each represent a segment in GDT.
  * 63           47          31        15         0
- * -----------------------------------------------
+ * +-----------+-----------+----------+----------+
  * | base high | attribute | selector | base low |
- * -----------------------------------------------
+ * +-----------+-----------+----------+----------+
  */
 struct idt_entry {
     uint16 base_l;
