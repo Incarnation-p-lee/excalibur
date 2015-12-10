@@ -2,13 +2,13 @@ void
 descriptor_table_init(void)
 {
     descriptor_table_gdt_init();
-
+    descriptor_table_idt_init();
 }
 
 static inline void
 descriptor_table_gdt_init(void)
 {
-    gdt_reg.limit = (sizeof(gdt_entry_list)) - 1;
+    gdt_reg.limit = sizeof(gdt_entry_list) - 1;
     gdt_reg.base = (uint32)&gdt_entry_list;
 
     descriptor_table_gdt_entry_set(0, 0, 0, 0, 0);
@@ -22,6 +22,19 @@ descriptor_table_gdt_init(void)
         USR_DATA_SEG_FLAG);
 
     gdt_table_flush((uint32)&gdt_reg);
+}
+
+static inline void
+descriptor_table_idt_init(void)
+{
+    idt_reg.limit = sizeof(idt_entry_list) - 1;
+    idt_reg.base = (uint32)&idt_entry_list;
+
+    memory_set_k(&idt_entry_list, 0, sizeof(idt_entry_list));
+
+    // descriptor_table_idt_entry_set();
+
+    idt_table_flush((uint32)&idt_reg);
 }
 
 static inline void
@@ -48,5 +61,22 @@ descriptor_table_gdt_entry_set(uint32 index, uint32 base, uint32 lmt,
     gdt_entry_list[index].flags.pack = 0;
     gdt_entry_list[index].flags.db = (uint8)U32_BIT(flags, FLAG_DB_IDX);
     gdt_entry_list[index].flags.g = (uint8)U32_BIT(flags, FLAG_G_IDX);
+}
+
+static inline void
+descriptor_table_idt_entry_set(uint32 index, uint32 base, uint16 selector, uint16 attr)
+{
+    // assert(index < IDT_ENTRY_CNT);
+
+    idt_entry_list[index].base_l = U32_BITS(base, 0, 16);
+    idt_entry_list[index].base_h = U32_BITS(base, 16, 16);
+
+    idt_entry_list[index].selector = selector;
+
+    idt_entry_list[index].attr.unused = 0;
+    idt_entry_list[index].attr.type = U32_BITS(attr, IDT_ATTR_TYPE_IDX, IDT_ATTR_TYPE_LEN);
+    idt_entry_list[index].attr.s = U32_BIT(attr, IDT_ATTR_S_IDX);
+    idt_entry_list[index].attr.dpl = U32_BITS(attr, IDT_ATTR_DPL_IDX, IDT_ATTR_TYPE_LEN);
+    idt_entry_list[index].attr.p = U32_BIT(attr, IDT_ATTR_P_IDX);
 }
 

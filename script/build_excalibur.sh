@@ -16,7 +16,7 @@ fi
 outdir=output
 if [ -d $outdir ]
 then
-    rm -rfv $outdir
+    rm -rf $outdir
 fi
 mkdir -p $outdir
 
@@ -33,23 +33,25 @@ module_list=$(find src/ -type d | grep -v inc)
 for var in ${module_list[@]}
 do
     cd $var > /dev/null
-    make
-    mv -v *.o $base/$outdir
+    echo "    Compile  .. $(basename $var)"
+    make > /dev/null
+    mv *.o $base/$outdir
     cd - > /dev/null
 done
 
 ## Generate kernel link Makefile and prepare link script ##
 # echo "== Generate Link Makefile for Kernel binary =="
-cp -v script/link.ld $outdir
+cp script/link.ld $outdir
 perl script/produce_link_makefile.pl
 
 ## Start linking and export finial kernel binary ##
-cd $outdir > /dev/null
-make
-cd - > /dev/null
-
 elf=$base/$outdir/kernel
 
+cd $outdir > /dev/null
+echo "    Link     .. $(basename $elf)"
+make > /dev/null
+cd - > /dev/null
+
+echo "Building Kernel Binary Done Successful, at <$elf>."
 file $elf
-echo "Kernel Binary Build Sucess at <$elf>."
 

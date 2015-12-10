@@ -54,5 +54,23 @@ struct idt_entry {
 #define IDT_ATTR_DPL_LEN  2
 #define IDT_ATTR_P_IDX    15
 
+#define ATTR_TYPE_TASK_32 (0x5 << IDT_ATTR_TYPE_IDX)
+#define ATTR_TYPE_INTR_16 (0x6 << IDT_ATTR_TYPE_IDX)
+#define ATTR_TYPE_TRAP_16 (0x7 << IDT_ATTR_TYPE_IDX)
+#define ATTR_TYPE_INTR_32 (0xe << IDT_ATTR_TYPE_IDX)
+#define ATTR_TYPE_TRAP_32 (0xf << IDT_ATTR_TYPE_IDX)
+#define ATTR_STOR_SEG     (ATTR_CLR << IDT_ATTR_S_IDX)
+#define ATTR_DPL_RING_0   (DPL_RING_0 << IDT_ATTR_DPL_IDX)
+#define ATTR_DPL_RING_1   (DPL_RING_1 << IDT_ATTR_DPL_IDX)
+#define ATTR_DPL_RING_2   (DPL_RING_2 << IDT_ATTR_DPL_IDX)
+#define ATTR_DPL_RING_3   (DPL_RING_3 << IDT_ATTR_DPL_IDX)
+#define ATTR_PRST         (ATTR_SET << IDT_ATTR_P_IDX)
+
+static struct idt_entry    idt_entry_list[IDT_ENTRY_CNT];
+static struct idt_register idt_reg;
+
+extern void idt_table_flush(uint32);
+extern void isr_handler_0(void);
+
 #endif
 

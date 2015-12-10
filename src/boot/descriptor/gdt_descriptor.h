@@ -81,10 +81,10 @@ struct gdt_entry {
 #define ACC_EX_DATA       (ATTR_CLR << ACC_EX_IDX)
 #define ACC_EX_CODE       (ATTR_SET << ACC_EX_IDX)
 #define ACC_DT_GDT        (ATTR_SET << ACC_DC_IDX)
-#define ACC_DPL_RING_0    (0 << ACC_DPL_IDX)
-#define ACC_DPL_RING_1    (1 << ACC_DPL_IDX)
-#define ACC_DPL_RING_2    (2 << ACC_DPL_IDX)
-#define ACC_DPL_RING_3    (3 << ACC_DPL_IDX)
+#define ACC_DPL_RING_0    (DPL_RING_0 << ACC_DPL_IDX)
+#define ACC_DPL_RING_1    (DPL_RING_1 << ACC_DPL_IDX)
+#define ACC_DPL_RING_2    (DPL_RING_2 << ACC_DPL_IDX)
+#define ACC_DPL_RING_3    (DPL_RING_3 << ACC_DPL_IDX)
 #define ACC_PRST          (ATTR_SET << ACC_P_IDX)
 
 #define FLAG_AVL          (ATTR_SET << FLAG_A_IDX)
@@ -92,11 +92,6 @@ struct gdt_entry {
 #define FLAG_DB_OPND_32   (ATTR_SET << FLAG_DB_IDX)
 #define FLAG_G_BYTE       (ATTR_CLR << FLAG_G_IDX)
 #define FLAG_G_4KB        (ATTR_SET << FLAG_G_IDX)
-
-#define CODE_SEG_LMT      0xFFFFF
-#define DATA_SEG_LMT      0xFFFFF
-#define USR_CODE_SEG_LMT  0xFFFFF
-#define USR_DATA_SEG_LMT  0xFFFFF
 
 #define CODE_SEG_ACC      (ACC_PRST | ACC_DPL_RING_0 | ACC_DT_GDT | ACC_EX_CODE \
     | ACC_DC_DPL_M | ACC_RW)
@@ -114,6 +109,8 @@ struct gdt_entry {
 
 static struct gdt_entry    gdt_entry_list[GDT_ENTRY_CNT];
 static struct gdt_register gdt_reg;
+
+extern void gdt_table_flush(uint32);
 
 #endif
 

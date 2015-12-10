@@ -55,7 +55,7 @@ sub create_compile_makefile {
     ## handle main.c Makefile ##
     $file = "main" if -e "$location/main.c";
 
-    say "== Create Makefile for Module <$file> ==";
+    say "    Makefile .. $file";
 
     open MAKEFILE, '>', "$dir/Makefile" or
         die "Failed to create makefile, $?\n";

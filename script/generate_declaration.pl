@@ -93,8 +93,9 @@ sub filter_source_file_declaration() {
     my $filename = shift @_;
     my $body = 1;
     my $head;
+    my $basename = $1 if $filename =~ /\/([^\/]+)$/;
 
-    print "Scanning source file $filename ";
+    print "    Scan     .. $basename";
 
     open IMP, '<', $filename or die "$! $filename.";
 
