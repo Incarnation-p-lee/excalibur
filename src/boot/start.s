@@ -36,7 +36,7 @@ boot:
 start:
 ; On bootup, GRUB will load a pointer to another information structure into the
 ; ebx register
-    push       ebx               ; Load multiboot header location
+    push ebx                     ; Load multiboot header location
 
     ; Start to execute kernel
     cli                          ; Disable interrupts

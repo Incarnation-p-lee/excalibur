@@ -3,6 +3,7 @@ gdt_table_flush:
     mov        eax, [esp + 4]
     lgdt       [eax]
 
+    xor        eax, eax
     mov        ax, 0x10
     mov        ds, ax
     mov        es, ax

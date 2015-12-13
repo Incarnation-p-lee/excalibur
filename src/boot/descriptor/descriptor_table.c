@@ -27,12 +27,19 @@ descriptor_table_gdt_init(void)
 static inline void
 descriptor_table_idt_init(void)
 {
+    uint32 index;
+
     idt_reg.limit = sizeof(idt_entry_list) - 1;
     idt_reg.base = (uint32)&idt_entry_list;
 
     memory_set_k(&idt_entry_list, 0, sizeof(idt_entry_list));
 
-    // descriptor_table_idt_entry_set();
+    index = 0;
+    while (index < ARRAY_CNT_OF(isr_handler)) {
+        descriptor_table_idt_entry_set(index, isr_handler[index],
+            IDT_CODE_SEL, ATTR_INT_32);
+        index++;
+    }
 
     idt_table_flush((uint32)&idt_reg);
 }
@@ -64,12 +71,13 @@ descriptor_table_gdt_entry_set(uint32 index, uint32 base, uint32 lmt,
 }
 
 static inline void
-descriptor_table_idt_entry_set(uint32 index, uint32 base, uint16 selector, uint16 attr)
+descriptor_table_idt_entry_set(uint32 index, void (*handler)(void),
+    uint16 selector, uint16 attr)
 {
     // assert(index < IDT_ENTRY_CNT);
 
-    idt_entry_list[index].base_l = U32_BITS(base, 0, 16);
-    idt_entry_list[index].base_h = U32_BITS(base, 16, 16);
+    idt_entry_list[index].base_l = U32_BITS(handler, 0, 16);
+    idt_entry_list[index].base_h = U32_BITS(handler, 16, 16);
 
     idt_entry_list[index].selector = selector;
 

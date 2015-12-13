@@ -17,6 +17,8 @@
 #define USR_CODE_SEG_LMT  0xFFFFF
 #define USR_DATA_SEG_LMT  0xFFFFF
 
+#define ARRAY_CNT_OF(a)   (sizeof(a) / sizeof(a[0]))
+
 
 #endif
 
