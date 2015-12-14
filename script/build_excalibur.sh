@@ -54,4 +54,4 @@ cd - > /dev/null
 
 echo "Building Kernel Binary Done Successful, at <$elf>."
 file $elf
-
+ctags -R src

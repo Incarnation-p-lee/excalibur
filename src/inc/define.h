@@ -1,6 +1,8 @@
 #ifndef HAVE_DEFINED_DEFINE_H
 #define HAVE_DEFINED_DEFINE_H
 
+#include "external.h"
+
 #define ATTR_CLR          0
 #define ATTR_SET          1
 
@@ -19,6 +21,13 @@
 
 #define ARRAY_CNT_OF(a)   (sizeof(a) / sizeof(a[0]))
 
+#define print_clear       screen_monitor_clear
+#define print_string(s)   screen_monitor_write_string(s)
+#define print_uint32(u)   screen_monitor_write_uint32(u)
+
+#define CHAR_NULL         0x0
+#define CHAR_ZERO         0x30
+#define CHAR_a            0x61
 
 #endif
 

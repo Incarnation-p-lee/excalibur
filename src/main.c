@@ -1,14 +1,14 @@
 #include "external.h"
+#include "define.h"
 
 int
 main(void)
 {
-    screen_monitor_clear();
-    screen_monitor_write("Hello, The world of OS.\n");
+    print_clear();
+    print_string("Hello, The world of OS.\n");
 
     descriptor_table_init();
-
-    screen_monitor_write("GDT & IDT table initialized.\n");
+    print_string("GDT & IDT table initialized.\n");
 
     asm volatile (
         "int $0x0\n\t"

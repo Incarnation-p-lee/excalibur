@@ -57,7 +57,7 @@ ISR_HANDLER_NO_ERRCODE 31
 [EXTERN isr_handler_main]
 
 isr_common_handler:
-    pusha
+    pushad             ; push order eax, ecx, edx, ebx, esp, ebp, esi, edi
 
     mov   ax, ds
     push  eax
@@ -76,7 +76,7 @@ isr_common_handler:
     mov   fs, ax
     mov   gs, ax
 
-    popa
+    popad
     add esp, 8         ; Cleanup pushed error code and isr number
     sti
     iret               ; When interrupt fires, the processor automatically
