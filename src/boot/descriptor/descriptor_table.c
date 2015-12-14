@@ -54,7 +54,7 @@ descriptor_table_gdt_entry_set(uint32 index, uint32 base, uint32 lmt,
     gdt_entry_list[index].base_h = (uint8)U32_BITS(base, 24, 8);
 
     gdt_entry_list[index].lmt_l = (uint16)U32_BITS(lmt, 0, 16);
-    gdt_entry_list[index].lmt_h = (uint8)U32_BITS(lmt, 16, 8);
+    gdt_entry_list[index].flags.lmt_h = (uint8)U32_BITS(lmt, 16, 4);
 
     gdt_entry_list[index].access.acc = (uint8)U32_BIT(acc, ACC_AC_IDX);
     gdt_entry_list[index].access.rw = (uint8)U32_BIT(acc, ACC_RW_IDX);

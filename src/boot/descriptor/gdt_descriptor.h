@@ -36,8 +36,9 @@ struct gdt_attribute_access {
 struct gdt_attribute_flags {
     uint8 avl:1;
     uint8 pack:1;
-    uint8 db:1;   // Operand size, 0 16-bit 1 32-bit
-    uint8 g:1;    // Granularity which defines the limit unit in byte or 4KB
+    uint8 db:1;    // Operand size, 0 16-bit 1 32-bit
+    uint8 g:1;     // Granularity which defines the limit unit in byte or 4KB
+    uint8 lmt_h:4; // High 4 bit of limit, bit <16, 19> of limit
 } __attribute__((packed));
 
 /*
@@ -52,7 +53,6 @@ struct gdt_entry {
     uint16                      lmt_l;
     uint32                      base_l:24;
     struct gdt_attribute_access access;
-    uint8                       lmt_h:4;
     struct gdt_attribute_flags  flags;
     uint8                       base_h;
 } __attribute__((packed));
@@ -80,7 +80,7 @@ struct gdt_entry {
 #define ACC_DC_DPL_O      (ATTR_SET << ACC_DC_IDX)
 #define ACC_EX_DATA       (ATTR_CLR << ACC_EX_IDX)
 #define ACC_EX_CODE       (ATTR_SET << ACC_EX_IDX)
-#define ACC_DT_GDT        (ATTR_SET << ACC_DC_IDX)
+#define ACC_DT_GDT        (ATTR_SET << ACC_DT_IDX)
 #define ACC_DPL_RING_0    (DPL_RING_0 << ACC_DPL_IDX)
 #define ACC_DPL_RING_1    (DPL_RING_1 << ACC_DPL_IDX)
 #define ACC_DPL_RING_2    (DPL_RING_2 << ACC_DPL_IDX)
