@@ -12,13 +12,15 @@ descriptor_table_gdt_init(void)
     gdt_reg.base = (uint32)&gdt_entry_list;
 
     descriptor_table_gdt_entry_set(0, 0, 0, 0, 0);
-    descriptor_table_gdt_entry_set(1, 0, CODE_SEG_LMT, CODE_SEG_ACC,
+    descriptor_table_gdt_entry_set(1, CODE_SEG_BASE, CODE_SEG_LMT, CODE_SEG_ACC,
         CODE_SEG_FLAG);
-    descriptor_table_gdt_entry_set(2, 0, DATA_SEG_LMT, DATA_SEG_ACC,
+    descriptor_table_gdt_entry_set(2, DATA_SEG_BASE, DATA_SEG_LMT, DATA_SEG_ACC,
         DATA_SEG_FLAG);
-    descriptor_table_gdt_entry_set(3, 0, USR_CODE_SEG_LMT, USR_CODE_SEG_ACC,
+    descriptor_table_gdt_entry_set(3, STACK_SEG_BASE, STACK_SEG_LMT, STACK_SEG_ACC,
+        STACK_SEG_FLAG);
+    descriptor_table_gdt_entry_set(4, 0, USR_CODE_SEG_LMT, USR_CODE_SEG_ACC,
         USR_CODE_SEG_FLAG);
-    descriptor_table_gdt_entry_set(4, 0, USR_DATA_SEG_LMT, USR_DATA_SEG_ACC,
+    descriptor_table_gdt_entry_set(5, 0, USR_DATA_SEG_LMT, USR_DATA_SEG_ACC,
         USR_DATA_SEG_FLAG);
 
     gdt_table_flush((uint32)&gdt_reg);

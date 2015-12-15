@@ -48,6 +48,8 @@ struct gdt_attribute_flags {
  * ------------------------------------------------------------------
  * | base high | flags | limit high | access | base low | limit low |
  * ------------------------------------------------------------------
+ * base contains  32-bit
+ * limit contains 20-bit
  */
 struct gdt_entry {
     uint16                      lmt_l;
@@ -57,7 +59,7 @@ struct gdt_entry {
     uint8                       base_h;
 } __attribute__((packed));
 
-#define GDT_ENTRY_CNT     5
+#define GDT_ENTRY_CNT     6
 
 #define ACC_AC_IDX        0
 #define ACC_RW_IDX        1
@@ -97,8 +99,12 @@ struct gdt_entry {
     | ACC_DC_DPL_M | ACC_RW)
 #define DATA_SEG_ACC      (ACC_PRST | ACC_DPL_RING_0 | ACC_DT_GDT | ACC_EX_DATA \
     | ACC_DC_DPL_M | ACC_RW)
+#define STACK_SEG_ACC     (ACC_PRST | ACC_DPL_RING_0 | ACC_DT_GDT | ACC_EX_DATA \
+    | ACC_DC_GRW_DW | ACC_RW)
 #define CODE_SEG_FLAG     (FLAG_DB_OPND_32 | FLAG_G_BYTE)
 #define DATA_SEG_FLAG     (FLAG_DB_OPND_32 | FLAG_G_BYTE)
+#define STACK_SEG_FLAG    (FLAG_DB_OPND_32 | FLAG_G_BYTE)
+
 
 #define USR_CODE_SEG_ACC  (ACC_PRST | ACC_DPL_RING_3 | ACC_DT_GDT | ACC_EX_CODE \
     | ACC_DC_DPL_M | ACC_RW)

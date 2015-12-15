@@ -14,9 +14,14 @@
 #define DPL_RING_2        2
 #define DPL_RING_3        3
 
-#define CODE_SEG_LMT      0xFFFFF
-#define DATA_SEG_LMT      0xFFFFF
+#define CODE_SEG_BASE     0x0
+#define CODE_SEG_LMT      0xfffff
+#define DATA_SEG_BASE     0x100000
+#define DATA_SEG_LMT      0xfffff
+#define STACK_SEG_BASE    0x300000
+#define STACK_SEG_LMT     0xfffff
 #define USR_CODE_SEG_LMT  0xFFFFF
+#define USR_CODE_SEG_BASE 0xFFFFF
 #define USR_DATA_SEG_LMT  0xFFFFF
 
 #define ARRAY_CNT_OF(a)   (sizeof(a) / sizeof(a[0]))
