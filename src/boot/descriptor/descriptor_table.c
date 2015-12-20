@@ -1,12 +1,5 @@
 void
-descriptor_table_init(void)
-{
-    descriptor_table_gdt_init();
-    descriptor_table_idt_init();
-}
-
-static inline void
-descriptor_table_gdt_init(void)
+descriptor_table_gdt_init(uint32 esp_base)
 {
     gdt_reg.limit = sizeof(gdt_entry_list) - 1;
     gdt_reg.base = (uint32)&gdt_entry_list;
@@ -23,10 +16,37 @@ descriptor_table_gdt_init(void)
     descriptor_table_gdt_entry_set(5, 0, USR_DATA_SEG_LMT, USR_DATA_SEG_ACC,
         USR_DATA_SEG_FLAG);
 
+    descriptor_table_stack_frames_fake(esp_base);
     gdt_table_flush((uint32)&gdt_reg);
 }
 
 static inline void
+descriptor_table_stack_frames_fake(uint32 esp_base)
+{
+    uint32 esp_cur;
+    uint32 byte_cnt;
+    void *from;
+    void *to;
+    // assert(0 != esp_base);
+
+    asm volatile (
+        "mov %%esp, %0\n\t"
+        :"=r"(esp_cur)
+        :);
+
+    byte_cnt = esp_base - esp_cur;
+    to = (void *)(STACK_SEG_BASE - byte_cnt);
+    from = (void *)esp_cur;
+
+    memory_copy_k(to, from, byte_cnt);
+
+    asm volatile (
+        "mov %0, %%esp\n\t"
+        :
+        :"r"(to));
+}
+
+void
 descriptor_table_idt_init(void)
 {
     uint32 index;

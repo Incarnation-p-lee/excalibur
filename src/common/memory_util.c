@@ -28,6 +28,17 @@ memory_set_in_byte(void *base, uint8 v, uint32 len)
 }
 
 static inline void
+memory_copy_in_byte(void *to, void *from, uint32 len)
+{
+    // assert(NULL != base);
+
+    while (len--) {
+        *(uint8 *)to = *(uint8 *)from;
+        to++;
+    }
+}
+
+static inline void
 memory_set_in_dword(uint32 *base, uint8 v, uint32 len)
 {
     uint32 element;
@@ -52,11 +63,42 @@ memory_set_in_dword(uint32 *base, uint8 v, uint32 len)
     memory_set_in_byte(base, v, remainder);
 }
 
+static inline void
+memory_copy_in_dword(uint32 *to, uint32 *from, uint32 len)
+{
+    uint32 remainder;
+    uint32 cnt;
+
+    remainder = len % sizeof(remainder);
+    if (len > remainder) {
+        cnt = len / sizeof(remainder);
+
+        while (cnt--) {
+            *to = *from;
+            to++;
+        }
+    }
+
+    memory_copy_in_byte(to, from, remainder);
+}
+
 void
 memory_set_k(void *base, uint8 v, uint32 len)
 {
     if (base) {
         memory_set_in_dword(base, v, len);
+    }
+}
+
+void
+memory_copy_k(void *to, void *from, uint32 len)
+{
+    if (to && from) {
+        if (from + len > to) {
+            print_string("Need tmp memory for memory copy, not implemented.\n");
+        } else {
+            memory_copy_in_dword(to, from, len);
+        }
     }
 }
 
