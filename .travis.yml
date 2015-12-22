@@ -2,8 +2,14 @@ language: c
 compiler:
   - gcc
   - clang
-install:
-  - sudo apt-get install nasm
+before_install:
+  - wget http://www.nasm.us/pub/nasm/releasebuilds/2.11.08/nasm-2.11.08.tar.gz
+  - tar -zxvf nasm-2.11.08.tar.gz
+  - cd nasm-2.11.08 
+  - bash configure
+  - make
+  - export PATH="$PATH:`pwd`"
+  - cd -
 script: 
   - bash ./script/build_excalibur.sh
 notifications:

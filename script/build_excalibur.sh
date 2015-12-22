@@ -52,6 +52,6 @@ echo "    Link     .. $(basename $elf)"
 make > /dev/null
 cd - > /dev/null
 
+ctags -R src
 echo "Building Kernel Binary Done Successful, at <$elf>."
 file $elf
-ctags -R src
