@@ -36,8 +36,9 @@ struct gdt_attribute_access {
 struct gdt_attribute_flags {
     uint8 avl:1;
     uint8 pack:1;
-    uint8 db:1;   // Operand size, 0 16-bit 1 32-bit
-    uint8 g:1;    // Granularity which defines the limit unit in byte or 4KB
+    uint8 db:1;    // Operand size, 0 16-bit 1 32-bit
+    uint8 g:1;     // Granularity which defines the limit unit in byte or 4KB
+    uint8 lmt_h:4; // High 4 bit of limit, bit <16, 19> of limit
 } __attribute__((packed));
 
 /*
@@ -47,17 +48,18 @@ struct gdt_attribute_flags {
  * +-----------+-------+------------+--------+----------+-----------+
  * | base high | flags | limit high | access | base low | limit low |
  * +-----------+-------+------------+--------+----------+-----------+
+ * base contains  32-bit
+ * limit contains 20-bit
  */
 struct gdt_entry {
     uint16                      lmt_l;
     uint32                      base_l:24;
     struct gdt_attribute_access access;
-    uint8                       lmt_h:4;
     struct gdt_attribute_flags  flags;
     uint8                       base_h;
 } __attribute__((packed));
 
-#define GDT_ENTRY_CNT     5
+#define GDT_ENTRY_CNT     6
 
 #define ACC_AC_IDX        0
 #define ACC_RW_IDX        1
@@ -80,11 +82,11 @@ struct gdt_entry {
 #define ACC_DC_DPL_O      (ATTR_SET << ACC_DC_IDX)
 #define ACC_EX_DATA       (ATTR_CLR << ACC_EX_IDX)
 #define ACC_EX_CODE       (ATTR_SET << ACC_EX_IDX)
-#define ACC_DT_GDT        (ATTR_SET << ACC_DC_IDX)
-#define ACC_DPL_RING_0    (0 << ACC_DPL_IDX)
-#define ACC_DPL_RING_1    (1 << ACC_DPL_IDX)
-#define ACC_DPL_RING_2    (2 << ACC_DPL_IDX)
-#define ACC_DPL_RING_3    (3 << ACC_DPL_IDX)
+#define ACC_DT_GDT        (ATTR_SET << ACC_DT_IDX)
+#define ACC_DPL_RING_0    (DPL_RING_0 << ACC_DPL_IDX)
+#define ACC_DPL_RING_1    (DPL_RING_1 << ACC_DPL_IDX)
+#define ACC_DPL_RING_2    (DPL_RING_2 << ACC_DPL_IDX)
+#define ACC_DPL_RING_3    (DPL_RING_3 << ACC_DPL_IDX)
 #define ACC_PRST          (ATTR_SET << ACC_P_IDX)
 
 #define FLAG_AVL          (ATTR_SET << FLAG_A_IDX)
@@ -93,17 +95,16 @@ struct gdt_entry {
 #define FLAG_G_BYTE       (ATTR_CLR << FLAG_G_IDX)
 #define FLAG_G_4KB        (ATTR_SET << FLAG_G_IDX)
 
-#define CODE_SEG_LMT      0xFFFFF
-#define DATA_SEG_LMT      0xFFFFF
-#define USR_CODE_SEG_LMT  0xFFFFF
-#define USR_DATA_SEG_LMT  0xFFFFF
-
 #define CODE_SEG_ACC      (ACC_PRST | ACC_DPL_RING_0 | ACC_DT_GDT | ACC_EX_CODE \
     | ACC_DC_DPL_M | ACC_RW)
 #define DATA_SEG_ACC      (ACC_PRST | ACC_DPL_RING_0 | ACC_DT_GDT | ACC_EX_DATA \
     | ACC_DC_DPL_M | ACC_RW)
+#define STACK_SEG_ACC     (ACC_PRST | ACC_DPL_RING_0 | ACC_DT_GDT | ACC_EX_DATA \
+    | ACC_DC_GRW_DW | ACC_RW)
 #define CODE_SEG_FLAG     (FLAG_DB_OPND_32 | FLAG_G_BYTE)
 #define DATA_SEG_FLAG     (FLAG_DB_OPND_32 | FLAG_G_BYTE)
+#define STACK_SEG_FLAG    (FLAG_DB_OPND_32 | FLAG_G_BYTE)
+
 
 #define USR_CODE_SEG_ACC  (ACC_PRST | ACC_DPL_RING_3 | ACC_DT_GDT | ACC_EX_CODE \
     | ACC_DC_DPL_M | ACC_RW)
@@ -114,6 +115,8 @@ struct gdt_entry {
 
 static struct gdt_entry    gdt_entry_list[GDT_ENTRY_CNT];
 static struct gdt_register gdt_reg;
+
+extern void gdt_table_flush(uint32);
 
 #endif
 

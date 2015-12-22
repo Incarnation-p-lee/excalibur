@@ -1,0 +1,10 @@
+language: c
+compiler:
+  - gcc
+  - clang
+script: 
+  - bash ./script/build_excalibur.sh
+notifications:
+  email:
+    - incarnation.p.lee@outlook.com
+
