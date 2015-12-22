@@ -2,6 +2,8 @@ language: c
 compiler:
   - gcc
   - clang
+install:
+  - sudo apt-get install nasm
 script: 
   - bash ./script/build_excalibur.sh
 notifications:
