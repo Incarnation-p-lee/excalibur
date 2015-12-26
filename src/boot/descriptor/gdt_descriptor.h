@@ -59,7 +59,7 @@ struct gdt_entry {
     uint8                       base_h;
 } __attribute__((packed));
 
-#define GDT_ENTRY_CNT     6
+#define GDT_ENTRY_CNT     5
 
 #define ACC_AC_IDX        0
 #define ACC_RW_IDX        1

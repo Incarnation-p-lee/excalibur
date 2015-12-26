@@ -16,10 +16,13 @@
 
 #define CODE_SEG_BASE     0x0
 #define CODE_SEG_LMT      0xfffff
-#define DATA_SEG_BASE     0x100000
+
+#define DATA_SEG_BASE     0x0
 #define DATA_SEG_LMT      0xfffff
+
 #define STACK_SEG_BASE    0x300000
 #define STACK_SEG_LMT     0xfffff
+
 #define USR_CODE_SEG_LMT  0xFFFFF
 #define USR_CODE_SEG_BASE 0xFFFFF
 #define USR_DATA_SEG_LMT  0xFFFFF
