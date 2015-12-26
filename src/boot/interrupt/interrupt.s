@@ -1,8 +1,8 @@
 [GLOBAL isr_handler_0]
 isr_handler_0:
     cli
-    push byte 0             ; Push a dummy error code
-    push byte 0             ; Push the interrupt number
+    push byte 0x0           ; Push a dummy error code
+    push byte 0x0           ; Push the interrupt number
     jmp  isr_common_handler
 
 %macro ISR_HANDLER_NO_ERRCODE 1
@@ -57,27 +57,21 @@ ISR_HANDLER_NO_ERRCODE 31
 [EXTERN isr_handler_main]
 
 isr_common_handler:
-    pushad             ; push order eax, ecx, edx, ebx, esp, ebp, esi, edi
-
-    mov   ax, ds
-    push  eax
-
-    mov   ax, 0x10
-    mov   ds, ax
-    mov   es, ax
-    mov   fs, ax
-    mov   gs, ax
+    pusha              ; push order eax, ecx, edx, ebx, esp, ebp, esi, edi
+    push ds
+    push es
+    push fs
+    push gs
 
     call  isr_handler_main
 
-    pop   eax
-    mov   ds, ax
-    mov   es, ax
-    mov   fs, ax
-    mov   gs, ax
+    pop  gs
+    pop  fs
+    pop  es
+    pop  ds
+    popa 
 
-    popad
-    add esp, 8         ; Cleanup pushed error code and isr number
+    add  esp, 8
     sti
     iret               ; When interrupt fires, the processor automatically
                        ; pushed information about the state to the stack,
@@ -86,7 +80,12 @@ isr_common_handler:
                        ;         -flag register
                        ;         -stack segment
                        ;         -stack pointer
-                       ; are pushed.
+                       ; are pushed with order
+                       ;         - ss
+                       ;         - esp
+                       ;         - flags
+                       ;         - cs
+                       ;         - ip
                        ; The IRET instruction is specifically designed to
                        ; return from an interrupt. It pops these values off
                        ; the stack and return the processor in orignally.
