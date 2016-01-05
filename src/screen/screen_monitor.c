@@ -5,11 +5,11 @@ screen_monitor_cursor_move(void)
 
     cursor = cursor_y * 80 + cursor_x;
 
-    screen_io_write_port_byte(VGA_CTRL_REG, VGA_CURSOR_HIGH);
-    screen_io_write_port_byte(VGA_DATA_REG, cursor >> 8);
+    io_bus_write_byte(VGA_CTRL_REG, VGA_CURSOR_HIGH);
+    io_bus_write_byte(VGA_DATA_REG, cursor >> 8);
 
-    screen_io_write_port_byte(VGA_CTRL_REG, VGA_CURSOR_LOW);
-    screen_io_write_port_byte(VGA_DATA_REG, cursor);
+    io_bus_write_byte(VGA_CTRL_REG, VGA_CURSOR_LOW);
+    io_bus_write_byte(VGA_DATA_REG, cursor);
 }
 
 static inline void

@@ -1,5 +1,5 @@
 void
-screen_io_write_port_byte(uint16 port, uint8 val)
+io_bus_write_byte(uint16 port, uint8 val)
 {
     asm volatile (
         "outb %1, %0\n\t"
@@ -11,7 +11,7 @@ screen_io_write_port_byte(uint16 port, uint8 val)
 }
 
 uint8
-screen_io_read_port_byte(uint16 port)
+io_bus_read_byte(uint16 port)
 {
     uint8 retval;
 
@@ -24,7 +24,7 @@ screen_io_read_port_byte(uint16 port)
 }
 
 uint16
-screen_io_read_port_word(uint16 port)
+io_bus_read_word(uint16 port)
 {
     uint16 retval;
 
