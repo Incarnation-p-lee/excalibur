@@ -1,0 +1,67 @@
+Interrupt request and the programmable interval timer.
+
+For communicating with external devices, polling and interrupting
+
+[Polling]
+    Spin in a loop, occasionally checking if the device is ready.
+[Interrupts]
+    When the device is ready it will cause a CPU interrupt, cause your
+handler to be run. Take interrupt for external devices.
+    All devices that are interrupt-capable have a line connecting them
+to the PIC (programmable interrupt controller). The PIC is the only 
+device that is directly connected to the CPU's interrupt pin.
+    It is used as a multiplexer, and has the ability to priorities
+between different interrupting devices.
+    Sometime 8 lines PIC may not enough, and they daisy-chained another
+PIC, called master and slave.
+
+    Slave PIC ---------> Master PIC ---------> CPU interrupt pin
+
+    You can change the interrupt number it delivers for each IRQ line.
+This is referred to as remapping the PIC and is actually extremely
+useful. The default interrupt mapping are:
+
+    IRQ 0-7  --> INT 0x8-0xf
+    IRQ 8-15 --> INT 0x70-0x77 
+
+    This cause us somewhat the master IRQ mapping conflict with the
+interrupt numbers used by CPU to signal exception and fault. A normal
+thing to do is to remap the PICs:
+
+    IRQ 0-15 --> ISR 32-47
+
+[Interrupt Requests]
+    Each PIC of these two have 8 inputs. When any of inputs is raised,
+the PIC set a bit internally tell one of the inputs need servicing. Then
+checks wheather that channel is masked or not, as well as there is an
+interrupt pending already. On the slave, this feeds IRQ 2 to the master
+and the master connected to the processor interrupt line.
+    When processor accepts the interrupt, the master checks which of
+these two PICs is responsible for answering, and supplies the interrupt
+number to the processor. The PIC that answeres look up the "vector offset"
+variable stored internally and adds the input line to form the requested 
+interrupt number. After that the processor will look up the interrupt
+address and act accordingly.
+    PIC are communicated with via the I/O bus. Each has a command port
+and a data port.
+
+    Master command: 0x20, data: 0x21
+    Slave  command: 0xa0, data: 0xa1
+
+    If no command is issued, the data port allows us to access the
+interrupt mask of PIC.
+    Each PIC vector offset should be divisible by 8, as the low 3 bits for
+interrupt number of a particular interrupt 0-7.
+    The only way to change the vector offset is to re-initialize.
+
+In Real Mode:
+                  IRQ     Vector-offset    Interrupt-Number
+    Master PIC    0-7         0x8              0x8-0xf
+    Slave  PIC    8-15        0x70             0x70-0x77
+
+In Protected Mode:
+    The IRQ 0-7 conflict with CPU exception. It is thus recommanded to 
+remapping PIC so that IRQs use non-reserved vectors.
+    For remapping 0-15 IRQ to interrupt-number 0x20-0x2F, we need to set
+the master PIC' offset to 0x20, and slave PIC' offset to 0x28.
+
