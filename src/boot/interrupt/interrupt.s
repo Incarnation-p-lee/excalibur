@@ -91,3 +91,50 @@ isr_common_handler:
                        ; the stack and return the processor in orignally.
                        ;
 
+%macro IRQ_HANDLER 2
+[GLOBAL irq_handler_%1]
+irq_handler_%1:
+    cli
+    push byte 0
+    push byte %2
+    jmp  irq_common_handler
+%endmacro
+
+[EXTERN irq_handler_main]
+
+IRQ_HANDLER  0, 32
+IRQ_HANDLER  1, 33
+IRQ_HANDLER  2, 34
+IRQ_HANDLER  3, 35
+IRQ_HANDLER  4, 36
+IRQ_HANDLER  5, 37
+IRQ_HANDLER  6, 38
+IRQ_HANDLER  7, 39
+IRQ_HANDLER  8, 40
+IRQ_HANDLER  9, 41
+IRQ_HANDLER 10, 42
+IRQ_HANDLER 11, 43
+IRQ_HANDLER 12, 44
+IRQ_HANDLER 13, 45
+IRQ_HANDLER 14, 46
+IRQ_HANDLER 15, 47
+
+irq_common_handler:
+    pusha
+    push ds
+    push es
+    push fs
+    push gs
+
+    call irq_handler_main
+
+    pop  gs
+    pop  fs
+    pop  es
+    pop  ds
+    popa
+
+    add  esp, 8
+    sti
+    iret
+

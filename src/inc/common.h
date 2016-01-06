@@ -3,6 +3,7 @@
 
 #define __x86_32_
 
+#define NULL ((void *)0)
 
 #if defined __x86_32_
     typedef unsigned int   uint32;

@@ -2,6 +2,8 @@
 #define ISR_DECLARATION_H
 
 
-void isr_handler_main(struct pro_context reg);
+void irq_handler_main(struct pro_context context);
+void isr_handler_main(struct pro_context context);
+void isr_handler_register(uint8 nmbr, isr_handler_t handler);
 
 #endif

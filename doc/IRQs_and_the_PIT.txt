@@ -65,3 +65,9 @@ remapping PIC so that IRQs use non-reserved vectors.
     For remapping 0-15 IRQ to interrupt-number 0x20-0x2F, we need to set
 the master PIC' offset to 0x20, and slave PIC' offset to 0x28.
 
+[End of Interrupt]
+    The most common command issued to the PIC is the end of interrupt
+command. This issued to the PIC at the end of an IRQ-based interrupt
+rountine. If the IRQ comes from Master PIC, only Master PIC need to
+be issued. Or it is necessary to issue both PIC.
+

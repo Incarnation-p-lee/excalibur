@@ -25,5 +25,29 @@ struct pro_context {
     uint32 ss;
 } __attribute__((packed));
 
+typedef void (*isr_handler_t)(struct pro_context);
+
+#define IRQ_0              32
+#define IRQ_1              33
+#define IRQ_2              34
+#define IRQ_3              35
+#define IRQ_4              36
+#define IRQ_5              37
+#define IRQ_6              38
+#define IRQ_7              39
+#define IRQ_8              40
+#define IRQ_9              41
+#define IRQ_10             42
+#define IRQ_11             43
+#define IRQ_12             44
+#define IRQ_13             45
+#define IRQ_14             46
+#define IRQ_15             47
+
+#define INT_HANDLER_CNT    256
+
+static isr_handler_t
+interrupt_handler[INT_HANDLER_CNT];
+
 #endif
 

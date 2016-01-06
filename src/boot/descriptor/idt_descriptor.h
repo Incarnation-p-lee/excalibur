@@ -111,6 +111,22 @@ extern void isr_handler_28(void);
 extern void isr_handler_29(void);
 extern void isr_handler_30(void);
 extern void isr_handler_31(void);
+extern void irq_handler_0(void);
+extern void irq_handler_1(void);
+extern void irq_handler_2(void);
+extern void irq_handler_3(void);
+extern void irq_handler_4(void);
+extern void irq_handler_5(void);
+extern void irq_handler_6(void);
+extern void irq_handler_7(void);
+extern void irq_handler_8(void);
+extern void irq_handler_9(void);
+extern void irq_handler_10(void);
+extern void irq_handler_11(void);
+extern void irq_handler_12(void);
+extern void irq_handler_13(void);
+extern void irq_handler_14(void);
+extern void irq_handler_15(void);
 
 static void (*isr_handler[])(void) = {
     &isr_handler_0,
@@ -145,6 +161,22 @@ static void (*isr_handler[])(void) = {
     &isr_handler_29,
     &isr_handler_30,
     &isr_handler_31,
+    &irq_handler_0,
+    &irq_handler_1,
+    &irq_handler_2,
+    &irq_handler_3,
+    &irq_handler_4,
+    &irq_handler_5,
+    &irq_handler_6,
+    &irq_handler_7,
+    &irq_handler_8,
+    &irq_handler_9,
+    &irq_handler_10,
+    &irq_handler_11,
+    &irq_handler_12,
+    &irq_handler_13,
+    &irq_handler_14,
+    &irq_handler_15,
 };
 
 #endif
