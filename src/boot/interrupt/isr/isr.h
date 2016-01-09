@@ -45,6 +45,11 @@ typedef void (*isr_handler_t)(struct pro_context);
 #define IRQ_15             47
 
 #define INT_HANDLER_CNT    256
+#define IRQ_0_TIMER_FREQ   1193180
+#define IRQ_0_DIVISOR      1000
+#define IRQ_0_TIMER_CMD    0x43
+#define IRQ_0_TIMER_DATA   0x40
+#define IRQ_0_TIMER_REPEAT 0x36
 
 static isr_handler_t
 interrupt_handler[INT_HANDLER_CNT];

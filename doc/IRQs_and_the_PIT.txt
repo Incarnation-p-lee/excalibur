@@ -71,3 +71,16 @@ command. This issued to the PIC at the end of an IRQ-based interrupt
 rountine. If the IRQ comes from Master PIC, only Master PIC need to
 be issued. Or it is necessary to issue both PIC.
 
+
+[The PIT]
+    The programmable interval timer is a chip connected to IRQ_0. It can
+interrupt the CPU at used-defined rate (18.2Hz ~ 1.1931 MHz). The PIT is
+the primary method used for implementing a system clock and the only way
+for implmenting multitasking.
+    The PIT has an internal clock about 1.1931 MHz. This clock signal is
+fed through a frequency divider. It has 3 channels.
+
+    Channel 0: the most useful, connected to IRQ_0
+    Channel 1: un-useful or not implemented, used to control refresh DRAM
+    Channel 3: controls the PC speaker
+

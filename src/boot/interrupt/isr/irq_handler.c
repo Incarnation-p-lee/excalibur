@@ -1,3 +1,5 @@
+static uint32 tick = 0;
+
 void
 irq_handler_main(struct pro_context context)
 {
@@ -8,10 +10,37 @@ irq_handler_main(struct pro_context context)
     if (NULL != interrupt_handler[context.int_nmbr]) {
         handler = interrupt_handler[context.int_nmbr];
         handler(context);
-    } else {
-        print_string("IRQ handler of ISR number: ");
-        print_uint32(context.int_nmbr);
-        print_string(" is not available.\n");
     }
+}
+
+static inline void
+irq_0_timer_callback(struct pro_context context)
+{
+    tick++;
+    print_string("Timer-Tick: ");
+    print_uint32(tick);
+    print_string("\r");
+}
+
+void
+irq_0_timer_init(uint32 freq)
+{
+    uint32 divisor;
+    uint8 low;
+    uint8 high;
+
+    isr_handler_register(IRQ_0, &irq_0_timer_callback);
+
+    if (0 == freq) {
+        freq = IRQ_0_DIVISOR;
+    }
+
+    divisor = IRQ_0_TIMER_FREQ / freq;
+    low = (uint8)(divisor & 0xFF);
+    high = (uint8)((divisor >> 8) & 0xFF);
+
+    io_bus_write_byte(IRQ_0_TIMER_CMD, IRQ_0_TIMER_REPEAT);
+    io_bus_write_byte(IRQ_0_TIMER_DATA, low);
+    io_bus_write_byte(IRQ_0_TIMER_DATA, high);
 }
 

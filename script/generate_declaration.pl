@@ -103,6 +103,7 @@ sub filter_source_file_declaration() {
         chomp;
         next if /^$/;
         next if /:$/;
+        next if /;$/;
 
         if (/^\w/) {
             $body = 0;

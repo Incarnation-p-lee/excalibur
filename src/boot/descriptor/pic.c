@@ -15,6 +15,9 @@ pic_remap(void)
     uint8 mask_master;
     uint8 mask_slave;
 
+    // disable maskable interrupt
+    asm volatile ("cli\n\t");
+
     // Save current IRQ mask
     mask_master = io_bus_read_byte(PIC_MASTER_DATA);
     mask_slave = io_bus_read_byte(PIC_SLAVE_DATA);
@@ -39,5 +42,7 @@ pic_remap(void)
     io_bus_write_byte(PIC_MASTER_DATA, mask_master);
     io_bus_write_byte(PIC_SLAVE_DATA, mask_slave);
 
+    // enable maskable interrupt
+    asm volatile ("sti\n\t");
 }
 

@@ -1,5 +1,5 @@
 static inline void
-screen_monitor_cursor_move(void)
+screen_monitor_cursor_apply(void)
 {
     uint16 cursor;
 
@@ -36,11 +36,9 @@ screen_monitor_one_line_scroll(void)
         /*
          * set the last one line to blank
          */
-        while (i < SCREEN_X * SCREEN_Y) {
-            video[i] = blank;
-        }
-
+        memory_set_k(video[i], blank, SCREEN_X);
         cursor_y = SCREEN_Y - 1;
+        memory_set_k(video[SCREEN_X * SCREEN_Y], blank, SCREEN_X);
     }
 }
 
@@ -73,7 +71,7 @@ screen_monitor_put_char(char c)
     }
 
     screen_monitor_one_line_scroll();
-    screen_monitor_cursor_move();
+    screen_monitor_cursor_apply();
 }
 
 void
@@ -92,7 +90,7 @@ screen_monitor_clear(void)
     cursor_x = 0;
     cursor_y = 0;
 
-    screen_monitor_cursor_move();
+    screen_monitor_cursor_apply();
 }
 
 void

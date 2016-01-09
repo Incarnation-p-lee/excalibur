@@ -25,8 +25,8 @@ descriptor_table_idt_init(void)
     idt_reg.limit = sizeof(idt_entry_list) - 1;
     idt_reg.base = (uint32)&idt_entry_list;
 
-    pic_remap();
     memory_set_k(&idt_entry_list, 0, sizeof(idt_entry_list));
+    pic_remap();
 
     index = 0;
     while (index < ARRAY_CNT_OF(isr_handler)) {

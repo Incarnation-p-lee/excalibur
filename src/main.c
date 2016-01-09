@@ -17,6 +17,8 @@ main(void)
         "int $0x3\n\t"
         "int $0x4\n\t");
 
-    return 0xdeadbaba;
+    irq_0_timer_init(1000);
+
+    return 0xdeadbeaf;
 }
 
