@@ -3,4 +3,5 @@
 #include "common_declaration.h"
 
 #include "memory_util.c"
+#include "string.c"
 

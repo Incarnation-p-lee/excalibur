@@ -107,6 +107,32 @@ screen_monitor_write_string(char *c)
 void
 screen_monitor_write_uint32(uint32 u)
 {
+    uint32 tmp;
+    char buf[9];
+    uint32 index;
+
+    index = 0;
+
+    while (index < ARRAY_CNT_OF(buf)) {
+        buf[index++] = CHAR_ZERO;
+    }
+
+    buf[--index] = CHAR_NULL;
+
+    while (u) {
+        tmp = u % 10;
+        tmp += CHAR_ZERO;
+
+        buf[--index] = (char)tmp;
+        u = u / 10;
+    }
+
+    screen_monitor_write_string(buf);
+}
+
+void
+screen_monitor_write_uint32_hex(uint32 u)
+{
     uint32 index;
     char buf[9];
     uint32 tmp;
@@ -114,9 +140,11 @@ screen_monitor_write_uint32(uint32 u)
     screen_monitor_write_string("0x");
 
     index = 0;
+
     while (index < ARRAY_CNT_OF(buf)) {
         buf[index++] = CHAR_ZERO;
     }
+
     buf[--index] = CHAR_NULL;
 
     while (u) {

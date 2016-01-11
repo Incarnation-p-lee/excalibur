@@ -4,11 +4,12 @@
 int
 main(void)
 {
+    printf_vga_clear();
+    printf_vga("Hello, The World of Operation System.\n");
+
     descriptor_table_gdt_init();
     descriptor_table_idt_init();
-
-    print_clear();
-    print_string("GDT & IDT table initialized.\n");
+    printf_vga("GDT & IDT table initialized.\n");
 
     asm volatile (
         "int $0x0\n\t"
@@ -17,6 +18,7 @@ main(void)
         "int $0x3\n\t"
         "int $0x4\n\t");
 
+    printf_vga("PIT timer initialized with %d Hz.\n", 1000);
     irq_0_timer_init(1000);
 
     return 0xdeadbeaf;

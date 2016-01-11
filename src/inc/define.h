@@ -29,9 +29,7 @@
 
 #define ARRAY_CNT_OF(a)   (sizeof(a) / sizeof(a[0]))
 
-#define print_clear       screen_monitor_clear
-#define print_string(s)   screen_monitor_write_string(s)
-#define print_uint32(u)   screen_monitor_write_uint32(u)
+#define printf_vga_clear  screen_monitor_clear
 
 #define CHAR_NULL         0x0
 #define CHAR_ZERO         0x30

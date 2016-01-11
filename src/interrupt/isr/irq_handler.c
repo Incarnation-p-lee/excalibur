@@ -17,9 +17,7 @@ static inline void
 irq_0_timer_callback(struct pro_context context)
 {
     tick++;
-    print_string("Timer-Tick: ");
-    print_uint32(tick);
-    print_string("\r");
+    printf_vga("Timer-Tick: %x\r", tick);
 }
 
 void

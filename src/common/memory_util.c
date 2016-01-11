@@ -33,8 +33,7 @@ memory_copy_in_byte(void *to, void *from, uint32 len)
     // assert(NULL != base);
 
     while (len--) {
-        *(uint8 *)to = *(uint8 *)from;
-        to++;
+        *(uint8 *)to++ = *(uint8 *)from++;
     }
 }
 
@@ -74,8 +73,7 @@ memory_copy_in_dword(uint32 *to, uint32 *from, uint32 len)
         cnt = len / sizeof(remainder);
 
         while (cnt--) {
-            *to = *from;
-            to++;
+            *to++ = *from++;
         }
     }
 
@@ -94,8 +92,8 @@ void
 memory_copy_k(void *to, void *from, uint32 len)
 {
     if (to && from) {
-        if (from + len > to) {
-            print_string("Need tmp memory for memory copy, not implemented.\n");
+        if (from + len > to && from < to) {
+            printf_vga("Need tmp memory for memory copy, not implemented.\n");
         } else {
             memory_copy_in_dword(to, from, len);
         }
