@@ -4,4 +4,5 @@
 
 #include "memory_util.c"
 #include "string.c"
+#include "assert.c"
 

@@ -3,6 +3,9 @@
 
 #include "external.h"
 
+#define true              1
+#define false             0
+
 #define ATTR_CLR          0
 #define ATTR_SET          1
 
@@ -27,13 +30,15 @@
 #define USR_CODE_SEG_BASE 0xFFFFF
 #define USR_DATA_SEG_LMT  0xFFFFF
 
-#define ARRAY_CNT_OF(a)   (sizeof(a) / sizeof(a[0]))
-
-#define printf_vga_clear  screen_monitor_clear
-
 #define CHAR_NULL         0x0
 #define CHAR_ZERO         0x30
 #define CHAR_a            0x61
+
+#define printf_vga_clear  screen_monitor_clear
+
+#define ARRAY_CNT_OF(a)   (sizeof(a) / sizeof(a[0]))
+#define assert_k(ex)      ((ex) || (assert_complain(#ex, \
+    __FILE__, __FUNCTION__, __LINE__), false))
 
 #endif
 

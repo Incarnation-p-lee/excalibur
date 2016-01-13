@@ -4,6 +4,9 @@ printf_k(char *format, void *param)
      uint32 len;
      char buf[PR_BUF_SIZE + 1];
 
+     assert_k(format);
+     assert_k(param);
+
      buf[PR_BUF_SIZE] = '\0';
      len = string_len_k(format);
 
@@ -26,6 +29,9 @@ printf_k_one_buf(char *buf, void *base)
     char *s;
     char *trvl;
 
+     assert_k(buf);
+     assert_k(base);
+
     s = buf;
     trvl = buf;
 
@@ -45,7 +51,7 @@ printf_k_one_buf(char *buf, void *base)
                     base += sizeof(uint32);
                     break;
                 case 's':
-                    PRINT_STRING((char *)base);
+                    PRINT_STRING(*(char **)base);
                     base += sizeof(char *);
                     break;
                 default:

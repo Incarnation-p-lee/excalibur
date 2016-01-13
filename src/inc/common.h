@@ -5,6 +5,8 @@
 
 #define NULL ((void *)0)
 
+typedef unsigned bool;
+
 #if defined __x86_32_
     typedef unsigned int   uint32;
     typedef signed int     sint32;
