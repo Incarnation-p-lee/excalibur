@@ -1,5 +1,5 @@
 CFLAGS+=-nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32 -c
-CFLAGS+=-I/home/pli/workspace/personal/excalibur/src/inc
+CFLAGS+=-I/home/pli/workspace/excalibur/src/inc
 ASFLAGS+=-felf
 
 TARGET=descriptor.o
