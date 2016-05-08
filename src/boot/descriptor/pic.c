@@ -1,7 +1,8 @@
 void
 pic_send_eoi(uint8 irq)
 {
-    // assert(irq < 16 >0)
+    assert_k(irq < 16);
+
     if (irq >= 8) {
         io_bus_write_byte(PIC_SLAVE_CMD, PIC_CMD_EOI);
     }

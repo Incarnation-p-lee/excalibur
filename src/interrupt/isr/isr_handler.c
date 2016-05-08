@@ -14,6 +14,7 @@ isr_handler_main(struct pro_context context)
         case BRK_EXPT:
             isr_handler_3_breakpoint(context);
             break;
+        case PAGE_FAL:
         default:
             break;
     }
@@ -36,5 +37,12 @@ static inline void
 isr_handler_3_breakpoint(struct pro_context context)
 {
     printf_vga("Triggered Breakpoint exception at eip: %x\n", context.eip);
+}
+
+void
+isr_handler_14_page_fault(struct pro_context context)
+{
+
+
 }
 

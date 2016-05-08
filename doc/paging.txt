@@ -1,0 +1,83 @@
+<Paging>
+Memory protection
+virtual memory
+
+<Virtual Memory>
+Mapping the virtual memory address to physical memory, with a part of unmapped,
+if you try to access an unmapped part, the processor raise a page fault, the OS
+should catch it.
+
+The process can start with an exact location memory with Paging, as well as 
+one processor cannot accidentally trample other processes'data or code.
+
+Virtual memory of paging is wholly depenedent on hardware support, and cannot be
+emulated by software. The x86 architecture has such a thing called MMU (memory
+management unit), it handles all memory mappings due to segmentation and paging.
+
+Paging can be a kind of implementation of virtual memory, as well as segmentation.
+Paging works by splitting the virtual address space into blocks called pages, almostly
+4KB in size. Pages can then be mapped on to frame - equally sized blocks of physical
+memory.
+
+<Page entries>
+Each process normally has different set of page mappings, so that virtual memory space
+are independent of each other. For x86 architecture are fixed 4KB page size. Each page
+has a corresponding decriptor word, which tell the processor which frame is mapping to.
+Note That both page and frame must be aligned on 4KB boundary.
+
+Page entry layout
+31            12 11    9 8    7  6   5  4    3   2     1    0
++---------------+-------+------+---+---+------+-----+-----+---+
+| frame address | AVLIL | RSVD | D | A | RSVD | U/R | R/W | P |
++---------------+-------+------+---+---+------+-----+-----+---+
+
+P:     set if the page is present in memory.
+R/W:   set if that page is writable. This does not apply when in kernel mode.
+U/S:   set if user-mode page.
+A:     set if page has been accessed.
+D:     set if page has been written to.
+AVLIL: unused and available for kernel.
+
+<Page directory>
+Generate a table mapping each 4KB page to one 32-bits descriptor over a 4GB address
+space requires 4MB of memory. x86 architecture use a 2-tier system, and CPU gets told
+about a Page Directory, which is a 4KB large table, each entry of which points to a 
+page table.
+
+[Page directory] ---> [Page table 0000] --->   [Page table entry 0000]
+                   ^                       |   [Page table entry 0001]
+                   |                       |
+                   |                       |-> [Page table entry 1023]
+                   |1024
+                   |
+                   |
+                   v  [Page table 1023]
+
+<Enable paging>
+Copy the location of your page directory into the CR3 register with physical address,
+then set the PG bit in the CR0 register.
+
+<Page fault>
+When a process does something the MMU does not like, a page fault interrupt is thrown.
+ * Reading from or writing to an area of memory that is not mapped.
+ * User-mode process try to write a read-only page.
+ * User-mode process try to access kernel-only page.
+ * The page table entry is corrupted, the reserved bits have been overwritten.
+The paging fault interrupt is number 14 with error code. The error code gives quite bits
+of information:
+[Bit 0]: set if the fault was not for paging wasn't present. If unset, page wasn't present.
+[Bit 1]: set if operation that caused the fault was a write, else it was read.
+[Bit 2]: set if processor runs in use-mode when interrupted, or in kernel-mode.
+[Bit 3]: set if the fault was caused by reserved bits being overwritten
+[Bit 4]: set if fault occured during an instruction fetch
+Also, the processor also gives another important information, the address that caused the
+fault in CR2 register. This can be overwriten by page fault handler.
+
+<Frame allocation>
+If we map a page to a frame, we need some way of finding a free frame. It is wise to use
+bitset.
+
+
+
+
+

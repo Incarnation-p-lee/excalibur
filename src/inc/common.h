@@ -14,6 +14,7 @@ typedef unsigned bool;
     typedef signed short   sint16;
     typedef unsigned char  uint8;
     typedef signed char    sint8;
+    typedef unsigned int   ptr_t;
 #endif
 
 
