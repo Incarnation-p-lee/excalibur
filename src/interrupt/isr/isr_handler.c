@@ -39,10 +39,3 @@ isr_handler_3_breakpoint(struct pro_context context)
     printf_vga("Triggered Breakpoint exception at eip: %x\n", context.eip);
 }
 
-void
-isr_handler_14_page_fault(struct pro_context context)
-{
-
-
-}
-

@@ -92,7 +92,7 @@ memory_copy_in_dword(uint32 *to, uint32 *from, uint32 len)
 }
 
 void
-memory_set_k(void *base, uint8 v, uint32 len)
+kmemset(void *base, uint8 v, uint32 len)
 {
     if (base && len > 0) {
         memory_set_in_dword(base, v, len);

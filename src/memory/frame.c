@@ -1,20 +1,11 @@
-// For 4GB physcial memory space with 4KB page size, it has 1024 x 1024
-// frame entries in all.
-ptr_t *frames_bitmap;
-ptr_t frames_size;
-
-extern void *placement_ptr;
-
 static void
-frame_set(void *frame_addr)
+frame_set(ptr_t frame)
 {
     ptr_t idx;
     ptr_t off;
-    ptr_t frame;
 
-    assert_k(sizeof(frame_addr) == sizeof(ptr_t));
+    assert_k(sizeof(frame) == sizeof(ptr_t));
 
-    frame = (ptr_t)frame_addr / 0x1000;
     idx = BM_INDEX(frame);
     off = BM_OFFSET(frame);
 
@@ -22,15 +13,13 @@ frame_set(void *frame_addr)
 }
 
 static void
-frame_clear(void *frame_addr)
+frame_clear(ptr_t frame)
 {
     ptr_t idx;
     ptr_t off;
-    ptr_t frame;
 
-    assert_k(sizeof(frame_addr) == sizeof(ptr_t));
+    assert_k(sizeof(frame) == sizeof(ptr_t));
 
-    frame = (ptr_t)frame_addr / 0x1000;
     idx = BM_INDEX(frame);
     off = BM_OFFSET(frame);
 
@@ -38,15 +27,13 @@ frame_clear(void *frame_addr)
 }
 
 static bool
-frame_avaliable_p(void *frame_addr)
+frame_available_p(ptr_t frame)
 {
     ptr_t idx;
     ptr_t off;
-    ptr_t frame;
 
-    assert_k(sizeof(frame_addr) == sizeof(ptr_t));
+    assert_k(sizeof(frame) == sizeof(ptr_t));
 
-    frame = (ptr_t)frame_addr / 0x1000;
     idx = BM_INDEX(frame);
     off = BM_OFFSET(frame);
 
@@ -57,7 +44,7 @@ frame_avaliable_p(void *frame_addr)
     }
 }
 
-static void *
+static ptr_t
 frame_first(void)
 {
     ptr_t i;
@@ -77,13 +64,39 @@ frame_first(void)
         i++;
     }
 
-    assert_k_not_reached("No free frame avaliale now.\n");
+    KERNEL_PANIC("No free frame avaliale now.\n");
+    return 0;
+}
+
+static void
+frame_allocate(struct page_entry *page, bool kernel, bool write)
+{
+    ptr_t frame;
+
+    assert_k(NULL != page);
+
+    if (FRAME_CLEAR == page->frame) {
+        frame = frame_first();
+        frame_set(frame);
+
+        page->present = BIT_SET;
+        page->rw = write ? BIT_SET : BIT_CLEAR;
+        page->user = kernel ? BIT_SET : BIT_CLEAR;
+        page->frame = frame;
+    }
 }
 
 void
-frame_allocate(struct page_entry *page, bool kernel, bool write)
+frame_free(struct page_entry *page)
 {
+    ptr_t frame;
 
+    assert_k(NULL != page);
 
+    frame = page->frame;
+    if (frame) {
+        frame_clear(frame);
+        page->frame = FRAME_CLEAR;
+    }
 }
 

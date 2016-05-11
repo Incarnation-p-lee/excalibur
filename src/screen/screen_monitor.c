@@ -36,9 +36,9 @@ screen_monitor_one_line_scroll(void)
         /*
          * set the last one line to blank
          */
-        memory_set_k(video[i], blank, SCREEN_X);
+        kmemset(video[i], blank, SCREEN_X);
         cursor_y = SCREEN_Y - 1;
-        memory_set_k(video[SCREEN_X * SCREEN_Y], blank, SCREEN_X);
+        kmemset(video[SCREEN_X * SCREEN_Y], blank, SCREEN_X);
     }
 }
 

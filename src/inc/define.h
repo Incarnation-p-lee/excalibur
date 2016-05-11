@@ -41,13 +41,17 @@
     __FILE__, __FUNCTION__, __LINE__), false))
 #define assert_k_not_reached(msg) assert_complain(msg, \
     __FILE__, __FUNCTION__, __LINE__)
+#define KERNEL_PANIC(msg)         assert_k_not_reached(msg)
 
 #define BM_INDEX(a)               ((a) / (sizeof(a) << 3))
 #define BM_OFFSET(a)              ((a) % (sizeof(a) << 3))
 
 // Frame set means this physcial frame is used
-#define FRAME_SET                 1
-#define FRAME_CLEAR               0
+#define BIT_SET                   1
+#define BIT_CLEAR                 0
+#define FRAME_SET                 BIT_SET
+#define FRAME_CLEAR               BIT_CLEAR
+#define PAGE_SIZE                 0x1000
 
 #endif
 

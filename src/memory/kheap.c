@@ -1,9 +1,9 @@
 static inline void *
-kmalloc_int(uint32 sz, uint32 align, uint32 *phys)
+kmalloc_int(uint32 sz, bool align, ptr_t *phys)
 {
-    uint32 retval;
+    void *retval;
 
-    if (KM_ALIGNED == align && (placement_ptr & 0xFFFFF000)) {
+    if (align && (placement_ptr & 0xFFFFF000)) {
         placement_ptr &= 0xFFFFF000;
         placement_ptr += 0x1000;
     }
@@ -12,7 +12,7 @@ kmalloc_int(uint32 sz, uint32 align, uint32 *phys)
         *phys = placement_ptr;
     }
 
-    retval = placement_ptr;
+    retval = (void *)placement_ptr;
     placement_ptr += sz;
 
     return retval;
@@ -21,24 +21,24 @@ kmalloc_int(uint32 sz, uint32 align, uint32 *phys)
 void *
 kmalloc(uint32 sz)
 {
-    return kmalloc_int(sz, KM_DEFAULT, NULL);
+    return kmalloc_int(sz, false, NULL);
 }
 
 void *
 kmalloc_algn(uint32 sz)
 {
-    return kmalloc_int(sz, KM_ALIGNED, NULL);
+    return kmalloc_int(sz, true, NULL);
 }
 
 void *
-kmalloc_phys(uint32 sz, uint32 *phys)
+kmalloc_phys(uint32 sz, ptr_t *phys)
 {
-    return kmalloc_int(sz, KM_DEFAULT, phys);
+    return kmalloc_int(sz, false, phys);
 }
 
 void *
-kmalloc_algn_with_phys(uint32 sz, uint32 *phys)
+kmalloc_algn_with_phys(uint32 sz, ptr_t *phys)
 {
-    return kmalloc_int(sz, KM_ALIGNED, phys);
+    return kmalloc_int(sz, true, phys);
 }
 

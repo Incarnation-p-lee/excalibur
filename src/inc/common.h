@@ -17,5 +17,4 @@ typedef unsigned bool;
     typedef unsigned int   ptr_t;
 #endif
 
-
 #endif

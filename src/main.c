@@ -1,6 +1,24 @@
 #include "external.h"
 #include "define.h"
 
+static inline void
+test_idt_setup(void)
+{
+    asm volatile (
+        "int $0x0\n\t"
+        "int $0x1\n\t"
+        "int $0x2\n\t"
+        "int $0x3\n\t"
+        "int $0x4\n\t");
+}
+
+static inline void
+test_paging(void)
+{
+
+
+}
+
 int
 main(void)
 {
@@ -11,15 +29,10 @@ main(void)
     descriptor_table_idt_init();
     printf_vga("GDT & IDT table initialized.\n");
 
-    asm volatile (
-        "int $0x0\n\t"
-        "int $0x1\n\t"
-        "int $0x2\n\t"
-        "int $0x3\n\t"
-        "int $0x4\n\t");
-
-    printf_vga("PIT timer initialized with %d Hz.\n", 1000);
+    test_idt_setup();
     irq_0_timer_init(1000);
+
+    test_paging();
 
     return 0xdeadbeaf;
 }
