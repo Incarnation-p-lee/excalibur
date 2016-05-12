@@ -23,15 +23,13 @@ int
 main(void)
 {
     printf_vga_clear();
-    printf_vga("Hello, The World of Operation System.\n");
+    printf_vga_ts("Hello, The World of OS.\n");
 
     descriptor_table_gdt_init();
     descriptor_table_idt_init();
-    printf_vga("GDT & IDT table initialized.\n");
-
-    test_idt_setup();
     irq_0_timer_init(1000);
 
+    test_idt_setup();
     test_paging();
 
     return 0xdeadbeaf;

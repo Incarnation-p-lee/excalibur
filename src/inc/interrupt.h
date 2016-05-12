@@ -37,8 +37,8 @@ struct pro_context {
     uint32 edx;
     uint32 ecx;
     uint32 eax;
-    uint32 int_nmbr;
     uint32 err_code;
+    uint32 int_nmbr;
 
     uint32 eip;
     uint32 cs;

@@ -5,6 +5,7 @@ irq_handler_main(struct pro_context context)
 {
     isr_handler_t handler;
 
+    printf_vga("context.int_number %d\n", context.int_nmbr);
     pic_send_eoi(context.int_nmbr);
 
     if (NULL != interrupt_handler[context.int_nmbr]) {
@@ -40,5 +41,7 @@ irq_0_timer_init(uint32 freq)
     io_bus_write_byte(IRQ_0_TIMER_CMD, IRQ_0_TIMER_REPEAT);
     io_bus_write_byte(IRQ_0_TIMER_DATA, low);
     io_bus_write_byte(IRQ_0_TIMER_DATA, high);
+
+    printf_vga_ts("IRQ timer initialized.\n");
 }
 

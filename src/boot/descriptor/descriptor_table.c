@@ -15,6 +15,8 @@ descriptor_table_gdt_init(void)
         USR_DATA_SEG_FLAG);
 
     gdt_table_flush((uint32)&gdt_reg);
+
+    printf_vga_ts("GDT table initialized.\n");
 }
 
 void
@@ -36,6 +38,8 @@ descriptor_table_idt_init(void)
     }
 
     idt_table_flush((uint32)&idt_reg);
+
+    printf_vga_ts("IDT table initialized.\n");
 }
 
 static inline void
