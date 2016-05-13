@@ -1,8 +1,7 @@
-CFLAGS+=-nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32 -c
-CFLAGS+=-I/home/pli/workspace/personal/excalibur/src/inc
-ASFLAGS+=-felf
+include ../Makefile.in
+CFLAGS += -I/home/pli/workspace/excalibur/src/inc
 
-TARGET=common.o
+TARGET = common.o
 all:$(TARGET)
 
 .s.o:

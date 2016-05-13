@@ -41,29 +41,30 @@ sub visit_workspace {
 }
 
 sub create_compile_makefile {
-    my $location;
     my $dir;
     my $file;
+    my $make_in;
 
-    $location = shift @_;
-    $location =~ /\w+/ or
+    $dir = shift @_;
+    $dir =~ /\w+/ or
         die "Script DO NOT know how to make one makefile without a module name.";
 
-    $dir = $location;
-    $file = $1 if $location =~ /\/?(\w+)$/;
+    $make_in = ".";
+    $make_in = $1 if $dir =~ /\/?\w+\/(.+)/;
+    $make_in =~ s/\w+/../g;
+    $file = $1 if $dir =~ /\/?(\w+)$/;
 
     ## handle main.c Makefile ##
-    $file = "main" if -e "$location/main.c";
+    $file = "main" if -e "$dir/main.c";
 
     say "    Makefile .. $file";
 
     open MAKEFILE, '>', "$dir/Makefile" or
         die "Failed to create makefile, $?\n";
 
-    printf MAKEFILE "CFLAGS+=-nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32 -c\n";
-    printf MAKEFILE "CFLAGS+=-I$include_dir\n";
-    printf MAKEFILE "ASFLAGS+=-felf\n\n";
-    printf MAKEFILE "TARGET=$file.o\n";
+    printf MAKEFILE "include $make_in/Makefile.in\n";
+    printf MAKEFILE "CFLAGS += -I$include_dir\n\n";
+    printf MAKEFILE "TARGET = $file.o\n";
     printf MAKEFILE 'all:$(TARGET)' ."\n\n";
     printf MAKEFILE ".s.o:\n";
     printf MAKEFILE "\t" . 'nasm $(ASFLAGS) -o $@ $<' . "\n";
