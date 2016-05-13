@@ -72,7 +72,7 @@ static inline void
 descriptor_table_idt_entry_set(uint32 index, void (*handler)(void),
     uint16 selector, uint16 attr)
 {
-    assert_k(handler);
+    assert_k(NULL != handler);
     assert_k(index < IDT_ENTRY_CNT);
 
     idt_entry_list[index].base_l = U32_BITS(handler, 0, 16);

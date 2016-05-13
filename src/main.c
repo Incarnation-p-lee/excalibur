@@ -1,5 +1,4 @@
-#include "external.h"
-#include "define.h"
+#include "common.h"
 
 static inline void
 test_idt_setup(void)

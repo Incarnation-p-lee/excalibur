@@ -1,7 +1,7 @@
 #ifndef MEMORY_DECLARATION_H
 #define MEMORY_DECLARATION_H
 
-static bool frame_available_p(ptr_t frame);
+bool frame_available_p(ptr_t frame);
 static inline struct page_entry * paging_get(ptr_t addr, bool make, struct page_directory *dirt);
 static inline uint32 memory_set_fill_dword_element(uint8 v);
 static inline void * kmalloc_int(uint32 sz, bool align, ptr_t *phys);

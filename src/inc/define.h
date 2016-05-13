@@ -1,8 +1,6 @@
 #ifndef HAVE_DEFINED_DEFINE_H
 #define HAVE_DEFINED_DEFINE_H
 
-#include "external.h"
-
 #define true                      1
 #define false                     0
 
@@ -37,10 +35,8 @@
 #define printf_vga_clear          screen_monitor_clear
 
 #define ARRAY_CNT_OF(a)           (sizeof(a) / sizeof(a[0]))
-#define assert_k(ex)              ((ex) || (assert_complain(#ex, \
-    __FILE__, __FUNCTION__, __LINE__), false))
-#define assert_k_not_reached(msg) assert_complain(msg, \
-    __FILE__, __FUNCTION__, __LINE__)
+#define assert_k(ex)              assert_complain(#ex, __FILE__, __FUNCTION__, __LINE__, ex)
+#define assert_k_not_reached(msg) assert_complain(msg, __FILE__, __FUNCTION__, __LINE__, false)
 #define KERNEL_PANIC(msg)         assert_k_not_reached(msg)
 
 #define BM_INDEX(a)               ((a) / (sizeof(a) << 3))

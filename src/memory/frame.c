@@ -26,7 +26,7 @@ frame_clear(ptr_t frame)
     frames_bitmap[idx] &= ~(0x1 << off);
 }
 
-static bool
+bool
 frame_available_p(ptr_t frame)
 {
     ptr_t idx;

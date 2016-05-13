@@ -1,8 +1,6 @@
 #ifndef HAVE_DEFINED_ISR_H
 #define HAVE_DEFINED_ISR_H
 
-typedef void (*isr_handler_t)(struct pro_context);
-
 #define IRQ_0              32
 #define IRQ_1              33
 #define IRQ_2              34

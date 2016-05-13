@@ -47,5 +47,7 @@ struct pro_context {
     uint32 ss;
 } __attribute__((packed));
 
+typedef void (*isr_handler_t)(struct pro_context);
+
 #endif
 

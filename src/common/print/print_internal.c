@@ -4,8 +4,8 @@ printf_k(char *format, void *param)
      uint32 len;
      char buf[PR_BUF_SIZE + 1];
 
-     assert_k(format);
-     assert_k(param);
+     assert_k(NULL != format);
+     assert_k(NULL != param);
 
      buf[PR_BUF_SIZE] = '\0';
      len = string_len_k(format);
@@ -29,8 +29,8 @@ printf_k_one_buf(char *buf, void *base)
     char *s;
     char *trvl;
 
-    assert_k(buf);
-    assert_k(base);
+    assert_k(NULL != buf);
+    assert_k(NULL != base);
 
     s = buf;
     trvl = buf;

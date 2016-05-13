@@ -19,8 +19,8 @@ memory_set_fill_dword_element(uint8 v)
 static inline void
 memory_set_in_byte(void *base, uint8 v, uint32 len)
 {
-    assert_k(base);
-    assert_k(len);
+    assert_k(NULL != base);
+    assert_k(0 != len);
 
     while (len--) {
         *(uint8 *)base = v;
@@ -31,9 +31,9 @@ memory_set_in_byte(void *base, uint8 v, uint32 len)
 static inline void
 memory_copy_in_byte(void *to, void *from, uint32 len)
 {
-    assert_k(to);
-    assert_k(from);
-    assert_k(len);
+    assert_k(NULL != to);
+    assert_k(NULL != from);
+    assert_k(0 != len);
 
     while (len--) {
         *(uint8 *)to++ = *(uint8 *)from++;
@@ -47,8 +47,8 @@ memory_set_in_dword(uint32 *base, uint8 v, uint32 len)
     uint32 remainder;
     uint32 cnt;
 
-    assert_k(base);
-    assert_k(len);
+    assert_k(NULL != base);
+    assert_k(0 != len);
 
     remainder = len % sizeof(element);
 
@@ -73,9 +73,9 @@ memory_copy_in_dword(uint32 *to, uint32 *from, uint32 len)
     uint32 remainder;
     uint32 cnt;
 
-    assert_k(to);
-    assert_k(from);
-    assert_k(len);
+    assert_k(NULL != to);
+    assert_k(NULL != from);
+    assert_k(0 != len);
 
     remainder = len % sizeof(remainder);
     if (len > remainder) {

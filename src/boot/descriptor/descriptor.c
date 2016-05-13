@@ -1,5 +1,4 @@
 #include "common.h"
-#include "define.h"
 #include "pic.h"
 #include "descriptor.h"
 #include "descriptor_declaration.h"
