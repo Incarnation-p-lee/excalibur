@@ -29,8 +29,8 @@ printf_k_one_buf(char *buf, void *base)
     char *s;
     char *trvl;
 
-     assert_k(buf);
-     assert_k(base);
+    assert_k(buf);
+    assert_k(base);
 
     s = buf;
     trvl = buf;

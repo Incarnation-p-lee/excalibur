@@ -15,6 +15,8 @@ descriptor_table_gdt_init(void)
         USR_DATA_SEG_FLAG);
 
     gdt_table_flush((uint32)&gdt_reg);
+
+    printf_vga_ts("GDT table initialized.\n");
 }
 
 void
@@ -25,7 +27,7 @@ descriptor_table_idt_init(void)
     idt_reg.limit = sizeof(idt_entry_list) - 1;
     idt_reg.base = (uint32)&idt_entry_list;
 
-    memory_set_k(&idt_entry_list, 0, sizeof(idt_entry_list));
+    kmemset(&idt_entry_list, 0, sizeof(idt_entry_list));
     pic_remap();
 
     index = 0;
@@ -36,6 +38,8 @@ descriptor_table_idt_init(void)
     }
 
     idt_table_flush((uint32)&idt_reg);
+
+    printf_vga_ts("IDT table initialized.\n");
 }
 
 static inline void

@@ -15,6 +15,21 @@ printf_vga(char *format, ...)
     }
 }
 
+void
+printf_vga_ts(char *format, ...)
+{
+    void *param;
+    uint32 ts;
+
+    if (format && ('\0' != *format)) {
+        ts = (uint32)time_stamp_counter();
+        printf_vga("[%x] ", ts);
+
+        param = (void *)&format + sizeof(format);
+        printf_k(format, param);
+    }
+}
+
 #undef PRINT_STRING
 #undef PRINT_UINT32
 #undef PRINT_UINT32_HEX

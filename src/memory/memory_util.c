@@ -62,7 +62,9 @@ memory_set_in_dword(uint32 *base, uint8 v, uint32 len)
         }
     }
 
-    memory_set_in_byte(base, v, remainder);
+    if (remainder) {
+        memory_set_in_byte(base, v, remainder);
+    }
 }
 
 static inline void
@@ -84,11 +86,13 @@ memory_copy_in_dword(uint32 *to, uint32 *from, uint32 len)
         }
     }
 
-    memory_copy_in_byte(to, from, remainder);
+    if (remainder) {
+        memory_copy_in_byte(to, from, remainder);
+    }
 }
 
 void
-memory_set_k(void *base, uint8 v, uint32 len)
+kmemset(void *base, uint8 v, uint32 len)
 {
     if (base && len > 0) {
         memory_set_in_dword(base, v, len);

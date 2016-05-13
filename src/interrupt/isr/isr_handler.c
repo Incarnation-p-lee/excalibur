@@ -14,6 +14,7 @@ isr_handler_main(struct pro_context context)
         case BRK_EXPT:
             isr_handler_3_breakpoint(context);
             break;
+        case PAGE_FAL:
         default:
             break;
     }

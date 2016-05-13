@@ -1,8 +1,8 @@
-#include "../inc/common.h"
-#include "../inc/define.h"
+#include "common.h"
+#include "define.h"
 #include "common_declaration.h"
 
-#include "memory_util.c"
+#include "time.c"
 #include "string.c"
 #include "assert.c"
 
