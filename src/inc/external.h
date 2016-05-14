@@ -12,7 +12,7 @@ extern void io_bus_write_byte(uint16 port, uint8 val);
 extern uint8 io_bus_read_byte(uint16 port);
 extern uint16 io_bus_read_word(uint16 port);
 extern void isr_handler_register(uint8 nmbr, isr_handler_t handler);
-extern void pic_send_eoi(uint8 irq);
+extern void pic_send_eoi(uint32 irq);
 extern void kmemset(void *base, uint8 v, uint32 len);
 extern uint32 string_len_k(char *s);
 extern void memory_copy_k(void *to, void *from, uint32 len);

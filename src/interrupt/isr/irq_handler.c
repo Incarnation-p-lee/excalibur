@@ -4,9 +4,10 @@ void
 irq_handler_main(struct pro_context context)
 {
     isr_handler_t handler;
+    uint32 irq_nmbr;
 
-    printf_vga("context.int_number %d\n", context.int_nmbr);
-    pic_send_eoi(context.int_nmbr);
+    irq_nmbr = context.int_nmbr - IRQ_BASE;
+    pic_send_eoi(irq_nmbr);
 
     if (NULL != interrupt_handler[context.int_nmbr]) {
         handler = interrupt_handler[context.int_nmbr];

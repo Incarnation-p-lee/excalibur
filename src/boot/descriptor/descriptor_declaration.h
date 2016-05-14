@@ -7,6 +7,6 @@ static inline void descriptor_table_idt_entry_set(uint32 index, void (*handler)(
 static inline void pic_remap(void);
 void descriptor_table_gdt_init(void);
 void descriptor_table_idt_init(void);
-void pic_send_eoi(uint8 irq);
+void pic_send_eoi(uint32 irq);
 
 #endif

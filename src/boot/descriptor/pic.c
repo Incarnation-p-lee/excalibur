@@ -1,5 +1,5 @@
 void
-pic_send_eoi(uint8 irq)
+pic_send_eoi(uint32 irq)
 {
     assert_k(irq < 16);
 

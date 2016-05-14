@@ -1,7 +1,8 @@
 #ifndef HAVE_DEFINED_ISR_H
 #define HAVE_DEFINED_ISR_H
 
-#define IRQ_0              32
+#define IRQ_BASE           32
+#define IRQ_0              IRQ_BASE
 #define IRQ_1              33
 #define IRQ_2              34
 #define IRQ_3              35
