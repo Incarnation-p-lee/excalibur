@@ -10,34 +10,28 @@ paging_initialize(void)
     bytes = frames_size / 8;
     bytes += (bytes % sizeof(ptr_t)) ? sizeof(ptr_t) : 0;
 
-    frames_bitmap = (ptr_t *)kmalloc(bytes);
+    frames_bitmap = kmalloc(bytes);
     kmemset(frames_bitmap, 0, bytes);
 
     // Init page directory
-    kernel_dirt = (struct page_directory *)kmalloc(sizeof(*kernel_dirt));
+    kernel_dirt = kmalloc_algn(sizeof(*kernel_dirt));
     kmemset(kernel_dirt, 0, sizeof(*kernel_dirt));
     current_dirt = kernel_dirt;
 
     // Map phys addr to virt addr from 0x0 to placement ptr address
     // so we can access this transparently as if paging is not enabled
     i = 0;
-    while (i < placement_ptr) {
+    while (i < MEMORY_LIMIT) {
         pe = paging_get(i, true, kernel_dirt);
         frame_allocate(pe, false, false);
         i += PAGE_SIZE;
     }
 
-    // register page fault handler
-    isr_handler_register(PAGE_FAL, &paging_fault_handler);
-
-    // Enable paging
+    // register page fault handler and Enable paging
+    isr_handler_register(PAGE_FAL, &isr_handler_14_paging_fault);
     paging_directory_switch(kernel_dirt);
-}
 
-static inline void
-paging_fault_handler(struct pro_context context)
-{
-    KERNEL_PANIC("Meet page fault\n");
+    printf_vga_ts("Paging initialized.\n");
 }
 
 static inline void

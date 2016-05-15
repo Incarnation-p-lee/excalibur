@@ -25,7 +25,7 @@ descriptor_table_idt_init(void)
     uint32 index;
 
     idt_reg.limit = sizeof(idt_entry_list) - 1;
-    idt_reg.base = (uint32)&idt_entry_list;
+    idt_reg.base = (ptr_t)&idt_entry_list;
 
     kmemset(&idt_entry_list, 0, sizeof(idt_entry_list));
     pic_remap();

@@ -4,8 +4,7 @@ isr_handler_main(struct pro_context context)
     enum interrupt_num int_nmbr;
 
     int_nmbr = context.int_nmbr;
-
-    printf_vga("Recieved Interrupt: %x.\n", int_nmbr);
+    printf_vga("Recieved ISR: %x.\n", int_nmbr);
 
     switch (int_nmbr) {
         case DIV_BY_Z:
@@ -15,6 +14,10 @@ isr_handler_main(struct pro_context context)
             isr_handler_3_breakpoint(context);
             break;
         case PAGE_FAL:
+            isr_handler_14_paging_fault(context);
+            break;
+        case GNL_PRTT_FAL:
+            break;
         default:
             break;
     }
@@ -38,4 +41,11 @@ isr_handler_3_breakpoint(struct pro_context context)
 {
     printf_vga("Triggered Breakpoint exception at eip: %x\n", context.eip);
 }
+
+void
+isr_handler_14_paging_fault(struct pro_context context)
+{
+    KERNEL_PANIC("Meet page fault");
+}
+
 

@@ -49,14 +49,17 @@ frame_first(void)
 {
     ptr_t i;
     ptr_t j;
+    ptr_t frame;
 
     i = 0;
     while (i < BM_INDEX(frames_size)) {
+        j = 0;
         if ((ptr_t)-1 != frames_bitmap[i]) {
-            j = 0;
             while (j < sizeof(ptr_t) * 8) {
                 if (FRAME_CLEAR == (frames_bitmap[i] & (0x1 << j))) {
-                    return i * sizeof(ptr_t) * 8 + j;
+                    frame = i * sizeof(ptr_t) * 8 + j;
+                    frame_set(frame);
+                    return frame;
                 }
                 j++;
             }
@@ -64,25 +67,21 @@ frame_first(void)
         i++;
     }
 
-    KERNEL_PANIC("No free frame avaliale now.\n");
+    KERNEL_PANIC("No free frame avaliale now.");
     return 0;
 }
 
 static void
 frame_allocate(struct page_entry *page, bool kernel, bool write)
 {
-    ptr_t frame;
-
     assert_k(NULL != page);
 
     if (FRAME_CLEAR == page->frame) {
-        frame = frame_first();
-        frame_set(frame);
 
         page->present = BIT_SET;
         page->rw = write ? BIT_SET : BIT_CLEAR;
         page->user = kernel ? BIT_SET : BIT_CLEAR;
-        page->frame = frame;
+        page->frame = frame_first();
     }
 }
 

@@ -20,6 +20,8 @@ extern void screen_monitor_write_string(char *c);
 extern void screen_monitor_write_uint32(uint32 u);
 extern void screen_monitor_write_uint32_hex(uint32 u);
 extern uint64 time_stamp_counter(void);
+extern void paging_initialize(void);
+extern void isr_handler_14_paging_fault(struct pro_context context);
 
 #endif
 

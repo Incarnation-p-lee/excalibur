@@ -36,9 +36,9 @@ screen_monitor_one_line_scroll(void)
         /*
          * set the last one line to blank
          */
-        kmemset(&video[i], blank, SCREEN_X);
+        kmemset(&video[i], blank, SCREEN_X * sizeof(*video));
         cursor_y = SCREEN_Y - 1;
-        kmemset(&video[SCREEN_X * SCREEN_Y], blank, SCREEN_X);
+        kmemset(&video[SCREEN_X * SCREEN_Y], blank, SCREEN_X * sizeof(*video));
     }
 }
 
@@ -108,7 +108,7 @@ void
 screen_monitor_write_uint32(uint32 u)
 {
     uint32 tmp;
-    char buf[9];
+    char buf[11];
     uint32 index;
 
     index = 0;

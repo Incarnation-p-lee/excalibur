@@ -57,6 +57,9 @@ page table.
 Copy the location of your page directory into the CR3 register with physical address,
 then set the PG bit in the CR0 register.
 
+<32-bits Paging>
+CR3 structure in 32-bits paging are the same as pagin table entry.
+
 <Page fault>
 When a process does something the MMU does not like, a page fault interrupt is thrown.
  * Reading from or writing to an area of memory that is not mapped.

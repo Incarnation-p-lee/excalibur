@@ -57,8 +57,7 @@ memory_set_in_dword(uint32 *base, uint8 v, uint32 len)
         element = memory_set_fill_dword_element(v);
 
         while (cnt--) {
-            *base = element;
-            base++;
+            *base++ = element;
         }
     }
 

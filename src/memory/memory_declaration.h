@@ -10,7 +10,6 @@ static inline void memory_copy_in_dword(uint32 *to, uint32 *from, uint32 len);
 static inline void memory_set_in_byte(void *base, uint8 v, uint32 len);
 static inline void memory_set_in_dword(uint32 *base, uint8 v, uint32 len);
 static inline void paging_directory_switch(struct page_directory *dirt);
-static inline void paging_fault_handler(struct pro_context context);
 static ptr_t frame_first(void);
 static void frame_allocate(struct page_entry *page, bool kernel, bool write);
 static void frame_clear(ptr_t frame);

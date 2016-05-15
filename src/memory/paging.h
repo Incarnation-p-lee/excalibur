@@ -2,7 +2,7 @@
 #define HAVE_DEFINED_PAGING_H
 
 #define PAGE_TABLE_SIZE        1024
-#define MEMORY_LIMIT           0x10000000  // 16 MB
+#define MEMORY_LIMIT           0x1000000  // 16 MB
 
 struct page_entry {
     uint32 present:1;
@@ -30,7 +30,7 @@ struct page_directory {
     void *phy_addr;
 };
 
-static ptr_t placement_ptr;
+static ptr_t placement_ptr = MEMORY_LIMIT;
 static ptr_t *frames_bitmap;
 static ptr_t frames_size;
 static struct page_directory *kernel_dirt;
