@@ -39,7 +39,7 @@ paging_directory_switch(struct page_directory *dirt)
 {
     uint32 cr0;
 
-    assert_k(NULL != dirt);
+    kassert(NULL != dirt);
 
     current_dirt = dirt;
 
@@ -64,7 +64,7 @@ paging_get(ptr_t addr, bool make, struct page_directory *dirt)
     ptr_t frame;
     ptr_t phys;
 
-    assert_k(NULL != dirt);
+    kassert(NULL != dirt);
 
     frame = addr / PAGE_SIZE;
     index = frame / PAGE_TABLE_SIZE;

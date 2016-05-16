@@ -4,21 +4,21 @@ printf_k(char *format, void *param)
      uint32 len;
      char buf[PR_BUF_SIZE + 1];
 
-     assert_k(NULL != format);
-     assert_k(NULL != param);
+     kassert(NULL != format);
+     kassert(NULL != param);
 
      buf[PR_BUF_SIZE] = '\0';
      len = string_len_k(format);
 
      while (len > PR_BUF_SIZE) {
-         memory_copy_k(buf, format, PR_BUF_SIZE);
+         kmemory_copy(buf, format, PR_BUF_SIZE);
          param = printf_k_one_buf(buf, param);
          len -= PR_BUF_SIZE;
          format += PR_BUF_SIZE;
      }
 
      if (len) {
-         memory_copy_k(buf, format, len);
+         kmemory_copy(buf, format, len);
          printf_k_one_buf(buf, param);
      }
 }
@@ -29,8 +29,8 @@ printf_k_one_buf(char *buf, void *base)
     char *s;
     char *trvl;
 
-    assert_k(NULL != buf);
-    assert_k(NULL != base);
+    kassert(NULL != buf);
+    kassert(NULL != base);
 
     s = buf;
     trvl = buf;

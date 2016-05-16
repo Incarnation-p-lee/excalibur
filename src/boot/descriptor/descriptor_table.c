@@ -46,7 +46,7 @@ static inline void
 descriptor_table_gdt_entry_set(uint32 index, uint32 base, uint32 lmt,
     uint16 acc, uint8 flags)
 {
-    assert_k(index < GDT_ENTRY_CNT);
+    kassert(index < GDT_ENTRY_CNT);
 
     gdt_entry_list[index].base_l = U32_BITS(base, 0, 24);
     gdt_entry_list[index].base_h = (uint8)U32_BITS(base, 24, 8);
@@ -72,8 +72,8 @@ static inline void
 descriptor_table_idt_entry_set(uint32 index, void (*handler)(void),
     uint16 selector, uint16 attr)
 {
-    assert_k(NULL != handler);
-    assert_k(index < IDT_ENTRY_CNT);
+    kassert(NULL != handler);
+    kassert(index < IDT_ENTRY_CNT);
 
     idt_entry_list[index].base_l = U32_BITS(handler, 0, 16);
     idt_entry_list[index].base_h = U32_BITS(handler, 16, 16);

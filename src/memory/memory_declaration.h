@@ -17,8 +17,8 @@ void * kmalloc(uint32 sz);
 void * kmalloc_algn(uint32 sz);
 void * kmalloc_algn_with_phys(uint32 sz, ptr_t *phys);
 void * kmalloc_phys(uint32 sz, ptr_t *phys);
+void kmemory_copy(void *to, void *from, uint32 len);
 void kmemset(void *base, uint8 v, uint32 len);
-void memory_copy_k(void *to, void *from, uint32 len);
 void paging_initialize(void);
 
 #endif

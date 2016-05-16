@@ -4,7 +4,7 @@ frame_set(ptr_t frame)
     ptr_t idx;
     ptr_t off;
 
-    assert_k(sizeof(frame) == sizeof(ptr_t));
+    kassert(sizeof(frame) == sizeof(ptr_t));
 
     idx = BM_INDEX(frame);
     off = BM_OFFSET(frame);
@@ -18,7 +18,7 @@ frame_set(ptr_t frame)
 //     ptr_t idx;
 //     ptr_t off;
 // 
-//     assert_k(sizeof(frame) == sizeof(ptr_t));
+//     kassert(sizeof(frame) == sizeof(ptr_t));
 // 
 //     idx = BM_INDEX(frame);
 //     off = BM_OFFSET(frame);
@@ -32,7 +32,7 @@ frame_available_p(ptr_t frame)
     ptr_t idx;
     ptr_t off;
 
-    assert_k(sizeof(frame) == sizeof(ptr_t));
+    kassert(sizeof(frame) == sizeof(ptr_t));
 
     idx = BM_INDEX(frame);
     off = BM_OFFSET(frame);
@@ -74,7 +74,7 @@ frame_first(void)
 static void
 frame_allocate(struct page_entry *page, bool kernel, bool write)
 {
-    assert_k(NULL != page);
+    kassert(NULL != page);
 
     if (FRAME_CLEAR == page->frame) {
 
@@ -90,7 +90,7 @@ frame_allocate(struct page_entry *page, bool kernel, bool write)
 // {
 //     ptr_t frame;
 // 
-//     assert_k(NULL != page);
+//     kassert(NULL != page);
 // 
 //     frame = page->frame;
 //     if (frame) {
