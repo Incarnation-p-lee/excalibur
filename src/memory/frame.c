@@ -12,19 +12,19 @@ frame_set(ptr_t frame)
     frames_bitmap[idx] |= (0x1 << off);
 }
 
-static void
-frame_clear(ptr_t frame)
-{
-    ptr_t idx;
-    ptr_t off;
-
-    assert_k(sizeof(frame) == sizeof(ptr_t));
-
-    idx = BM_INDEX(frame);
-    off = BM_OFFSET(frame);
-
-    frames_bitmap[idx] &= ~(0x1 << off);
-}
+// static void
+// frame_clear(ptr_t frame)
+// {
+//     ptr_t idx;
+//     ptr_t off;
+// 
+//     assert_k(sizeof(frame) == sizeof(ptr_t));
+// 
+//     idx = BM_INDEX(frame);
+//     off = BM_OFFSET(frame);
+// 
+//     frames_bitmap[idx] &= ~(0x1 << off);
+// }
 
 bool
 frame_available_p(ptr_t frame)
@@ -85,17 +85,17 @@ frame_allocate(struct page_entry *page, bool kernel, bool write)
     }
 }
 
-void
-frame_free(struct page_entry *page)
-{
-    ptr_t frame;
-
-    assert_k(NULL != page);
-
-    frame = page->frame;
-    if (frame) {
-        frame_clear(frame);
-        page->frame = FRAME_CLEAR;
-    }
-}
+// static void
+// frame_free(struct page_entry *page)
+// {
+//     ptr_t frame;
+// 
+//     assert_k(NULL != page);
+// 
+//     frame = page->frame;
+//     if (frame) {
+//         frame_clear(frame);
+//         page->frame = FRAME_CLEAR;
+//     }
+// }
 

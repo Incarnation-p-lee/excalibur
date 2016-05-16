@@ -4,13 +4,36 @@ use 5.010;
 
 my $work_dir = shift @ARGV;
 my @declarnations;
+my @externals;
+my $extern_header_file;
 
 if ($work_dir eq "") {
     say "Please specify the work directory for makefile producing.";
     exit 1;
 } else {
     $work_dir = $1 if $work_dir =~ /(\w+)\/?$/;
+    $extern_header_file = "$work_dir/inc/external.h";
+
     &visit_workspace($work_dir);
+    &generate_extern_header_file();
+}
+
+sub generate_extern_header_file {
+    my @sorted = sort @externals;
+
+    open EXTERN_HEAD, '>', $extern_header_file or
+        die "Failed to create file $extern_header_file, $?\n";
+
+    print EXTERN_HEAD "#ifndef HAVE_DEFINED_EXTERNAL_H\n";
+    print EXTERN_HEAD "#define HAVE_DEFINED_EXTERNAL_H\n\n";
+
+    foreach (@sorted) {
+        print EXTERN_HEAD "$_\n";
+    }
+
+    print EXTERN_HEAD "\n#endif\n\n";
+
+    close EXTERN_HEAD;
 }
 
 sub visit_workspace {
@@ -93,6 +116,7 @@ sub filter_source_file_declaration() {
     my $filename = shift @_;
     my $body = 1;
     my $head;
+    my $extern;
     my $basename = $1 if $filename =~ /\/([^\/]+)$/;
 
     print "    Scan     .. $basename ";
@@ -118,7 +142,9 @@ sub filter_source_file_declaration() {
         } elsif ($head){
             print ".";
             $head =~ s/\s$/;/g;
+            $extern = "extern $head";
             unshift @declarnations, $head;
+            unshift @externals, $extern unless $extern =~ "static";
             $head = undef;
         }
     }
