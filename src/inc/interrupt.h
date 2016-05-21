@@ -49,5 +49,11 @@ struct pro_context {
 
 typedef void (*isr_handler_t)(struct pro_context);
 
+#define PAGE_FAULT_PRST        0x1
+#define PAGE_FAULT_WRITE       0x2
+#define PAGE_FAULT_USER        0x4
+#define PAGE_FAULT_RSVD        0x8
+#define PAGE_FAULT_FETCH       0x10
+
 #endif
 

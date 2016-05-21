@@ -27,8 +27,7 @@ paging_initialize(void)
         i += PAGE_SIZE;
     }
 
-    // register page fault handler and Enable paging
-    isr_handler_register(PAGE_FAL, &isr_handler_14_paging_fault);
+    // Enable paging
     paging_directory_switch(kernel_dirt);
 
     printf_vga_ts("Paging initialized.\n");

@@ -42,10 +42,40 @@ isr_handler_3_breakpoint(struct pro_context context)
     printf_vga("Triggered Breakpoint exception at eip: %x\n", context.eip);
 }
 
-void
+static inline void
 isr_handler_14_paging_fault(struct pro_context context)
 {
-    KERNEL_PANIC("Meet page fault");
+    ptr_t fault_addr;
+    uint32 err_code;
+
+    asm volatile (
+        "mov %%cr2, %0\n\t"
+        :"=r"(fault_addr));
+
+    err_code = context.err_code;
+
+    if (!(err_code & PAGE_FAULT_PRST)) {
+        printf_vga("Page is not present.\n");
+    }
+
+    if (err_code & PAGE_FAULT_WRITE) {
+        printf_vga("Page is Read-Only.\n");
+    }
+
+    if (err_code & PAGE_FAULT_USER) {
+        printf_vga("Page is in User-Mode.\n");
+    }
+
+    if (err_code & PAGE_FAULT_RSVD) {
+        printf_vga("Page overwritten reserved.\n");
+    }
+
+    if (err_code & PAGE_FAULT_FETCH) {
+        printf_vga("Page in instruction fetch.\n");
+    }
+
+    printf_vga("Page Fault at address %x.\n", fault_addr);
+    KERNEL_PANIC("Page Fault");
 }
 
 
