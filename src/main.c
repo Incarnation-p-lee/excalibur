@@ -16,8 +16,8 @@ test_paging(void)
 {
     uint32 *ptr;
 
-    ptr = (void *)0x2000000;
-    *ptr = 0;
+    ptr = (void *)0x4000000; // 64 MB
+    *ptr = 0xdeadbeaf;
 }
 
 int

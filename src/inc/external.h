@@ -16,7 +16,6 @@ extern void descriptor_table_idt_init(void);
 extern void io_bus_write_byte(uint16 port, uint8 val);
 extern void irq_0_timer_init(uint32 freq);
 extern void irq_handler_main(struct pro_context context);
-extern void isr_handler_14_paging_fault(struct pro_context context);
 extern void isr_handler_main(struct pro_context context);
 extern void isr_handler_register(uint8 nmbr, isr_handler_t handler);
 extern void kmemory_copy(void *to, void *from, uint32 len);

@@ -8,7 +8,9 @@ kmalloc_int(uint32 sz, bool align, ptr_t *phys)
         placement_ptr += 0x1000;
     }
 
-    if (phys) {
+    if (placement_ptr + sz > MEMORY_LIMIT) {
+        return NULL;
+    } else if (phys) {
         *phys = placement_ptr;
     }
 
