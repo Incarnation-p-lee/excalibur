@@ -67,7 +67,7 @@ frame_first(void)
         i++;
     }
 
-    KERNEL_PANIC("No free frame avaliale now.");
+    KERNEL_PANIC(NO_FRAME);
     return 0;
 }
 

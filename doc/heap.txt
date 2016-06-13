@@ -1,0 +1,60 @@
+<Heap>
+For performing some kind of dynamic memory allocation, with consistency
+checking and debugging.
+
+<Data Structure>
+Index table with pointers to holes.
+Heap index
++--------+---------+---------+---------+
+| size 8 | size 10 | size 16 | size 64 | ......
+|  Ptr   |   Ptr   |   Ptr   |   Ptr   |
++--------+---------+---------+---------+
+   Ptr pointers to holes
+
+There are two concepts, block and holes.
+Blocks are contiguous part of memory contains user data (such as malloc but
+not free yet). Holes are blocks but are not in use.
+
+For each hole there is a corresponding descriptor in a index table. The index
+table is always ordered ascending by the size of hole.
+
+Blocks and holes each contain decriptive data, a header and a footer. The header
+contains the most information about the block, and the footer merely contains
+a pointer to the header.
+
++---------------------+---------------+----------------+
+|       header        |               |     footer     |
++-------+------+------| useable space |-------+--------+
+| magic | hole | size |               | magic | header |
++-------+------+------+---------------+-------+--------+
+
+Magic number is for error checking of serial number.
+
+<Allocation>
+* Search the index table to find the smallest hole that fit the request size.
+    If fail to find the smallest hole, then
+        * Expand the heap space.
+        * If the index table is empty, then add new entry into it.
+        * else adjust the last header size and rewrite footer
+* Decide if the hole should be split into two parts
+* If the block should be page aligned, it should be create a new hole.
+* Write the new block's header and footer
+* If the hole was to be split into two parts, write a new hole into the index table.
+* Return the address of the block to user
+
+<Deallocation>
+Freeing may be a little tricky for efficiency.
+When free a block, look at what is immediately to the left (for 0 ~ 4GB, left to right).
+If that is a footer, which can be discovered from the value of magic number, then follow
+the pointer to header and query if is a block or hole.
+
+If hole, we can rewrite the header size attribute and merge both into one hole, without
+any insertion operation on the index table. This is unifying left, also unifying right.
+After the footer, If we find a header there, checking if hole and identified magic number.
+Then we can use the size attribute to find its footer. And then rewrite footer pointer to
+previous header. And remove its old entry from hole index and update it with new one.
+
+At last of reclaiming space, if we are freeing the last block in the heap, then we can
+contract the size of the heap with one minimum heap size.
+
+
