@@ -3,8 +3,9 @@ ordered_array_standard_compare(const void *a, const void *b)
 {
     if (!a || !b) {
         KERNEL_PANIC(INVALID_PARAM);
-        return 0;
-    } else if ((ptr_t)a < (ptr_t)b) {
+    }
+
+    if ((ptr_t)a < (ptr_t)b) {
         return 1;
     } else if ((ptr_t)a < (ptr_t)b) {
         return -1;
@@ -20,17 +21,16 @@ ordered_array_create(uint32 max_size, ordered_compare_t compare)
 
     if (!max_size || !compare) {
         KERNEL_PANIC(INVALID_PARAM);
-        return oa;
-    } else {
-        oa.array = kmalloc(max_size * sizeof(void *));
-        kmemset(oa.array, 0, max_size * sizeof(void *));
-
-        oa.size = 0;
-        oa.max_size = max_size;
-        oa.compare = compare;
-
-        return oa;
     }
+
+    oa.array = kmalloc(max_size * sizeof(void *));
+    kmemset(oa.array, 0, max_size * sizeof(void *));
+
+    oa.size = 0;
+    oa.max_size = max_size;
+    oa.compare = compare;
+
+    return oa;
 }
 
 struct ordered_array
@@ -40,16 +40,16 @@ ordered_array_place(void *addr, uint32 max_size, ordered_compare_t compare)
 
     if (!addr || !compare || !max_size) {
         KERNEL_PANIC(INVALID_PARAM);
-        return oa;
-    } else {
-        oa.array = (void **)addr;
-        kmemset(oa.array, 0, max_size * sizeof(void *));
-
-        oa.size = 0;
-        oa.max_size = max_size;
-        oa.compare = compare;
-        return oa;
     }
+
+    oa.array = (void **)addr;
+    kmemset(oa.array, 0, max_size * sizeof(void *));
+
+    oa.size = 0;
+    oa.max_size = max_size;
+    oa.compare = compare;
+
+    return oa;
 }
 
 void

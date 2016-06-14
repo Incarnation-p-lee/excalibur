@@ -3,7 +3,7 @@
 
 #define PAGE_TABLE_SIZE        1024
 #define HEAP_SIZE              0x1000000  // 16 MB for heap
-#define MEMORY_LIMIT           0x4000000  // 64 MB
+#define MEMORY_LIMIT           0x8000000  // 128 MB
 
 struct page_entry {
     uint32 present:1;
