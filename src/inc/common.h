@@ -6,6 +6,7 @@
 #include "define.h"
 #include "error_code.h"
 #include "data_struct.h"
+#include "kheap.h"
 
 #include "external.h"
 

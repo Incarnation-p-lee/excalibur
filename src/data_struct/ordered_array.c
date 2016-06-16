@@ -66,10 +66,13 @@ ordered_array_insert(struct ordered_array *oa, void *val)
     uint32 i;
     uint32 k;
 
+    i = 0;
     if (!oa || !val || !oa->array || !oa->compare) {
         KERNEL_PANIC(INVALID_PARAM);
+    } else if (0 == oa->size) {
+        // First val of index 0.
+        oa->array[oa->size++] = val;
     } else {
-        i = 0;
         while (i < oa->size && oa->compare(oa->array[i], val) > 0) {
             i++;
         }

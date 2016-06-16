@@ -85,17 +85,17 @@ frame_allocate(struct page_entry *page, bool kernel, bool write)
     }
 }
 
-// static void
-// frame_free(struct page_entry *page)
-// {
-//     ptr_t frame;
-// 
-//     kassert(NULL != page);
-// 
-//     frame = page->frame;
-//     if (frame) {
-//         frame_clear(frame);
-//         page->frame = FRAME_CLEAR;
-//     }
-// }
+static void
+frame_free(struct page_entry *page)
+{
+    ptr_t frame;
+
+    kassert(NULL != page);
+
+    frame = page->frame;
+    if (frame) {
+        frame_clear(frame);
+        page->frame = FRAME_CLEAR;
+    }
+}
 
