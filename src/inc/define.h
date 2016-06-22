@@ -35,7 +35,7 @@
 #define printf_vga_clear          screen_monitor_clear
 
 #define ARRAY_CNT_OF(a)           (sizeof(a) / sizeof(a[0]))
-#define kassert(ex)               assert_complain(#ex, __FILE__, __FUNCTION__, __LINE__, ex)
+#define kassert(ex)               assert_complain(#ex, __FILE__, __FUNCTION__, __LINE__, (ex))
 #define kassert_not_reached(msg)  assert_complain(msg, __FILE__, __FUNCTION__, __LINE__, false)
 #define KERNEL_PANIC(msg)         kassert_not_reached(msg)
 

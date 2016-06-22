@@ -5,7 +5,7 @@
 #define KHEAP_INITIAL_SIZE
 #define KHEAP_IDX_SIZE     0x10000
 #define KHEAP_MAGIC        0xA5A55A5A
-#define KHEAP_MIN_SIZE
+#define KHEAP_MIN_SIZE     0xdead
 
 /*
  * Block/Hole memory structure layout

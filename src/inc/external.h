@@ -3,10 +3,13 @@
 
 extern bool assert_complain(const char *msg, const char *file, const char *fun, uint32 line, bool exp);
 extern bool frame_available_p(ptr_t frame);
+extern sint32 kheap_compare(void *a, void *b);
 extern sint32 ordered_array_standard_compare(const void *a, const void *b);
+extern struct kheap * kheap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max, bool supervisor, bool read_only);
 extern struct ordered_array ordered_array_create(uint32 max_size, ordered_compare_t compare);
 extern struct ordered_array ordered_array_place(void *addr, uint32 max_size, ordered_compare_t compare);
 extern uint16 io_bus_read_word(uint16 port);
+extern uint32 kheap_find_minimal_hole(uint32 size, bool page_align, struct kheap *heap);
 extern uint32 string_len_k(char *s);
 extern uint64 time_stamp_counter(void);
 extern uint8 io_bus_read_byte(uint16 port);
@@ -22,6 +25,7 @@ extern void irq_0_timer_init(uint32 freq);
 extern void irq_handler_main(struct pro_context context);
 extern void isr_handler_main(struct pro_context context);
 extern void isr_handler_register(uint8 nmbr, isr_handler_t handler);
+extern void kheap_resize(struct kheap *heap, uint32 new_size);
 extern void kmemory_copy(void *to, void *from, uint32 len);
 extern void kmemset(void *base, uint8 v, uint32 len);
 extern void ordered_array_destroy(struct ordered_array *oa);

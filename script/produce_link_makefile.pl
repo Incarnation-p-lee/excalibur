@@ -12,10 +12,13 @@ opendir OUTPUT, $output or
     die "Failed to open output directory $output, $?\n";
 
 while(readdir(OUTPUT)) {
-    $obj_list = "$_ $obj_list" if /(\w+)\.o/;
+    if (/boot/ and /(\w+)\.o/) {
+        $obj_list = "$_ $obj_list";
+    } elsif (/(\w+)\.o/) {
+        $obj_list = "$obj_list $_";
+    }
 }
 
-chop $obj_list;
 closedir OUTPUT;
 
 ## Generate link Makefile in output ##

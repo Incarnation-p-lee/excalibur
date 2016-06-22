@@ -1,6 +1,15 @@
+static inline void
+descriptor_hardware_detect(void)
+{
+    // uint32 low_memory_size;
+    printf_vga_ts("descriptor_hardware_detect\n");
+}
+
 void
 descriptor_table_gdt_init(void)
 {
+    descriptor_hardware_detect();
+
     gdt_reg.limit = sizeof(gdt_entry_list) - 1;
     gdt_reg.base = (uint32)&gdt_entry_list;
 

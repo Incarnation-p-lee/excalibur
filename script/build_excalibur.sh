@@ -49,7 +49,8 @@ elf=$base/$outdir/kernel
 
 cd $outdir > /dev/null
 echo "    Link     .. $(basename $elf)"
-make > /dev/null
+# make > /dev/null
+make
 cd - > /dev/null
 
 ctags -R src

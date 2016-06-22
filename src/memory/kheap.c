@@ -20,8 +20,8 @@ kmalloc_int(uint32 sz, bool align, ptr_t *phys)
     return retval;
 }
 
-static sint32
-kheap_compare(const void *a, const void *b)
+sint32
+kheap_compare(void *a, void *b)
 {
     struct kheap_header *ka;
     struct kheap_header *kb;
@@ -59,7 +59,7 @@ kheap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max,
         heap->idx = ordered_array_place((void *)addr_start, KHEAP_IDX_SIZE, &kheap_compare);
         addr_start += sizeof(void *) * KHEAP_IDX_SIZE;
 
-        if (0 != addr_start & 0xfff) {
+        if (0 != (addr_start & 0xfff)) {
             addr_start &= ((ptr_t)-1 << 12);
             addr_start += PAGE_SIZE;
         }
@@ -70,7 +70,7 @@ kheap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max,
         heap->supervisor = supervisor;
         heap->read_only = read_only;
 
-        hole = (void *)start;
+        hole = (void *)addr_start;
         hole->magic = KHEAP_MAGIC;
         hole->is_hole = true;
         hole->size = addr_end - addr_start;
@@ -81,7 +81,7 @@ kheap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max,
     }
 }
 
-static uint32
+uint32
 kheap_find_minimal_hole(uint32 size, bool page_align, struct kheap *heap)
 {
     uint32 i;
@@ -105,13 +105,13 @@ kheap_find_minimal_hole(uint32 size, bool page_align, struct kheap *heap)
         } else if (header->size >= size) {
             return i;
         }
-        i++
+        i++;
     }
 
     return IDX_INVALID;
 }
 
-static void
+void
 kheap_resize(struct kheap *heap, uint32 new_size)
 {
     ptr_t i;
@@ -119,13 +119,13 @@ kheap_resize(struct kheap *heap, uint32 new_size)
 
     kassert(NULL != heap);
 
-    if (0 != new_size & 0xfff) {
+    if (0 != (new_size & 0xfff)) {
         new_size &= ((ptr_t)-1 << 12);
         new_size += PAGE_SIZE;
     }
 
     i = heap->addr_end - heap->addr_start;
-    kassert(0 == i & 0xfff);
+    kassert(0 == (i & 0xfff));
 
     if (new_size + heap->addr_start <= heap->addr_end) {
         kassert(new_size >= KHEAP_MIN_SIZE);

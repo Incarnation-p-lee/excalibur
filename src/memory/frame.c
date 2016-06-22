@@ -12,19 +12,17 @@ frame_set(ptr_t frame)
     frames_bitmap[idx] |= (0x1 << off);
 }
 
-// static void
-// frame_clear(ptr_t frame)
-// {
-//     ptr_t idx;
-//     ptr_t off;
-// 
-//     kassert(sizeof(frame) == sizeof(ptr_t));
-// 
-//     idx = BM_INDEX(frame);
-//     off = BM_OFFSET(frame);
-// 
-//     frames_bitmap[idx] &= ~(0x1 << off);
-// }
+static void
+frame_clear(ptr_t frame)
+{
+    ptr_t idx;
+    ptr_t off;
+
+    idx = BM_INDEX(frame);
+    off = BM_OFFSET(frame);
+
+    frames_bitmap[idx] &= ~(0x1 << off);
+}
 
 bool
 frame_available_p(ptr_t frame)

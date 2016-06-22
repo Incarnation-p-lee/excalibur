@@ -28,6 +28,7 @@ main(void)
 
     descriptor_table_gdt_init();
     descriptor_table_idt_init();
+
     irq_0_timer_init(1000);
     paging_initialize();
 

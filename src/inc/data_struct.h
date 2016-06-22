@@ -1,7 +1,7 @@
 #ifndef HAVE_DEFINED_ORDERED_ARRAY_H
 #define HAVE_DEFINED_ORDERED_ARRAY_H
 
-typedef sint32 (*ordered_compare_t)(const void *, const void *);
+typedef sint32 (*ordered_compare_t)(void *, void *);
 
 struct ordered_array {
     void              **array;
