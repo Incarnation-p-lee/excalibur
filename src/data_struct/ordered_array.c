@@ -108,6 +108,51 @@ ordered_array_lookup(struct ordered_array *oa, uint32 idx)
 }
 
 void
+ordered_array_adjust(struct ordered_array *oa, uint32 idx)
+{
+    uint32 i;
+    void *backup;
+
+    if (!oa || !oa->array || idx >= oa->size) {
+        KERNEL_PANIC(INVALID_PARAM);
+    } else if (0 == idx && 1 == oa->size) {
+        return;
+    } else if (0 == idx && oa->compare(oa->array[idx], oa->array[idx + 1]) <= 0) {
+        return;
+    } else if (oa->size == idx + 1 && oa->compare(oa->array[idx - 1], oa->array[idx]) <= 0) {
+        return;
+    } else if (oa->compare(oa->array[idx - 1], oa->array[idx]) > 0) {
+        i = idx - 1;
+        backup = ordered_array_lookup(oa, i);
+
+        while (i > 0) {
+            if (oa->compare(oa->array[i], backup) > 0) {
+                oa->array[i + 1] = oa->array[i];
+            } else {
+                break;
+            }
+            i++;
+        }
+        oa->array[i] = backup;
+    } else if (oa->compare(oa->array[idx], oa->array[idx + 1]) > 0) {
+        i = idx + 1;
+        backup = ordered_array_lookup(oa, i);
+
+        while (i < oa->size) {
+            if (oa->compare(backup, oa->array[i]) > 0) {
+                oa->array[i] = oa->array[i + 1];
+            } else {
+                break;
+            }
+            i++;
+        }
+        oa->array[i] = backup;
+    } else {
+        return;
+    }
+}
+
+void
 ordered_array_remove(struct ordered_array *oa, uint32 idx)
 {
     uint32 i;

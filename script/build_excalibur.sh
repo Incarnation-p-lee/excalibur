@@ -35,6 +35,9 @@ do
     cd $var > /dev/null
     echo "    Compile  .. $(basename $var)"
     make > /dev/null
+    if [ $? != 0 ]; then
+        exit -1
+    fi
     mv *.o $base/$outdir
     cd - > /dev/null
 done

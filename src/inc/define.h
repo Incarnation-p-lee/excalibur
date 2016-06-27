@@ -49,5 +49,7 @@
 #define FRAME_CLEAR               BIT_CLEAR
 #define PAGE_SIZE                 0x1000
 
+#define PTR_INVALID               (ptr_t)(-1)
+
 #endif
 
