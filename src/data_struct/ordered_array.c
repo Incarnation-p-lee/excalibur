@@ -14,6 +14,22 @@ ordered_array_standard_compare(const void *a, const void *b)
     }
 }
 
+bool
+ordered_array_legal_p(s_ordered_array_t *ordered)
+{
+    if (NULL == ordered) {
+        return false;
+    } else if (ordered->size > ordered->max_size) {
+        return false;
+    } else if (NULL == ordered->array) {
+        return false;
+    } else if (NULL == ordered->compare) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 struct ordered_array
 ordered_array_create(uint32 max_size, ordered_compare_t compare)
 {

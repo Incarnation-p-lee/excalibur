@@ -3,6 +3,7 @@
 
 extern bool assert_complain(const char *msg, const char *file, const char *fun, uint32 line, bool exp);
 extern bool frame_available_p(ptr_t frame);
+extern bool ordered_array_legal_p(s_ordered_array_t *ordered);
 extern s_kheap_t * kheap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max, bool supervisor, bool read_only);
 extern sint32 ordered_array_standard_compare(const void *a, const void *b);
 extern struct ordered_array ordered_array_create(uint32 max_size, ordered_compare_t compare);

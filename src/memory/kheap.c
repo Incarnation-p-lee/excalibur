@@ -1,3 +1,10 @@
+void
+kheap_initialize(void)
+{
+
+
+}
+
 static inline void *
 kmalloc_int(uint32 sz, bool align, ptr_t *phys)
 {
@@ -20,10 +27,26 @@ kmalloc_int(uint32 sz, bool align, ptr_t *phys)
     return retval;
 }
 
+static inline bool
+kheap_legal_p(s_kheap_t *heap)
+{
+    if (NULL == heap) {
+        return false;
+    } else if (!ordered_array_legal_p(&heap->ordered)) {
+        return false;
+    } else if (heap->addr_start > heap->addr_end) {
+        return false;
+    } else if (heap->addr_end > heap->addr_max) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 static inline ptr_t
 kheap_size(s_kheap_t *heap)
 {
-    // Add kheap legal p
+    kassert(kheap_legal_p(heap));
     return heap->addr_end - heap->addr_start;
 }
 
@@ -33,7 +56,7 @@ kheap_find_hole(s_kheap_t *heap, void *val)
     uint32 i;
 
     kassert(NULL != val);
-    kassert(NULL != heap);
+    kassert(kheap_legal_p(heap));
 
     i = 0;
     while (i < heap->ordered.size) {
@@ -113,7 +136,7 @@ kheap_obtain_minimal_hole(s_kheap_t *heap, ptr_t *useable_addr,
     uint32 hole_size;
     s_kheap_header_t *header;
 
-    kassert(NULL != heap);
+    kassert(kheap_legal_p(heap));
     kassert(0 != request_size);
     kassert(NULL != useable_addr);
 
@@ -202,6 +225,8 @@ kheap_make_block(void *hole_addr, uint32 size)
     kassert(NULL != hole_addr && (void *)PTR_INVALID != hole_addr);
     kassert(size >= KHEAP_HOLE_MIN_SIZE);
 
+    kheap_make_hole(hole_addr, size);
+
     hole_header = (void *)hole_addr;
     hole_header->is_hole = false;
 }
@@ -217,7 +242,7 @@ kheap_handle_hole_unavailable(s_kheap_t *heap, uint32 hole_size)
     ptr_t added_size;
     s_kheap_header_t *header;
 
-    kassert(NULL != heap);
+    kassert(kheap_legal_p(heap));
     kassert(hole_size >= KHEAP_MIN_SIZE);
 
     heap_size = heap->addr_end - heap->addr_start;
@@ -260,8 +285,8 @@ kheap_allocate(s_kheap_t *heap, uint32 request_size, bool page_align)
     ptr_t useable_addr;
     uint32 lead_blank_size;
 
-    kassert(NULL != heap);
     kassert(0 != request_size);
+    kassert(kheap_legal_p(heap));
 
     hole_addr = kheap_obtain_minimal_hole(heap, &useable_addr, request_size, page_align);
 
@@ -325,7 +350,7 @@ kheap_free(s_kheap_t *heap, void *val)
     s_kheap_footer_t *last_footer;
 
     kassert(NULL != val);
-    kassert(NULL != heap);
+    kassert(kheap_legal_p(heap));
 
     insert_needed = true;
     header = (void *)((ptr_t)val - sizeof(s_kheap_header_t));
@@ -383,7 +408,7 @@ kheap_resize(struct kheap *heap, uint32 new_size)
     ptr_t i;
     struct page_entry *pe;
 
-    kassert(NULL != heap);
+    kassert(kheap_legal_p(heap));
 
     if (0 != (new_size & 0xfff)) {
         new_size &= ((ptr_t)-1 << 12);

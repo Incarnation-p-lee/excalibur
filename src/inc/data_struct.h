@@ -9,6 +9,7 @@ struct ordered_array {
     uint32            max_size;
     ordered_compare_t compare;
 };
+typedef struct ordered_array s_ordered_array_t;
 
 #endif
 

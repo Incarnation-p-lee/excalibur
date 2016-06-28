@@ -4,6 +4,7 @@
 bool frame_available_p(ptr_t frame);
 s_kheap_t * kheap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max, bool supervisor, bool read_only);
 static inline bool kheap_hole_legal_p(void *hole_addr);
+static inline bool kheap_legal_p(s_kheap_t *heap);
 static inline ptr_t kheap_obtain_minimal_hole(s_kheap_t *heap, ptr_t *useable_addr, uint32 request_size, bool page_align);
 static inline ptr_t kheap_size(s_kheap_t *heap);
 static inline s_kheap_footer_t * kheap_make_hole(void *hole_addr, uint32 size);
