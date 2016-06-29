@@ -46,8 +46,9 @@ struct pro_context {
     uint32 usr_esp;
     uint32 ss;
 } __attribute__((packed));
+typedef struct pro_context s_pro_context_t;
 
-typedef void (*isr_handler_t)(struct pro_context);
+typedef void (*isr_handler_t)(s_pro_context_t);
 
 #define PAGE_FAULT_PRST        0x1
 #define PAGE_FAULT_WRITE       0x2

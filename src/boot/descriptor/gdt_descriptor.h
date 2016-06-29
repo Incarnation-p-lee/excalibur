@@ -13,6 +13,7 @@ struct gdt_register {
     uint16 limit;
     uint32 base;
 } __attribute__((packed));
+typedef struct gdt_register s_gdt_register_t;
 
 /*
  * Descriptor Attribute
@@ -32,6 +33,7 @@ struct gdt_attribute_access {
     uint8 dpl:2; // Descriptor privilege level, ring 0-3
     uint8 p:1;   // Segment is present or not
 } __attribute__((packed));
+typedef struct gdt_register s_gdt_attribute_access_t;
 
 struct gdt_attribute_flags {
     uint8 avl:1;
@@ -40,6 +42,7 @@ struct gdt_attribute_flags {
     uint8 g:1;     // Granularity which defines the limit unit in byte or 4KB
     uint8 lmt_h:4; // High 4 bit of limit, bit <16, 19> of limit
 } __attribute__((packed));
+typedef struct gdt_register s_gdt_attribute_flags_t;
 
 /*
  * Global Descriptor Table Entry (Global Descriptor)
@@ -58,6 +61,7 @@ struct gdt_entry {
     struct gdt_attribute_flags  flags;
     uint8                       base_h;
 } __attribute__((packed));
+typedef struct gdt_entry s_gdt_entry_t;
 
 #define GDT_ENTRY_CNT     5
 
@@ -113,8 +117,8 @@ struct gdt_entry {
 #define USR_CODE_SEG_FLAG (FLAG_DB_OPND_32 | FLAG_G_BYTE)
 #define USR_DATA_SEG_FLAG (FLAG_DB_OPND_32 | FLAG_G_BYTE)
 
-static struct gdt_entry    gdt_entry_list[GDT_ENTRY_CNT];
-static struct gdt_register gdt_reg;
+static s_gdt_entry_t    gdt_entry_list[GDT_ENTRY_CNT];
+static s_gdt_register_t gdt_reg;
 
 extern void gdt_table_flush(uint32);
 

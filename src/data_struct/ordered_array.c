@@ -30,10 +30,10 @@ ordered_array_legal_p(s_ordered_array_t *ordered)
     }
 }
 
-struct ordered_array
+s_ordered_array_t
 ordered_array_create(uint32 max_size, ordered_compare_t compare)
 {
-    struct ordered_array oa;
+    s_ordered_array_t oa;
 
     if (!max_size || !compare) {
         KERNEL_PANIC(INVALID_PARAM);
@@ -49,10 +49,10 @@ ordered_array_create(uint32 max_size, ordered_compare_t compare)
     return oa;
 }
 
-struct ordered_array
+s_ordered_array_t
 ordered_array_place(void *addr, uint32 max_size, ordered_compare_t compare)
 {
-    struct ordered_array oa;
+    s_ordered_array_t oa;
 
     if (!addr || !compare || !max_size) {
         KERNEL_PANIC(INVALID_PARAM);
@@ -69,7 +69,7 @@ ordered_array_place(void *addr, uint32 max_size, ordered_compare_t compare)
 }
 
 void
-ordered_array_destroy(struct ordered_array *oa)
+ordered_array_destroy(s_ordered_array_t *oa)
 {
     if (oa && oa->array) {
         // kfree(oa->array);
@@ -77,7 +77,7 @@ ordered_array_destroy(struct ordered_array *oa)
 }
 
 void
-ordered_array_insert(struct ordered_array *oa, void *val)
+ordered_array_insert(s_ordered_array_t *oa, void *val)
 {
     uint32 i;
     uint32 k;
@@ -114,7 +114,7 @@ ordered_array_insert(struct ordered_array *oa, void *val)
 }
 
 void *
-ordered_array_lookup(struct ordered_array *oa, uint32 idx)
+ordered_array_lookup(s_ordered_array_t *oa, uint32 idx)
 {
     if (!oa || !oa->array || idx >= oa->size) {
         KERNEL_PANIC(INVALID_PARAM);
@@ -124,7 +124,7 @@ ordered_array_lookup(struct ordered_array *oa, uint32 idx)
 }
 
 void
-ordered_array_adjust(struct ordered_array *oa, uint32 idx)
+ordered_array_adjust(s_ordered_array_t *oa, uint32 idx)
 {
     uint32 i;
     void *backup;
@@ -169,7 +169,7 @@ ordered_array_adjust(struct ordered_array *oa, uint32 idx)
 }
 
 void
-ordered_array_remove(struct ordered_array *oa, uint32 idx)
+ordered_array_remove(s_ordered_array_t *oa, uint32 idx)
 {
     uint32 i;
 

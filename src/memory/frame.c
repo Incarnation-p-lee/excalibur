@@ -70,7 +70,7 @@ frame_first(void)
 }
 
 static void
-frame_allocate(struct page_entry *page, bool kernel, bool write)
+frame_allocate(s_page_entry_t *page, bool kernel, bool write)
 {
     kassert(NULL != page);
 
@@ -84,7 +84,7 @@ frame_allocate(struct page_entry *page, bool kernel, bool write)
 }
 
 static void
-frame_free(struct page_entry *page)
+frame_free(s_page_entry_t *page)
 {
     ptr_t frame;
 

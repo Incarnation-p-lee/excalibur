@@ -3,7 +3,7 @@ paging_initialize(void)
 {
     ptr_t i;
     uint32 bytes;
-    struct page_entry *pe;
+    s_page_entry_t *pe;
 
     // Init frames_size and frames_bitmap
     frames_size = MEMORY_LIMIT / PAGE_SIZE;
@@ -34,7 +34,7 @@ paging_initialize(void)
 }
 
 static inline void
-paging_directory_switch(struct page_directory *dirt)
+paging_directory_switch(s_page_directory_t *dirt)
 {
     uint32 cr0;
 
@@ -56,8 +56,8 @@ paging_directory_switch(struct page_directory *dirt)
         :"r"(cr0));
 }
 
-static inline struct page_entry *
-paging_get(ptr_t addr, bool make, struct page_directory *dirt)
+static inline s_page_entry_t *
+paging_get(ptr_t addr, bool make, s_page_directory_t *dirt)
 {
     ptr_t index;
     ptr_t frame;
@@ -71,8 +71,8 @@ paging_get(ptr_t addr, bool make, struct page_directory *dirt)
     if (dirt->dirt[index]) {
         return &dirt->dirt[index]->table[frame % PAGE_TABLE_SIZE];
     } else if (make) {
-        dirt->dirt[index] = kmalloc_algn_with_phys(sizeof(struct page_table), &phys);
-        kmemset(dirt->dirt[index], 0, sizeof(struct page_table));
+        dirt->dirt[index] = kmalloc_algn_with_phys(sizeof(s_page_table_t), &phys);
+        kmemset(dirt->dirt[index], 0, sizeof(s_page_table_t));
         // Set present, R/W and U/S
         dirt->dirt_phys[index] = phys | 0x7;
         return &dirt->dirt[index]->table[frame % PAGE_TABLE_SIZE];

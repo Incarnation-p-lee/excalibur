@@ -403,10 +403,10 @@ kheap_free(s_kheap_t *heap, void *val)
 }
 
 static inline void
-kheap_resize(struct kheap *heap, uint32 new_size)
+kheap_resize(s_kheap_t *heap, uint32 new_size)
 {
     ptr_t i;
-    struct page_entry *pe;
+    s_page_entry_t *pe;
 
     kassert(kheap_legal_p(heap));
 

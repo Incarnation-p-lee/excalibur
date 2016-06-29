@@ -1,5 +1,5 @@
 void
-isr_handler_main(struct pro_context context)
+isr_handler_main(s_pro_context_t context)
 {
     enum interrupt_num int_nmbr;
 
@@ -31,19 +31,19 @@ isr_handler_register(uint8 nmbr, isr_handler_t handler)
 }
 
 static inline void
-isr_handler_0_divide_by_zero(struct pro_context context)
+isr_handler_0_divide_by_zero(s_pro_context_t context)
 {
     printf_vga("Triggered Divide by zero exception at eip: %x\n", context.eip);
 }
 
 static inline void
-isr_handler_3_breakpoint(struct pro_context context)
+isr_handler_3_breakpoint(s_pro_context_t context)
 {
     printf_vga("Triggered Breakpoint exception at eip: %x\n", context.eip);
 }
 
 static inline void
-isr_handler_14_paging_fault(struct pro_context context)
+isr_handler_14_paging_fault(s_pro_context_t context)
 {
     ptr_t fault_addr;
     uint32 err_code;

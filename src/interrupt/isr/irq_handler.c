@@ -1,7 +1,7 @@
 static uint32 tick = 0;
 
 void
-irq_handler_main(struct pro_context context)
+irq_handler_main(s_pro_context_t context)
 {
     isr_handler_t handler;
     uint32 irq_nmbr;
@@ -16,7 +16,7 @@ irq_handler_main(struct pro_context context)
 }
 
 static inline void
-irq_0_timer_callback(struct pro_context context)
+irq_0_timer_callback(s_pro_context_t context)
 {
     tick++;
     printf_vga("Timer-Tick: %x\r", tick);

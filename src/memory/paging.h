@@ -16,10 +16,12 @@ struct page_entry {
     uint32 available:3; // unused and available for kernel
     uint32 frame:20;
 };
+typedef struct page_entry s_page_entry_t;
 
 struct page_table {
     struct page_entry table[PAGE_TABLE_SIZE];
 };
+typedef struct page_table s_page_table_t;
 
 struct page_directory {
     struct page_table *dirt[PAGE_TABLE_SIZE];
@@ -30,12 +32,13 @@ struct page_directory {
     // in virtual memory that is not the same physical memory.
     void *phy_addr;
 };
+typedef struct page_directory s_page_directory_t;
 
 static ptr_t placement_ptr = MEMORY_LIMIT - HEAP_SIZE;
 static ptr_t *frames_bitmap;
 static ptr_t frames_size;
-static struct page_directory *kernel_dirt;
-static struct page_directory *current_dirt;
+static s_page_directory_t *kernel_dirt;
+static s_page_directory_t *current_dirt;
 
 #endif
 
