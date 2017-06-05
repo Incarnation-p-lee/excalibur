@@ -1,5 +1,5 @@
-#ifndef MEMORY_DECLARATION_H
-#define MEMORY_DECLARATION_H
+#ifndef SRC_MEMORY_MEMORY_DECLARATION_H
+#define SRC_MEMORY_MEMORY_DECLARATION_H
 
 bool frame_available_p(ptr_t frame);
 s_kheap_t * kheap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max, bool supervisor, bool read_only);

@@ -1,6 +1,5 @@
-#ifndef ISR_DECLARATION_H
-#define ISR_DECLARATION_H
-
+#ifndef SRC_INTERRUPT_ISR_DECLARATION_H
+#define SRC_INTERRUPT_ISR_DECLARATION_H
 
 static inline void irq_0_timer_callback(s_pro_context_t context);
 static inline void isr_handler_0_divide_by_zero(s_pro_context_t context);

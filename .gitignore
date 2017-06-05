@@ -33,4 +33,7 @@ tags
 
 # Debug files
 *.dSYM/
-output/*
+bin/*
+*.o
+*.d
+

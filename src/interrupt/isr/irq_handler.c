@@ -19,6 +19,7 @@ static inline void
 irq_0_timer_callback(s_pro_context_t context)
 {
     tick++;
+    printf_vga("Context address %x\n", context);
     printf_vga("Timer-Tick: %x\r", tick);
 }
 

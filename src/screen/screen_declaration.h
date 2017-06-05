@@ -1,6 +1,5 @@
-#ifndef SCREEN_DECLARATION_H
-#define SCREEN_DECLARATION_H
-
+#ifndef SRC_SCREEN_DECLARATION_H
+#define SRC_SCREEN_DECLARATION_H
 
 static inline void screen_monitor_cursor_apply(void);
 static inline void screen_monitor_one_line_scroll(void);

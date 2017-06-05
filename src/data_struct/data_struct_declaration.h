@@ -1,6 +1,5 @@
-#ifndef DATA_STRUCT_DECLARATION_H
-#define DATA_STRUCT_DECLARATION_H
-
+#ifndef SRC_DATA_STRUCT_DECLARATION_H
+#define SRC_DATA_STRUCT_DECLARATION_H
 
 bool ordered_array_legal_p(s_ordered_array_t *ordered);
 s_ordered_array_t ordered_array_create(uint32 max_size, ordered_compare_t compare);
