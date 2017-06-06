@@ -11,7 +11,7 @@ before_install:
   - export PATH="$PATH:`pwd`"
   - cd -
 script: 
-  - bash ./script/build_excalibur.sh
+  - make
 notifications:
   email:
     - incarnation.p.lee@outlook.com
