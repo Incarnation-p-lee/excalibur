@@ -30,7 +30,7 @@ main(void)
     descriptor_table_idt_init();
 
     irq_0_timer_init(1000);
-    paging_initialize();
+    page_initialize();
 
     test_idt_setup();
     test_paging();

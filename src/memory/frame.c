@@ -1,99 +1,147 @@
-static void
-frame_set(ptr_t frame)
+static inline s_frame_bitmap_t *
+frame_bitmap_create(ptr_t memory_limit)
 {
-    ptr_t idx;
-    ptr_t off;
+    uint32 size;
+    uint32 frame_limit;
+    uint32 bytes_count;
+    s_frame_bitmap_t *frame_bitmap;
 
-    kassert(sizeof(frame) == sizeof(ptr_t));
+    kassert(memory_limit);
 
-    idx = BM_INDEX(frame);
-    off = BM_OFFSET(frame);
+    frame_bitmap = kmalloc(sizeof(*frame_bitmap));
 
-    frames_bitmap[idx] |= (0x1 << off);
+    frame_limit = memory_limit / PAGE_SIZE;
+    size = frame_limit / BIT_WIDTH(*frame_bitmap->bitmap) + 1;
+    frame_bitmap->size = size;
+    frame_bitmap->frame_limit = frame_limit;
+
+    bytes_count = size * BIT_WIDTH(*frame_bitmap->bitmap);
+    frame_bitmap->bitmap = kmalloc(bytes_count);
+    kmemset(frame_bitmap->bitmap, 0, bytes_count);
+
+    return frame_bitmap;
 }
 
-static void
-frame_clear(ptr_t frame)
+// static inline void
+// frame_clear(s_frame_bitmap_t *frame_bitmap, ptr_t frame)
+// {
+//     ptr_t idx;
+//     ptr_t off;
+// 
+//     idx = BM_INDEX(frame);
+//     off = BM_OFFSET(frame);
+// 
+//     frames_bitmap[idx] &= ~(0x1 << off);
+// }
+
+static inline void
+frame_bitmap_mask_set(s_frame_bitmap_t *frame_bitmap, uint32 mask_idx,
+    uint32 bit_idx)
 {
-    ptr_t idx;
-    ptr_t off;
+    kassert(frame_bitmap);
+    kassert(mask_idx < frame_bitmap_limit(frame_bitmap));
+    kassert(bit_idx < BIT_WIDTH(frame_bitmap->bitmap[0]));
 
-    idx = BM_INDEX(frame);
-    off = BM_OFFSET(frame);
-
-    frames_bitmap[idx] &= ~(0x1 << off);
+    frame_bitmap->bitmap[mask_idx] |= (ptr_t)1 << bit_idx;
 }
 
-bool
-frame_available_p(ptr_t frame)
+static inline ptr_t
+frame_bitmap_frame_obtain(s_frame_bitmap_t *frame_bitmap,
+    uint32 mask_idx, uint32 bit_idx)
 {
-    ptr_t idx;
-    ptr_t off;
+    ptr_t frame;
 
-    kassert(sizeof(frame) == sizeof(ptr_t));
+    kassert(frame_bitmap);
+    kassert(mask_idx < frame_bitmap_limit(frame_bitmap));
+    kassert(bit_idx < BIT_WIDTH(frame_bitmap->bitmap[0]));
 
-    idx = BM_INDEX(frame);
-    off = BM_OFFSET(frame);
+    frame_bitmap_mask_set(frame_bitmap, mask_idx, bit_idx);
+    frame = (ptr_t)(mask_idx * BIT_WIDTH(ptr_t) + bit_idx);
+    kassert(frame < frame_bitmap->frame_limit);
 
-    if (FRAME_SET == (frames_bitmap[idx] & (0x1 << off))) {
-        return false;
-    } else {
+    return frame;
+}
+
+static inline bool
+frame_bitmap_mask_set_p(ptr_t frame_bitmap, uint32 i)
+{
+    kassert(i < BIT_WIDTH(frame_bitmap));
+
+    if (U32_BIT_GET(frame_bitmap, i) == FRAME_BITMAP_SET) {
         return true;
+    } else {
+        return false;
     }
 }
 
-static ptr_t
-frame_first(void)
+static inline bool
+frame_bitmap_mask_clear_p(ptr_t mask, uint32 i)
 {
-    ptr_t i;
-    ptr_t j;
-    ptr_t frame;
+    return !frame_bitmap_mask_set_p(mask, i);
+}
+
+static inline uint32
+frame_bitmap_limit(s_frame_bitmap_t *frame_bitmap)
+{
+    return frame_bitmap->size;
+}
+
+static inline ptr_t
+frame_bitmap_mask(s_frame_bitmap_t *frame_bitmap, uint32 i)
+{
+    kassert(frame_bitmap);
+    kassert(i < frame_bitmap_limit(frame_bitmap));
+
+    return frame_bitmap->bitmap[i];
+}
+
+static inline ptr_t
+frame_allocate(s_frame_bitmap_t *frame_bitmap)
+{
+    uint32 i;
+    uint32 j;
+    ptr_t mask;
+    uint32 limit;
 
     i = 0;
-    while (i < BM_INDEX(frames_size)) {
-        j = 0;
-        if ((ptr_t)-1 != frames_bitmap[i]) {
-            while (j < sizeof(ptr_t) * 8) {
-                if (FRAME_CLEAR == (frames_bitmap[i] & (0x1 << j))) {
-                    frame = i * sizeof(ptr_t) * 8 + j;
-                    frame_set(frame);
-                    return frame;
-                }
-                j++;
-            }
+    limit = frame_bitmap_limit(frame_bitmap);
+
+    while (i < limit) {
+        mask = frame_bitmap_mask(frame_bitmap, i);
+
+        if (mask == (ptr_t)-1) {
+            i++;
+            continue;
         }
+
+        j = 0;
+
+        while (j < BIT_WIDTH(ptr_t)) {
+            if (frame_bitmap_mask_clear_p(mask, j)) {
+                return frame_bitmap_frame_obtain(frame_bitmap, i, j);
+            }
+
+            j++;
+        }
+
         i++;
     }
 
     KERNEL_PANIC(NO_FRAME);
-    return 0;
+    return FRAME_NULL;
 }
 
-static void
-frame_allocate(s_page_entry_t *page, bool kernel, bool write)
-{
-    kassert(NULL != page);
-
-    if (FRAME_CLEAR == page->frame) {
-
-        page->present = BIT_SET;
-        page->rw = write ? BIT_SET : BIT_CLEAR;
-        page->user = kernel ? BIT_SET : BIT_CLEAR;
-        page->frame = frame_first();
-    }
-}
-
-static void
-frame_free(s_page_entry_t *page)
-{
-    ptr_t frame;
-
-    kassert(NULL != page);
-
-    frame = page->frame;
-    if (frame) {
-        frame_clear(frame);
-        page->frame = FRAME_CLEAR;
-    }
-}
+// static inline void
+// frame_free(s_page_entry_t *page_entry)
+// {
+//     ptr_t frame;
+// 
+//     kassert(page);
+// 
+//     frame = page->frame;
+//     if (frame) {
+//         frame_clear(frame);
+//         page->frame = FRAME_NULL;
+//     }
+// }
 

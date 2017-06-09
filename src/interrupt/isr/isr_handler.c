@@ -21,7 +21,6 @@ isr_handler_main(s_pro_context_t context)
         default:
             break;
     }
-
 }
 
 void
@@ -77,5 +76,4 @@ isr_handler_14_paging_fault(s_pro_context_t context)
     printf_vga("Page Fault at address %x.\n", fault_addr);
     KERNEL_PANIC("Page Fault");
 }
-
 

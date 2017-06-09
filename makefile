@@ -11,6 +11,7 @@ inc                :=$(base)/inc
 script             :=script
 script_module_decl :=$(script)/generate_declaration.pl
 script_external    :=$(script)/generate_external.pl
+external           :=$(inc)/external.h
 
 CFLAG              =-nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32 -Wall -Wextra -Werror -c
 LD_SCRIPT          =link.ld
@@ -25,10 +26,15 @@ dep_c              =$(subst .c,.d, $(src_c))
 dep_asm            =$(subst .s,.d, $(src_asm))
 obj_partial        =$(filter-out %main.o, $(obj_c))
 decl               =$(subst .o,_declaration.h, $(obj_partial))
-obj                =$(obj_c) $(obj_asm)
 dep                =$(dep_c) $(dep_asm)
 
-external           :=$(inc)/external.h
+#
+# Make sure boot.o will locate at first 8KB of elf, grub will search multi-boot
+# magic number in that range.
+#
+obj_tmp            =$(obj_c) $(obj_asm)
+obj_boot           =$(filter %boot.o, $(obj_tmp))
+obj                =$(obj_boot) $(shell echo $(obj_tmp) | sed -e 's:$(obj_boot)::')
 
 vpath %.h $(inc)
 
@@ -84,7 +90,7 @@ $(dep_asm):%.d:%.s
 	@echo "    Depend   $(notdir $@)"
 	$(ASM) -M -MT '$(basename $<).o $(basename $<).d' $(ASMFLAG) $< > $@
 
-$(TARGET):$(obj_c) $(obj_asm)
+$(TARGET):$(obj)
 	@echo "    Link     $(notdir $@)"
 	$(LD) $(LFLAG) $^ -o $@
 
