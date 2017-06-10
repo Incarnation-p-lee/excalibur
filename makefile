@@ -88,6 +88,7 @@ $(dep_asm):%.d:%.s
 $(TARGET):$(obj)
 	@echo "    Link     $(notdir $@)"
 	$(LD) $(LFLAG) $^ -o $@
+	@ctags -R $(base)
 
 $(obj_c):%.o:%.c
 	@echo "    Compile  $(notdir $<)"

@@ -26,7 +26,7 @@ irq_0_timer_handler(s_pro_context_t *context)
 {
     tick++;
 
-    if (tick % 10000 == 0) {
+    if (tick % 1000 == 0) {
         printf_vga_tk("Timer-Tick: %x -> %x.\n", tick, context->eip);
     }
 }

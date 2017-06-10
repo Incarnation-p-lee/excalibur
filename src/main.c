@@ -12,11 +12,19 @@ test_idt_setup(void)
 static inline void
 test_paging(void)
 {
-    return;
     uint32 *ptr;
 
-    ptr = (void *)0x80000010; // 64 MB
+    ptr = (void *)0x8000010;
     *ptr = 0xdeadbeaf;
+}
+
+static inline void
+entry_initialize(void)
+{
+    descriptor_table_gdt_init();
+    descriptor_table_idt_init();
+    irq_0_timer_init(1000);
+    paging_initialize();
 }
 
 int
@@ -24,12 +32,10 @@ entry(uint32 magic, void *boot_header, void *boot_info)
 {
     printf_vga_clear();
     printf_vga_tk("Hello, The World of OS.\n");
-    detect_boot_up_env(magic, boot_header, boot_info);
 
-    descriptor_table_gdt_init();
-    descriptor_table_idt_init();
-    irq_0_timer_init(1000);
-    paging_initialize();
+    multiboot_env_detect(magic, boot_header, boot_info);
+
+    entry_initialize();
 
     test_idt_setup();
 

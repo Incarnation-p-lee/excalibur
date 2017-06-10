@@ -18,22 +18,22 @@ multiboot_data_valid_p(uint32 i)
     }
 }
 
-void
+static inline void
 multiboot_data_header_initialize(s_multiboot_header_t *header)
 {
-    if (header) {
-        multiboot_data_valid_set(MULTIBOOT_HEADER);
-        kmemory_copy(&multiboot_data.header, header, sizeof(*header));
-    }
+    kassert(header);
+
+    multiboot_data_valid_set(MULTIBOOT_HEADER);
+    kmemory_copy(&multiboot_data.header, header, sizeof(*header));
 }
 
-void
+static inline void
 multiboot_data_info_initialize(s_multiboot_info_t *info)
 {
-    if (info) {
-        multiboot_data_valid_set(MULTIBOOT_INFO);
-        kmemory_copy(&multiboot_data.info, info, sizeof(*info));
-    }
+    kassert(info);
+
+    multiboot_data_valid_set(MULTIBOOT_INFO);
+    kmemory_copy(&multiboot_data.info, info, sizeof(*info));
 }
 
 static inline uint32

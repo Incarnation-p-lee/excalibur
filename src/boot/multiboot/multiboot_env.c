@@ -1,5 +1,5 @@
 static inline void
-detect_cpu_mode(void)
+multiboot_env_cpu_detect(void)
 {
     uint32 cr0;
 
@@ -23,7 +23,7 @@ detect_cpu_mode(void)
 }
 
 static inline void
-detect_stack_base(void)
+multiboot_env_stack_detect(void)
 {
     uint32 esp;
 
@@ -36,7 +36,7 @@ detect_stack_base(void)
 }
 
 static inline void
-detect_multiboot_data(s_multiboot_header_t *header, s_multiboot_info_t *info)
+multiboot_env_data_detect(s_multiboot_header_t *header, s_multiboot_info_t *info)
 {
     uint32 memory_lower;
     uint32 memory_upper;
@@ -55,15 +55,15 @@ detect_multiboot_data(s_multiboot_header_t *header, s_multiboot_info_t *info)
 }
 
 void
-detect_boot_up_env(uint32 magic, void *boot_header, void *boot_info)
+multiboot_env_detect(uint32 magic, void *boot_header, void *boot_info)
 {
     printf_vga_tk("Boot loader magic -> %x.\n", magic);
 
-    detect_cpu_mode();
-    detect_stack_base();
+    multiboot_env_cpu_detect();
+    multiboot_env_stack_detect();
 
     if (boot_header && boot_info) {
-        detect_multiboot_data(boot_header, boot_info);
+        multiboot_env_data_detect(boot_header, boot_info);
     }
 }
 
