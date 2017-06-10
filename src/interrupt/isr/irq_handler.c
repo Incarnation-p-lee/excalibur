@@ -1,26 +1,34 @@
-static uint32 tick = 0;
+static inline uint32
+irq_handler_nmbr_isr_to_irq(uint32 isr_nmbr)
+{
+    kassert(isr_nmbr >= IRQ_BASE);
+
+    return isr_nmbr - IRQ_BASE;
+}
 
 void
 irq_handler_main(s_pro_context_t context)
 {
-    isr_handler_t handler;
     uint32 irq_nmbr;
+    uint32 isr_nmbr;
+    isr_handler_t handler;
 
-    irq_nmbr = context.int_nmbr - IRQ_BASE;
+    isr_nmbr = context.int_nmbr;
+    irq_nmbr = irq_handler_nmbr_isr_to_irq(isr_nmbr);
+    handler = isr_handler_array[isr_nmbr];
+
     pic_send_eoi(irq_nmbr);
-
-    if (NULL != interrupt_handler[context.int_nmbr]) {
-        handler = interrupt_handler[context.int_nmbr];
-        handler(context);
-    }
+    handler(&context);
 }
 
 static inline void
-irq_0_timer_callback(s_pro_context_t context)
+irq_0_timer_handler(s_pro_context_t *context)
 {
     tick++;
-    printf_vga("Context address %x\n", context);
-    printf_vga("Timer-Tick: %x\r", tick);
+
+    if (tick % 10000 == 0) {
+        printf_vga_tk("Timer-Tick: %x -> %x.\n", tick, context->eip);
+    }
 }
 
 void
@@ -29,8 +37,6 @@ irq_0_timer_init(uint32 freq)
     uint32 divisor;
     uint8 low;
     uint8 high;
-
-    isr_handler_register(IRQ_0, &irq_0_timer_callback);
 
     if (0 == freq) {
         freq = IRQ_0_DIVISOR;
@@ -44,6 +50,12 @@ irq_0_timer_init(uint32 freq)
     io_bus_write_byte(IRQ_0_TIMER_DATA, low);
     io_bus_write_byte(IRQ_0_TIMER_DATA, high);
 
-    printf_vga_ts("IRQ timer initialized.\n");
+    printf_vga_tk("IRQ timer initialized.\n");
+}
+
+uint32
+irq_0_timer_tick(void)
+{
+    return tick;
 }
 

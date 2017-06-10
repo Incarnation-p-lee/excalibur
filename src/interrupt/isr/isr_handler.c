@@ -1,58 +1,50 @@
 void
 isr_handler_main(s_pro_context_t context)
 {
-    enum interrupt_num int_nmbr;
+    isr_handler_t handler;
+    e_interrupt_nmbr_t int_nmbr;
 
     int_nmbr = context.int_nmbr;
-    printf_vga("Recieved ISR: %x.\n", int_nmbr);
+    handler = isr_handler_array[int_nmbr];
 
-    switch (int_nmbr) {
-        case DIV_BY_Z:
-            isr_handler_0_divide_by_zero(context);
-            break;
-        case BRK_EXPT:
-            isr_handler_3_breakpoint(context);
-            break;
-        case PAGE_FAL:
-            isr_handler_14_paging_fault(context);
-            break;
-        case GNL_PRTT_FAL:
-            break;
-        default:
-            break;
-    }
-
-}
-
-void
-isr_handler_register(uint8 nmbr, isr_handler_t handler)
-{
-    interrupt_handler[nmbr] = handler;
+    handler(&context);
 }
 
 static inline void
-isr_handler_0_divide_by_zero(s_pro_context_t context)
+isr_0_divide_by_zero_handler(s_pro_context_t *context)
 {
-    printf_vga("Triggered Divide by zero exception at eip: %x\n", context.eip);
+    printf_vga_tk("Divide by zero at eip -> %x.\n", context->eip);
 }
 
 static inline void
-isr_handler_3_breakpoint(s_pro_context_t context)
+isr_3_breakpoint_handler(s_pro_context_t *context)
 {
-    printf_vga("Triggered Breakpoint exception at eip: %x\n", context.eip);
+    printf_vga_tk("Breakpoint at eip -> %x.\n", context->eip);
 }
 
 static inline void
-isr_handler_14_paging_fault(s_pro_context_t context)
+isr_6_invalid_opcode_handler(s_pro_context_t *context)
 {
-    ptr_t fault_addr;
+    printf_vga_tk("Invalid opcode at eip -> %x.\n", context->eip);
+}
+
+static inline void
+isr_12_stack_fault_handler(s_pro_context_t *context)
+{
+    printf_vga_tk("Stack fault at eip -> %x.\n", context->eip);
+}
+
+static inline void
+isr_14_paging_fault_handler(s_pro_context_t *context)
+{
     uint32 err_code;
+    ptr_t fault_addr;
 
     asm volatile (
         "mov %%cr2, %0\n\t"
         :"=r"(fault_addr));
 
-    err_code = context.err_code;
+    err_code = context->err_code;
 
     if (!(err_code & PAGE_FAULT_PRST)) {
         printf_vga("Page is not present.\n");

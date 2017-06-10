@@ -30,7 +30,7 @@ paging_initialize(void)
     // Enable paging
     paging_directory_switch(kernel_dirt);
 
-    printf_vga_ts("Paging initialized.\n");
+    printf_vga_tk("Paging initialized.\n");
 }
 
 static inline void
