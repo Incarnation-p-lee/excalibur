@@ -30,6 +30,8 @@ extern void kheap_free(s_kheap_t *heap, void *val);
 extern void kheap_initialize(void);
 extern void kmemory_copy(void *to, void *from, uint32 len);
 extern void kmemset(void *base, uint8 v, uint32 len);
+extern void multiboot_data_header_initialize(s_multiboot_header_t *header);
+extern void multiboot_data_info_initialize(s_multiboot_info_t *info);
 extern void ordered_array_adjust(s_ordered_array_t *oa, uint32 idx);
 extern void ordered_array_destroy(s_ordered_array_t *oa);
 extern void ordered_array_insert(s_ordered_array_t *oa, void *val);
