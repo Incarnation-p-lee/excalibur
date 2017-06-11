@@ -6,6 +6,7 @@ static inline uint32 multiboot_data_info_physical_memory_lower_i(void);
 static inline uint32 multiboot_data_info_physical_memory_upper_i(void);
 static inline void multiboot_data_header_initialize(s_multiboot_header_t *header);
 static inline void multiboot_data_info_initialize(s_multiboot_info_t *info);
+static inline void multiboot_data_initialize(void);
 static inline void multiboot_data_valid_set(uint32 i);
 static inline void multiboot_env_cpu_detect(void);
 static inline void multiboot_env_data_detect(s_multiboot_header_t *header, s_multiboot_info_t *info);

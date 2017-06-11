@@ -16,9 +16,7 @@ struct multiboot_data {
     s_multiboot_info_t   info;
 };
 
-static s_multiboot_data_t multiboot_data = {
-    0,
-};
+static s_multiboot_data_t multiboot_data;
 
 #endif
 

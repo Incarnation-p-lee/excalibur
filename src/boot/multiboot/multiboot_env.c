@@ -36,6 +36,12 @@ multiboot_env_stack_detect(void)
 }
 
 static inline void
+multiboot_data_initialize(void)
+{
+    multiboot_data.valid_mask = 0u;
+}
+
+static inline void
 multiboot_env_data_detect(s_multiboot_header_t *header, s_multiboot_info_t *info)
 {
     uint32 memory_lower;
@@ -44,6 +50,7 @@ multiboot_env_data_detect(s_multiboot_header_t *header, s_multiboot_info_t *info
     kassert(header);
     kassert(info);
 
+    multiboot_data_initialize();
     multiboot_data_header_initialize(header);
     multiboot_data_info_initialize(info);
 
