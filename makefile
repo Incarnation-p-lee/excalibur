@@ -26,6 +26,7 @@ dep_c              =$(subst .c,.d, $(src_c))
 dep_asm            =$(subst .s,.d, $(src_asm))
 obj_partial        =$(filter-out %main.o, $(obj_c))
 decl               =$(subst .o,_declaration.h, $(obj_partial))
+obj                =$(obj_asm) $(obj_c)
 dep                =$(dep_c) $(dep_asm)
 
 #
@@ -43,6 +44,7 @@ all:
 include src/makefile.mk
 include src/boot/makefile.mk
 include src/boot/descriptor/makefile.mk
+include src/boot/multiboot/makefile.mk
 include src/bus/makefile.mk
 include src/common/makefile.mk
 include src/common/print/makefile.mk
@@ -93,6 +95,7 @@ $(dep_asm):%.d:%.s
 $(TARGET):$(obj)
 	@echo "    Link     $(notdir $@)"
 	$(LD) $(LFLAG) $^ -o $@
+	@ctags -R $(base)
 
 $(obj_c):%.o:%.c
 	@echo "    Compile  $(notdir $<)"

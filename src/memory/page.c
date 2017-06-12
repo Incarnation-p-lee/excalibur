@@ -163,8 +163,6 @@ page_directory_switch(s_page_directory_t *page_dirt)
 
     kassert(page_dirt);
 
-    printf_vga_ts("Page dir phys addr %x\n", &page_dirt->table_array_phys);
-
     asm volatile (
         "mov %1,    %%cr3\n\t"
         "mov %%cr0, %0\n\t"
@@ -194,7 +192,7 @@ page_initialize(void)
     /* Init page directory */
     current_page_dirt = kernel_page_dirt = page_directory_create();
 
-    printf_vga_ts("Page AAA\n");
+    printf_vga_tk("Page AAA\n");
 
     /*
      * Map phys addr to virt addr from 0x0 to placement_ptr address
@@ -208,7 +206,7 @@ page_initialize(void)
         addr += PAGE_SIZE;
     }
 
-    printf_vga_ts("Page BBB\n");
+    printf_vga_tk("Page BBB\n");
 
     /* Enable paging */
     page_directory_switch(kernel_page_dirt);

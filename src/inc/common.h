@@ -7,6 +7,7 @@
 #include "error_code.h"
 #include "data_struct.h"
 #include "kheap.h"
+#include "multiboot.h"
 
 #include "external.h"
 

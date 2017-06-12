@@ -42,6 +42,7 @@
 #define PAGE_SIZE                 0x1000
 
 #define PTR_INVALID               (ptr_t)(-1)
+#define MEMORY_INVALID            0u
 
 #define ARRAY_CNT_OF(a)           (sizeof(a) / sizeof(a[0]))
 #define BIT_WIDTH(t)              (sizeof(t) * 8)

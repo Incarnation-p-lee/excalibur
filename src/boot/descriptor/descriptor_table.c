@@ -1,8 +1,6 @@
 void
 descriptor_table_gdt_init(void)
 {
-    detect_physical_memory_size();
-
     gdt_reg.limit = sizeof(gdt_entry_list) - 1;
     gdt_reg.base = (uint32)&gdt_entry_list;
 
@@ -18,7 +16,7 @@ descriptor_table_gdt_init(void)
 
     gdt_table_flush((uint32)&gdt_reg);
 
-    printf_vga_ts("GDT table initialized.\n");
+    printf_vga_tk("GDT table initialized.\n");
 }
 
 void
@@ -41,7 +39,7 @@ descriptor_table_idt_init(void)
 
     idt_table_flush((uint32)&idt_reg);
 
-    printf_vga_ts("IDT table initialized.\n");
+    printf_vga_tk("IDT table initialized.\n");
 }
 
 static inline void

@@ -38,20 +38,20 @@ printf_k_one_buf(char *buf, void *base)
     while ('\0' != *trvl) {
         if ('%' == *trvl) {
             *trvl = CHAR_NULL;
-            PRINT_STRING(s);
+            screen_monitor_write_string(s);
 
             trvl++;
             switch (*trvl) {
                 case 'd':
-                    PRINT_UINT32(*(uint32 *)base);
+                    screen_monitor_write_uint32(*(uint32 *)base);
                     base += sizeof(uint32);
                     break;
                 case 'x':
-                    PRINT_UINT32_HEX(*(uint32 *)base);
+                    screen_monitor_write_uint32_hex(*(uint32 *)base);
                     base += sizeof(uint32);
                     break;
                 case 's':
-                    PRINT_STRING(*(char **)base);
+                    screen_monitor_write_string(*(char **)base);
                     base += sizeof(char *);
                     break;
                 default:
@@ -62,7 +62,7 @@ printf_k_one_buf(char *buf, void *base)
         trvl++;
     }
 
-    PRINT_STRING(s);
+    screen_monitor_write_string(s);
 
     return base;
 }
