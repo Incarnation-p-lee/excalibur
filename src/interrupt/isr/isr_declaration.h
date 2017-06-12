@@ -3,6 +3,7 @@
 
 static inline uint32 irq_handler_nmbr_isr_to_irq(uint32 isr_nmbr);
 static inline void irq_0_timer_handler(s_pro_context_t *context);
+static inline void irq_7_handler(s_pro_context_t *context);
 static inline void isr_0_divide_by_zero_handler(s_pro_context_t *context);
 static inline void isr_12_stack_fault_handler(s_pro_context_t *context);
 static inline void isr_14_paging_fault_handler(s_pro_context_t *context);

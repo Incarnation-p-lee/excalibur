@@ -36,7 +36,14 @@ enum interrupt_nmbr { /* for ISR (interrupt service runtine */
     PLACEHOLDER_29,
     PLACEHOLDER_30,
     PLACEHOLDER_31,
-    IRQ_TIMER,    /*  32 timer */
+    IRQ_0_TIMER,  /*  32 timer */
+    IRQ_1_PS,
+    IRQ_2_PS,
+    IRQ_3_PS,
+    IRQ_4_PS,
+    IRQ_5_PS,
+    IRQ_6_PS,
+    IRQ_7_PS,
 };
 
 struct pro_context {

@@ -11,7 +11,8 @@ static isr_handler_t isr_handler_array[] = {
     [STK_FAL]      = &isr_12_stack_fault_handler,
     [PAGE_FAL]     = &isr_14_paging_fault_handler,
 
-    [IRQ_TIMER]    = &irq_0_timer_handler,
+    [IRQ_0_TIMER]    = &irq_0_timer_handler,
+    [IRQ_7_PS]    = &irq_7_handler,
 
 };
 

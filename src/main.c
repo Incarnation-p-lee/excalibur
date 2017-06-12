@@ -9,14 +9,15 @@ test_idt_setup(void)
         "int $0x0\n\t");
 }
 
-static inline void
-test_paging(void)
-{
-    uint32 *ptr;
-
-    ptr = (void *)0x8000010;
-    *ptr = 0xdeadbeaf;
-}
+// static inline void
+// test_paging(void)
+// {
+//     return;
+//     uint32 *ptr;
+// 
+//     ptr = (void *)0x8000010;
+//     *ptr = 0xdeadbeaf;
+// }
 
 static inline void
 entry_initialize(void)
@@ -24,7 +25,7 @@ entry_initialize(void)
     descriptor_table_gdt_init();
     descriptor_table_idt_init();
     irq_0_timer_init(1000);
-    page_initialize();
+    // page_initialize();
 }
 
 int
@@ -38,7 +39,9 @@ entry(uint32 magic, void *boot_header, void *boot_info)
 
     test_idt_setup();
 
-    test_paging();
+    // test_paging();
+
+    printf_vga_tk("Reach end of entry, will idle.\n");
 
     return 0xdeadbeaf;
 }

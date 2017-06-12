@@ -4,7 +4,8 @@
 #define PAGE_ENTRY_COUNT 1024
 #define HEAP_SIZE        0x1000000  // 16 MB for heap
 #define MEMORY_LIMIT     0x8000000  // 128 MB
-#define PAGE_TABLE_COUNT (MEMORY_LIMIT / (PAGE_SIZE * PAGE_ENTRY_COUNT))
+//#define PAGE_TABLE_COUNT (MEMORY_LIMIT / (PAGE_SIZE * PAGE_ENTRY_COUNT))
+#define PAGE_TABLE_COUNT 1024
 
 typedef struct page_table     s_page_table_t;
 typedef struct page_entry     s_page_entry_t;
@@ -57,6 +58,8 @@ struct frame_bitmap {
     uint32 size;
     uint32 frame_limit;
 };
+
+extern ptr_t end; /* defined in link.ld */
 
 static ptr_t placement_ptr = MEMORY_LIMIT - HEAP_SIZE;
 // static ptr_t *frames_bitmap;
