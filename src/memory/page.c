@@ -149,7 +149,7 @@ page_directory_page_obtain(s_page_directory_t *page_dirt, ptr_t addr)
 
         page_entry = page_table_page_entry(page_table, k);
         page_entry_attribute_us_set(page_entry, /* is_user = */true);
-        page_entry_attribute_rw_set(page_entry, /* is_writable = */true);
+        page_entry_attribute_rw_set(page_entry, /* is_writable = */false);
         page_entry_attribute_present_set(page_entry, /* is_presented = */true);
 
         return page_entry;
@@ -159,25 +159,20 @@ page_directory_page_obtain(s_page_directory_t *page_dirt, ptr_t addr)
 static inline void
 page_directory_switch(s_page_directory_t *page_dirt)
 {
-    uint32 cr0;
-
     kassert(page_dirt);
 
-    asm volatile (
-        "mov %1,    %%cr3\n\t"
-        "mov %%cr0, %0\n\t"
-        :"=r"(cr0)
-        :"r"(&page_dirt->table_array_phys));
-
-    cr0 |= 0x80000000u;
-
-    asm volatile (
-        "mov %0, %%cr0\n\t"
-        :
-        :"r"(cr0));
-
-
     current_page_dirt = page_dirt;
+
+    asm volatile (
+        "mov %0,          %%cr3\n\t"
+        "mov %%cr0,       %%eax\n\t"
+        "or  $0x80000000, %%eax\n\t"
+        "mov %%eax,       %%cr0\n\t"
+        :
+        :"r"(&page_dirt->table_array_phys)
+        :"eax");
+
+    printf_vga_tk("Page initialized.\n");
 }
 
 void
@@ -185,28 +180,23 @@ page_initialize(void)
 {
     ptr_t addr;
     s_page_entry_t *page_entry;
-    s_frame_bitmap_t *frame_bitmap;
 
     frame_bitmap = frame_bitmap_create(MEMORY_LIMIT);
 
     /* Init page directory */
     current_page_dirt = kernel_page_dirt = page_directory_create();
 
-    printf_vga_tk("Page AAA\n");
-
     /*
      * Map phys addr to virt addr from 0x0 to placement_ptr address
      * so we can access this transparently as if paging is not enabled
      */
     addr = 0;
-    while (addr < MEMORY_LIMIT) {
+    while (addr < placement_ptr) {
         page_entry = page_directory_page_obtain(kernel_page_dirt, addr);
         page_entry_frame_set(page_entry, frame_allocate(frame_bitmap));
 
         addr += PAGE_SIZE;
     }
-
-    printf_vga_tk("Page BBB\n");
 
     /* Enable paging */
     page_directory_switch(kernel_page_dirt);

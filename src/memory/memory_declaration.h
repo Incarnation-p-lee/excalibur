@@ -15,7 +15,7 @@ static inline s_page_table_t * page_directory_page_table(s_page_directory_t *pag
 static inline s_page_table_t * page_table_create(void);
 static inline uint32 frame_bitmap_limit(s_frame_bitmap_t *frame_bitmap);
 static inline uint32 memory_set_fill_dword_element(uint8 v);
-static inline void * kmalloc_int(uint32 sz, bool align, ptr_t *phys);
+static inline void * kmalloc_int(uint32 sz, bool is_page_aligned, ptr_t *phys);
 static inline void frame_bitmap_mask_set(s_frame_bitmap_t *frame_bitmap, uint32 mask_idx, uint32 bit_idx);
 static inline void memory_copy_in_byte(void *to, void *from, uint32 len);
 static inline void memory_copy_in_dword(uint32 *to, uint32 *from, uint32 len);

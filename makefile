@@ -34,7 +34,7 @@ dep                =$(dep_c) $(dep_asm)
 # magic number in that range.
 #
 obj_tmp            =$(obj_c) $(obj_asm)
-obj_boot           =$(filter %boot.o, $(obj_tmp))
+obj_boot           =$(filter %/boot.o, $(obj_tmp))
 obj                =$(obj_boot) $(shell echo $(obj_tmp) | sed -e 's:$(obj_boot)::')
 
 vpath %.h $(inc)

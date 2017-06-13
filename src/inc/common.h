@@ -8,6 +8,7 @@
 #include "data_struct.h"
 #include "kheap.h"
 #include "multiboot.h"
+#include "external_data.h"
 
 #include "external.h"
 

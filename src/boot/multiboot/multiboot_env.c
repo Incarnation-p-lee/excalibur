@@ -36,6 +36,18 @@ multiboot_env_stack_detect(void)
 }
 
 static inline void
+multiboot_env_os_image_detect(void)
+{
+    ptr_t image_start, image_end;
+
+    image_start = (ptr_t)&boot;
+    image_end = (ptr_t)&end;
+
+    printf_vga_tk("OS image start -> %x\n", image_start);
+    printf_vga_tk("OS image end -> %x\n", image_end);
+}
+
+static inline void
 multiboot_data_initialize(void)
 {
     multiboot_data.valid_mask = 0u;
@@ -67,6 +79,7 @@ multiboot_env_detect(uint32 magic, void *boot_header, void *boot_info)
     printf_vga_tk("Boot loader magic -> %x.\n", magic);
 
     multiboot_env_cpu_detect();
+    multiboot_env_os_image_detect();
     multiboot_env_stack_detect();
 
     if (boot_header && boot_info) {

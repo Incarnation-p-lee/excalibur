@@ -10,6 +10,7 @@ static inline void multiboot_data_initialize(void);
 static inline void multiboot_data_valid_set(uint32 i);
 static inline void multiboot_env_cpu_detect(void);
 static inline void multiboot_env_data_detect(s_multiboot_header_t *header, s_multiboot_info_t *info);
+static inline void multiboot_env_os_image_detect(void);
 static inline void multiboot_env_stack_detect(void);
 uint32 multiboot_data_info_physical_memory_lower(void);
 uint32 multiboot_data_info_physical_memory_upper(void);

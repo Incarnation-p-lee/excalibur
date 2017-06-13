@@ -1,25 +1,3 @@
-static inline void *
-kmalloc_int(uint32 sz, bool align, ptr_t *phys)
-{
-    void *retval;
-
-    if (align && 0 != (placement_ptr & 0xfff)) {
-        placement_ptr &= ((ptr_t)-1 << 12);
-        placement_ptr += 0x1000;
-    }
-
-    if (placement_ptr + sz > MEMORY_LIMIT) {
-        return NULL;
-    } else if (phys) {
-        *phys = placement_ptr;
-    }
-
-    retval = (void *)placement_ptr;
-    placement_ptr += sz;
-
-    return retval;
-}
-
 // static inline bool
 // kheap_legal_p(s_kheap_t *heap)
 // {
@@ -436,6 +414,28 @@ kmalloc_int(uint32 sz, bool align, ptr_t *phys)
 //     kassert(i == new_size);
 //     heap->addr_end = heap->addr_start + new_size;
 // }
+
+static inline void *
+kmalloc_int(uint32 sz, bool is_page_aligned, ptr_t *phys)
+{
+    void *retval;
+
+    if (is_page_aligned && 0 != (placement_ptr & 0xfff)) {
+        placement_ptr &= ((ptr_t)-1 << 12);
+        placement_ptr += 0x1000;
+    }
+
+    if (placement_ptr + sz > MEMORY_LIMIT) {
+        return NULL;
+    } else if (phys) {
+        *phys = placement_ptr;
+    }
+
+    retval = (void *)placement_ptr;
+    placement_ptr += sz;
+
+    return retval;
+}
 
 void
 kheap_initialize(void)

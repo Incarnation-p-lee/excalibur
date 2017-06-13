@@ -11,8 +11,8 @@ irq_0_timer_handler(s_pro_context_t *context)
 {
     tick++;
 
-    if (tick % 100000 == 0) {
-        printf_vga_tk("Triggered First Tick -> eip %x.\n", context->eip);
+    if (tick % 200000 == 0) {
+        printf_vga_tk("Triggered Time Tick -> eip %x.\n", context->eip);
     }
 }
 
