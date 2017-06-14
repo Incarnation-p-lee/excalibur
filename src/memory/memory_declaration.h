@@ -27,7 +27,7 @@ static inline void page_directory_switch(s_page_directory_t *page_dirt);
 static inline void page_entry_attribute_present_set(s_page_entry_t *page_entry, bool is_presented);
 static inline void page_entry_attribute_rw_set(s_page_entry_t *page_entry, bool is_writable);
 static inline void page_entry_attribute_us_set(s_page_entry_t *page_entry, bool is_user);
-static inline void page_entry_frame_set(s_page_entry_t *page_entry, ptr_t frame);
+static inline void page_entry_frame_set(s_page_entry_t *page_entry, ptr_t frame, bool is_user, bool is_writable);
 void * kmalloc(uint32 sz);
 void * kmalloc_algn(uint32 sz);
 void * kmalloc_algn_with_phys(uint32 sz, ptr_t *phys);

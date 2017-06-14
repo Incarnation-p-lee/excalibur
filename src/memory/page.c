@@ -30,19 +30,11 @@ page_directory_page_table(s_page_directory_t *page_dirt, uint32 i)
 }
 
 static inline void
-page_directory_page_table_set(s_page_directory_t *page_dirt, uint32 i,
-    s_page_table_t *page_table)
-{
-    kassert(page_dirt);
-    kassert(i < ARRAY_CNT_OF(page_dirt->table_array));
-
-    page_dirt->table_array[i] = page_table;
-}
-
-static inline void
 page_directory_page_table_phys_set(s_page_directory_t *page_dirt, uint32 i,
     ptr_t page_table_phys)
 {
+    s_page_entry_t *entry;
+
     kassert(page_dirt);
     kassert(i < ARRAY_CNT_OF(page_dirt->table_array_phys));
 
@@ -57,9 +49,24 @@ page_directory_page_table_phys_set(s_page_directory_t *page_dirt, uint32 i,
      * This called 2-layers paging depends on CPU hardware implement, intel CPU
      * provide above page directory.
      */
-    page_table_phys |= 0x7; /* us rw present */
+    entry = (s_page_entry_t *)&page_table_phys;
+    page_entry_attribute_present_set(entry, /* is_presented = */true);
+    page_entry_attribute_us_set(entry, /* is_user = */false);
+    page_entry_attribute_rw_set(entry, /* is_writable = */true);
 
     page_dirt->table_array_phys[i] = page_table_phys;
+}
+
+static inline void
+page_directory_page_table_set(s_page_directory_t *page_dirt, uint32 i,
+    s_page_table_t *page_table)
+{
+    kassert(page_dirt);
+    kassert(i < ARRAY_CNT_OF(page_dirt->table_array));
+
+    page_dirt->table_array[i] = page_table;
+
+    page_directory_page_table_phys_set(page_dirt, i, (ptr_t)page_table);
 }
 
 static inline s_page_entry_t *
@@ -116,11 +123,16 @@ page_entry_frame(s_page_entry_t *page_entry)
 }
 
 static inline void
-page_entry_frame_set(s_page_entry_t *page_entry, ptr_t frame)
+page_entry_frame_set(s_page_entry_t *page_entry, ptr_t frame,
+    bool is_user, bool is_writable)
 {
     kassert(page_entry);
 
     page_entry->frame = frame;
+
+    page_entry_attribute_us_set(page_entry, is_user);
+    page_entry_attribute_rw_set(page_entry, is_writable);
+    page_entry_attribute_present_set(page_entry, /* is_presented = */true);
 }
 
 static inline s_page_entry_t *
@@ -130,7 +142,6 @@ page_directory_page_obtain(s_page_directory_t *page_dirt, ptr_t addr)
     ptr_t k; /* page index */
     ptr_t frame;
     s_page_table_t *page_table;
-    s_page_entry_t *page_entry;
 
     kassert(page_dirt);
 
@@ -140,20 +151,12 @@ page_directory_page_obtain(s_page_directory_t *page_dirt, ptr_t addr)
 
     page_table = page_directory_page_table(page_dirt, i);
 
-    if (page_table) {
-        return page_table_page_entry(page_table, k);
-    } else {
+    if (page_table == NULL) {
         page_table = page_table_create();
         page_directory_page_table_set(page_dirt, i, page_table);
-        page_directory_page_table_phys_set(page_dirt, i, (ptr_t)page_table);
-
-        page_entry = page_table_page_entry(page_table, k);
-        page_entry_attribute_us_set(page_entry, /* is_user = */true);
-        page_entry_attribute_rw_set(page_entry, /* is_writable = */false);
-        page_entry_attribute_present_set(page_entry, /* is_presented = */true);
-
-        return page_entry;
     }
+
+    return page_table_page_entry(page_table, k);
 }
 
 static inline void
@@ -173,13 +176,15 @@ page_directory_switch(s_page_directory_t *page_dirt)
         :"eax");
 
     printf_vga_tk("Page initialized.\n");
+    multiboot_env_cpu_detect();
 }
 
 void
 page_initialize(void)
 {
     ptr_t addr;
-    s_page_entry_t *page_entry;
+    ptr_t frame;
+    s_page_entry_t *entry;
 
     frame_bitmap = frame_bitmap_create(MEMORY_LIMIT);
 
@@ -192,8 +197,10 @@ page_initialize(void)
      */
     addr = 0;
     while (addr < placement_ptr) {
-        page_entry = page_directory_page_obtain(kernel_page_dirt, addr);
-        page_entry_frame_set(page_entry, frame_allocate(frame_bitmap));
+        frame = frame_allocate(frame_bitmap);
+        entry = page_directory_page_obtain(kernel_page_dirt, addr);
+        page_entry_frame_set(entry, frame, /* is_user = */false,
+            /* is_writable = */true);
 
         addr += PAGE_SIZE;
     }

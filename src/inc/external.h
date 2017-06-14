@@ -27,6 +27,7 @@ extern void isr_handler_main(s_pro_context_t context);
 extern void kheap_initialize(void);
 extern void kmemory_copy(void *to, void *from, uint32 len);
 extern void kmemset(void *base, uint8 v, uint32 len);
+extern void multiboot_env_cpu_detect(void);
 extern void multiboot_env_detect(uint32 magic, void *boot_header, void *boot_info);
 extern void ordered_array_adjust(s_ordered_array_t *oa, uint32 idx);
 extern void ordered_array_destroy(s_ordered_array_t *oa);

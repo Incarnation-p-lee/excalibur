@@ -1,4 +1,4 @@
-static inline void
+void
 multiboot_env_cpu_detect(void)
 {
     uint32 cr0;
@@ -16,9 +16,9 @@ multiboot_env_cpu_detect(void)
     }
 
     if (U32_BIT_GET(cr0, 31) == 1) {
-        printf_vga_tk("Pagine enabled.\n");
+        printf_vga_tk("Paging enabled.\n");
     } else {
-        printf_vga_tk("Pagine disabled.\n");
+        printf_vga_tk("Paging disabled.\n");
     }
 }
 
