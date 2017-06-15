@@ -8,7 +8,7 @@ frame_bitmap_create(ptr_t memory_limit)
 
     kassert(memory_limit);
 
-    frame_bitmap = kmalloc(sizeof(*frame_bitmap));
+    frame_bitmap = memory_physical_allocate(sizeof(*frame_bitmap));
 
     frame_limit = memory_limit / PAGE_SIZE;
     size = frame_limit / BIT_WIDTH(*frame_bitmap->bitmap) + 1;
@@ -16,7 +16,7 @@ frame_bitmap_create(ptr_t memory_limit)
     frame_bitmap->frame_limit = frame_limit;
 
     bytes_count = size * BIT_WIDTH(*frame_bitmap->bitmap);
-    frame_bitmap->bitmap = kmalloc(bytes_count);
+    frame_bitmap->bitmap = memory_physical_allocate(bytes_count);
     kmemset(frame_bitmap->bitmap, 0, bytes_count);
 
     return frame_bitmap;

@@ -3,7 +3,8 @@ page_directory_create(void)
 {
     s_page_directory_t *page_dirt;
 
-    page_dirt = kmalloc_algn(sizeof(*page_dirt));
+    /* is_page_aligned = true */
+    page_dirt = memory_physical_aligned_allocate(sizeof(*page_dirt));
     kmemset(page_dirt, 0, sizeof(*page_dirt));
 
     return page_dirt;
@@ -14,7 +15,7 @@ page_table_create(void)
 {
     s_page_table_t *page_table;
 
-    page_table = kmalloc_algn(sizeof(s_page_table_t));
+    page_table = memory_physical_aligned_allocate(sizeof(s_page_table_t));
     kmemset(page_table, 0, sizeof(s_page_table_t));
 
     return page_table;
@@ -185,18 +186,20 @@ page_initialize(void)
     ptr_t addr;
     ptr_t frame;
     s_page_entry_t *entry;
+    ptr_t memory_phys_limit;
 
-    frame_bitmap = frame_bitmap_create(MEMORY_LIMIT);
+    memory_phys_limit = multiboot_data_info_physical_memory_limit();
+    frame_bitmap = frame_bitmap_create(memory_phys_limit);
 
     /* Init page directory */
     current_page_dirt = kernel_page_dirt = page_directory_create();
 
     /*
-     * Map phys addr to virt addr from 0x0 to placement_ptr address
+     * Map phys addr to virt addr from 0x0 to placement_phys address
      * so we can access this transparently as if paging is not enabled
      */
     addr = 0;
-    while (addr < placement_ptr) {
+    while (addr < placement_phys) {
         frame = frame_allocate(frame_bitmap);
         entry = page_directory_page_obtain(kernel_page_dirt, addr);
         page_entry_frame_set(entry, frame, /* is_user = */false,

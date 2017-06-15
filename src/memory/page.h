@@ -52,15 +52,6 @@ struct page_directory {
  *     |- page table 1023
  */
 
-struct frame_bitmap {
-    ptr_t  *bitmap;
-    uint32 size;
-    uint32 frame_limit;
-};
-
-static ptr_t placement_ptr = (ptr_t)&end;
-
-static s_frame_bitmap_t   *frame_bitmap;
 static s_page_directory_t *kernel_page_dirt;
 static s_page_directory_t *current_page_dirt;
 

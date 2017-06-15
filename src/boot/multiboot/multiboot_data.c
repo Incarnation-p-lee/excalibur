@@ -18,6 +18,12 @@ multiboot_data_valid_p(uint32 i)
     }
 }
 
+static inline bool
+multiboot_data_invalid_p(uint32 i)
+{
+    return !multiboot_data_valid_p(i);
+}
+
 static inline void
 multiboot_data_header_initialize(s_multiboot_header_t *header)
 {
@@ -41,7 +47,7 @@ multiboot_data_info_physical_memory_lower_i(void)
 {
     kassert(multiboot_data_valid_p(MULTIBOOT_INFO));
 
-    return multiboot_data.info.memory_lower;
+    return multiboot_data.info.memory_lower; /* count in KB */
 }
 
 static inline uint32
@@ -49,28 +55,51 @@ multiboot_data_info_physical_memory_upper_i(void)
 {
     kassert(multiboot_data_valid_p(MULTIBOOT_INFO));
 
-    return multiboot_data.info.memory_upper;
+    return multiboot_data.info.memory_upper; /* count in KB */
 }
 
-uint32
+ptr_t
 multiboot_data_info_physical_memory_lower(void)
 {
-    if (multiboot_data_valid_p(MULTIBOOT_INFO)) {
-        return multiboot_data_info_physical_memory_lower_i();
-    } else {
+    if (multiboot_data_invalid_p(MULTIBOOT_INFO)) {
         KERNEL_PANIC("Invalid data of multiboot info.\n");
         return MEMORY_INVALID;
+    } else {
+        return multiboot_data_info_physical_memory_lower_i();
     }
 }
 
-uint32
+ptr_t
 multiboot_data_info_physical_memory_upper(void)
 {
-    if (multiboot_data_valid_p(MULTIBOOT_INFO)) {
-        return multiboot_data_info_physical_memory_upper_i();
-    } else {
+    if (multiboot_data_invalid_p(MULTIBOOT_INFO)) {
         KERNEL_PANIC("Invalid data of multiboot info.\n");
         return MEMORY_INVALID;
+    } else {
+        return multiboot_data_info_physical_memory_upper_i();
+    }
+}
+
+ptr_t
+multiboot_data_info_physical_memory_limit(void)
+{
+    ptr_t page_mask;
+    ptr_t memory_kb_limit;
+    ptr_t memory_bytes_limit;
+
+    if (multiboot_data_invalid_p(MULTIBOOT_INFO)) {
+        KERNEL_PANIC("Invalid data of multiboot info.\n");
+        return MEMORY_INVALID;
+    } else {
+        page_mask = PAGE_SIZE - 1;
+        memory_kb_limit = multiboot_data_info_physical_memory_upper_i();
+        memory_bytes_limit = memory_kb_limit * 1024;
+
+        if ((memory_bytes_limit & page_mask) != 0) {
+            memory_bytes_limit &= ~page_mask;
+        }
+
+        return memory_bytes_limit;
     }
 }
 

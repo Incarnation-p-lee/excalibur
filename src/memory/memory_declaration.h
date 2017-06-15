@@ -15,7 +15,9 @@ static inline s_page_table_t * page_directory_page_table(s_page_directory_t *pag
 static inline s_page_table_t * page_table_create(void);
 static inline uint32 frame_bitmap_limit(s_frame_bitmap_t *frame_bitmap);
 static inline uint32 memory_set_fill_dword_element(uint8 v);
-static inline void * kmalloc_int(uint32 sz, bool is_page_aligned, ptr_t *phys);
+static inline void * memory_physical_aligned_allocate(uint32 sz);
+static inline void * memory_physical_allocate(uint32 sz);
+static inline void * memory_physical_allocate_i(uint32 sz, bool is_page_aligned);
 static inline void frame_bitmap_mask_set(s_frame_bitmap_t *frame_bitmap, uint32 mask_idx, uint32 bit_idx);
 static inline void memory_copy_in_byte(void *to, void *from, uint32 len);
 static inline void memory_copy_in_dword(uint32 *to, uint32 *from, uint32 len);
@@ -29,9 +31,6 @@ static inline void page_entry_attribute_rw_set(s_page_entry_t *page_entry, bool 
 static inline void page_entry_attribute_us_set(s_page_entry_t *page_entry, bool is_user);
 static inline void page_entry_frame_set(s_page_entry_t *page_entry, ptr_t frame, bool is_user, bool is_writable);
 void * kmalloc(uint32 sz);
-void * kmalloc_algn(uint32 sz);
-void * kmalloc_algn_with_phys(uint32 sz, ptr_t *phys);
-void * kmalloc_phys(uint32 sz, ptr_t *phys);
 void kheap_initialize(void);
 void kmemory_copy(void *to, void *from, uint32 len);
 void kmemset(void *base, uint8 v, uint32 len);
