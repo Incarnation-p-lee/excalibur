@@ -1,5 +1,5 @@
 void
-descriptor_table_gdt_init(void)
+descriptor_table_gdt_initialize(void)
 {
     gdt_reg.limit = sizeof(gdt_entry_list) - 1;
     gdt_reg.base = (uint32)&gdt_entry_list;
@@ -20,7 +20,7 @@ descriptor_table_gdt_init(void)
 }
 
 void
-descriptor_table_idt_init(void)
+descriptor_table_idt_initialize(void)
 {
     uint32 index;
 

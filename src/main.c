@@ -12,19 +12,18 @@ test_idt_setup(void)
 static inline void
 test_paging(void)
 {
-    return;
     uint32 *ptr;
 
-    ptr = (void *)0x80000010;
+    ptr = (void *)0x800000;
     *ptr = 0xdeadbeaf;
 }
 
 static inline void
 entry_initialize(void)
 {
-    descriptor_table_gdt_init();
-    descriptor_table_idt_init();
-    irq_0_timer_init(1000);
+    descriptor_table_gdt_initialize();
+    descriptor_table_idt_initialize();
+    irq_0_timer_initialize(1000);
     page_initialize();
 }
 

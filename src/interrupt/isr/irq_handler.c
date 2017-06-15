@@ -25,7 +25,7 @@ irq_7_handler(s_pro_context_t *context)
 }
 
 void
-irq_0_timer_init(uint32 freq)
+irq_0_timer_initialize(uint32 freq)
 {
     uint32 divisor;
     uint8 low;
