@@ -1,36 +1,37 @@
-// static inline bool
-// kheap_legal_p(s_kheap_t *heap)
-// {
-//     if (NULL == heap) {
-//         return false;
-//     } else if (!ordered_array_legal_p(&heap->ordered)) {
-//         return false;
-//     } else if (heap->addr_start > heap->addr_end) {
-//         return false;
-//     } else if (heap->addr_end > heap->addr_max) {
-//         return false;
-//     } else {
-//         return true;
-//     }
-// }
-// 
-// static inline ptr_t
-// kheap_size(s_kheap_t *heap)
-// {
-//     kassert(kheap_legal_p(heap));
-//     return heap->addr_end - heap->addr_start;
-// }
-// 
+static inline bool
+kernel_heap_legal_p(s_kernel_heap_t *heap)
+{
+    if (heap == NULL) {
+        return false;
+    } else if (ordered_array_illegal_p(heap->ordered)) {
+        return false;
+    } else if (heap->addr_start > heap->addr_end) {
+        return false;
+    } else if (heap->addr_end > heap->addr_max) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+static inline ptr_t
+kernel_heap_size(s_kernel_heap_t *heap)
+{
+    kassert(kernel_heap_legal_p(heap));
+
+    return heap->addr_end - heap->addr_start;
+}
+
 // static inline uint32
-// kheap_find_hole(s_kheap_t *heap, void *val)
+// kernel_heap_find_hole(s_kernel_heap_t *heap, void *val)
 // {
 //     uint32 i;
 // 
-//     kassert(NULL != val);
-//     kassert(kheap_legal_p(heap));
+//     kassert(val);
+//     kassert(kernel_heap_legal_p(heap));
 // 
 //     i = 0;
-//     while (i < heap->ordered.size) {
+//     while (i < heap->ordered->size) {
 //         if (val == ordered_array_lookup(&heap->ordered, i)) {
 //             return i;
 //         }

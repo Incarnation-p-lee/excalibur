@@ -6,5 +6,6 @@
 #include "memory_util.c"
 #include "memory_physical.c"
 #include "frame.c"
-#include "kheap.c"
 #include "page.c"
+#include "kernel_heap.c"
+

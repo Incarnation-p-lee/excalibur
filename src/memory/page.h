@@ -3,7 +3,6 @@
 
 #define PAGE_ENTRY_COUNT      1024
 #define PAGE_TABLE_COUNT      1024
-#define MEMORY_LIMIT          0x8000000  // 128 MB
 #define HEAP_SIZE             0x1000000  // 16 MB
 
 typedef struct page_table     s_page_table_t;
@@ -16,10 +15,10 @@ struct page_entry {
     uint32 rw:1;
     uint32 user:1;
     uint32 reserved_1:2;
-    uint32 accessed:1;  // The page been accessed since last refresh
-    uint32 dirty:1;     // The page benn written since last refresh
+    uint32 accessed:1;  /* The page been accessed since last refresh */
+    uint32 dirty:1;     /* The page benn written since last refresh */
     uint32 reserved_2:2;
-    uint32 available:3; // unused and available for kernel
+    uint32 available:3; /* unused and available for kernel */
     uint32 frame:20;
 };
 

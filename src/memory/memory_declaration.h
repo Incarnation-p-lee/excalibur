@@ -3,9 +3,11 @@
 
 static inline bool frame_bitmap_mask_clear_p(ptr_t mask, uint32 i);
 static inline bool frame_bitmap_mask_set_p(ptr_t frame_bitmap, uint32 i);
+static inline bool kernel_heap_legal_p(s_kernel_heap_t *heap);
 static inline ptr_t frame_allocate(s_frame_bitmap_t *frame_bitmap);
 static inline ptr_t frame_bitmap_frame_obtain(s_frame_bitmap_t *frame_bitmap, uint32 mask_idx, uint32 bit_idx);
 static inline ptr_t frame_bitmap_mask(s_frame_bitmap_t *frame_bitmap, uint32 i);
+static inline ptr_t kernel_heap_size(s_kernel_heap_t *heap);
 static inline ptr_t page_entry_frame(s_page_entry_t *page_entry);
 static inline s_frame_bitmap_t * frame_bitmap_create(ptr_t memory_limit);
 static inline s_page_directory_t * page_directory_create(void);

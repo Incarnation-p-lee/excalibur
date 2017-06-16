@@ -3,7 +3,6 @@ page_directory_create(void)
 {
     s_page_directory_t *page_dirt;
 
-    /* is_page_aligned = true */
     page_dirt = memory_physical_aligned_allocate(sizeof(*page_dirt));
     kmemset(page_dirt, 0, sizeof(*page_dirt));
 

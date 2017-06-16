@@ -15,6 +15,7 @@ enum err_code {
 #define IDX_OVERFLOW  "Index reach the limitation.\n"
 #define ARRAY_FULL    "Array is full.\n"
 #define MEM_OVERWRITE "Memory been overwriten.\n"
+#define NOT_REACHED   "Should not reach herer.\n"
 
 #define IDX_INVALID   0xffffffffu
 
