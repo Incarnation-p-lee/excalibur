@@ -10,7 +10,7 @@ isr_handler_main(s_pro_context_t context)
     if (handler) {
         handler(&context);
     } else {
-        printf_vga_tk("Unsupported isq %d.\n", int_nmbr);
+        printf_vga_tk("Unsupported isq %d -> %x.\n", int_nmbr, context.eip);
         KERNEL_PANIC("Unsupported ISR\n");
     }
 }
