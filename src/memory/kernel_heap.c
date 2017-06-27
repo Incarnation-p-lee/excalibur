@@ -233,13 +233,14 @@ kernel_heap_initialize_i(s_kernel_heap_t *heap, ptr_t addr_start,
     s_ordered_array_t *ordered;
     s_kernel_heap_header_t *header;
 
+    kassert(heap);
     kassert(addr_start < addr_end);
     kassert(addr_max > 0 && addr_max > addr_end);
     kassert(PAGE_ALIGNED_P(addr_start));
     kassert(PAGE_ALIGNED_P(addr_end));
     kassert(PAGE_ALIGNED_P(addr_max));
 
-    ordered = kernel_heap_ordered_array(heap);
+    ordered = &heap->ordered; /* heap is not initialized here */
     addr_start = (ptr_t)ordered_array_place(ordered, (void *)addr_start,
         KHEAP_HOLE_COUNT, &kernel_heap_compare);
 
@@ -680,8 +681,7 @@ kernel_heap_initialize(void)
      * Assume we create the page table from KHEAP_START to KHEAP_START + KHEAP_INITIAL_SIZE
      * in page_initialize.
      */
-    if (kernel_heap == NULL) {
-        /* is_user = false, is_writable = true */
+    if (kernel_heap != NULL) {
         kernel_heap_initialize_i(kernel_heap, KHEAP_START,
             KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_ADDR_MAX);
 

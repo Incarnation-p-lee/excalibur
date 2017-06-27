@@ -246,10 +246,10 @@ page_initialize(void)
 
     memory_phys_limit = multiboot_data_info_physical_memory_limit();
     frame_bitmap = frame_bitmap_create(memory_phys_limit);
-
-    /* Init page directory and heap structure */
-    current_page_dirt = kernel_page_dirt = page_directory_create();
     kernel_heap = memory_physical_allocate(sizeof(*kernel_heap));
+
+    /* Init page directory */
+    current_page_dirt = kernel_page_dirt = page_directory_create();
 
     /*
      * Allocate page entry without frame, leave the frame from 0x0 to
