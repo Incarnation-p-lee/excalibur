@@ -247,15 +247,33 @@ page_initialize(void)
     memory_phys_limit = multiboot_data_info_physical_memory_limit();
     frame_bitmap = frame_bitmap_create(memory_phys_limit);
 
-    /* Init page directory */
+    /* Init page directory and heap structure */
     current_page_dirt = kernel_page_dirt = page_directory_create();
+    kernel_heap = memory_physical_allocate(sizeof(*kernel_heap));
 
     /*
-     * Map phys addr to virt addr from 0x0 to placement_phys address
-     * so we can access this transparently as if paging is not enabled
+     * Allocate page entry without frame, leave the frame from 0x0 to
+     * placement_phys maps to page 0x0 to placement_phys in virtual memory.
+     * So we can access this transparently as if paging is not enabled
      */
+    addr = KHEAP_START;
+    while (addr < KHEAP_START + KHEAP_INITIAL_SIZE) {
+        page_directory_page_obtain(kernel_page_dirt, addr);
+
+        addr += PAGE_SIZE;
+    }
+
     addr = 0;
-    while (addr < placement_phys) {
+    while (addr < placement_phys + PAGE_SIZE) {
+        /* is_user = false, is_writable = true */
+        page_allocate(addr, false, true);
+
+        addr += PAGE_SIZE;
+    }
+
+    /* Now allocate frame for heap */
+    addr = KHEAP_START;
+    while (addr < KHEAP_START + KHEAP_INITIAL_SIZE) {
         /* is_user = false, is_writable = true */
         page_allocate(addr, false, true);
 

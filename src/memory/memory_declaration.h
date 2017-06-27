@@ -1,7 +1,6 @@
 #ifndef SRC_MEMORY_DECLARATION_H
 #define SRC_MEMORY_DECLARATION_H
 
-s_kernel_heap_t * kernel_heap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max, bool is_user, bool is_writable);
 static inline bool frame_bitmap_mask_clear_p(ptr_t mask, uint32 i);
 static inline bool frame_bitmap_mask_set_p(ptr_t frame_bitmap, uint32 i);
 static inline bool kernel_heap_footer_legal_p(s_kernel_heap_footer_t *footer);
@@ -36,7 +35,6 @@ static inline s_kernel_heap_header_t * kernel_heap_footer_to_right_header(s_kern
 static inline s_kernel_heap_header_t * kernel_heap_header_left_unify(s_kernel_heap_header_t *header);
 static inline s_kernel_heap_header_t * kernel_heap_hole_make(void *hole_addr, uint32 size);
 static inline s_kernel_heap_header_t * kernel_heap_minimal_hole_obtain(s_kernel_heap_t *heap, uint32 request_size, ptr_t *usable_addr, bool is_page_aligned);
-static inline s_kernel_heap_t * kernel_heap_create_i(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max, bool is_user, bool is_writable);
 static inline s_ordered_array_t * kernel_heap_ordered_array(s_kernel_heap_t *heap);
 static inline s_page_directory_t * page_directory_create(void);
 static inline s_page_entry_t * page_allocate(ptr_t addr, bool is_user, bool is_writable);
@@ -64,6 +62,7 @@ static inline void kernel_heap_free_i(s_kernel_heap_t *heap, void *val);
 static inline void kernel_heap_header_is_hole_set(s_kernel_heap_header_t *header, bool is_hole);
 static inline void kernel_heap_hole_remove(s_kernel_heap_t *heap, s_kernel_heap_header_t *header);
 static inline void kernel_heap_hole_split(s_kernel_heap_header_t *header, ptr_t usable_addr, uint32 req_size, s_ordered_array_t *ordered);
+static inline void kernel_heap_initialize_i(s_kernel_heap_t *heap, ptr_t addr_start, ptr_t addr_end, ptr_t addr_max);
 static inline void kernel_heap_resize(s_kernel_heap_t *heap, uint32 new_size);
 static inline void memory_copy_in_byte(void *to, void *from, uint32 len);
 static inline void memory_copy_in_dword(uint32 *to, uint32 *from, uint32 len);
@@ -82,7 +81,7 @@ static inline void page_free(ptr_t addr);
 void * kernel_heap_allocate(s_kernel_heap_t *heap, uint32 request_size, bool is_page_aligned);
 void * kmalloc(uint32 sz);
 void kernel_heap_free(s_kernel_heap_t *heap, void *val);
-void kheap_initialize(void);
+void kernel_heap_initialize(void);
 void kmemory_copy(void *to, void *from, uint32 len);
 void kmemset(void *base, uint8 v, uint32 len);
 void page_align(ptr_t *addr);

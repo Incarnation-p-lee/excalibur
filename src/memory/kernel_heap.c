@@ -225,12 +225,12 @@ kernel_heap_compare(void *a, void *b)
     }
 }
 
-static inline s_kernel_heap_t *
-kernel_heap_create_i(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max,
-    bool is_user, bool is_writable)
+static inline void
+kernel_heap_initialize_i(s_kernel_heap_t *heap, ptr_t addr_start,
+    ptr_t addr_end, ptr_t addr_max)
 {
     uint32 bytes_count;
-    s_kernel_heap_t *heap;
+    s_ordered_array_t *ordered;
     s_kernel_heap_header_t *header;
 
     kassert(addr_start < addr_end);
@@ -239,41 +239,21 @@ kernel_heap_create_i(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max,
     kassert(PAGE_ALIGNED_P(addr_end));
     kassert(PAGE_ALIGNED_P(addr_max));
 
-    heap = kmalloc(sizeof(*heap));
-    addr_start = (ptr_t)ordered_array_place(kernel_heap_ordered_array(heap),
-        (void *)addr_start, KHEAP_HOLE_COUNT, &kernel_heap_compare);
+    ordered = kernel_heap_ordered_array(heap);
+    addr_start = (ptr_t)ordered_array_place(ordered, (void *)addr_start,
+        KHEAP_HOLE_COUNT, &kernel_heap_compare);
 
     page_align_i(&addr_start);
 
     heap->addr_start = addr_start;
     heap->addr_end = addr_end;
     heap->addr_max = addr_max;
-    heap->is_user = is_user;
-    heap->is_writable = is_writable;
+    heap->is_user = false;
+    heap->is_writable = true;
 
     bytes_count = (uint32)(addr_end - addr_start);
     header = kernel_heap_hole_make((void *)addr_start, bytes_count);
-    ordered_array_insert(kernel_heap_ordered_array(heap), header);
-
-    return heap;
-}
-
-s_kernel_heap_t *
-kernel_heap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max,
-    bool is_user, bool is_writable)
-{
-    if (addr_start >= addr_end) {
-        return NULL;
-    } else if (addr_max == 0 || addr_max < addr_end) {
-        return NULL;
-    } else if (PAGE_UNALIGNED_P(addr_start)) {
-        return NULL;
-    } else if (PAGE_UNALIGNED_P(addr_end)) {
-        return NULL;
-    } else {
-        return kernel_heap_create_i(addr_start, addr_end, addr_max,
-            is_user, is_writable);
-    }
+    ordered_array_insert(ordered, header);
 }
 
 static inline ptr_t
@@ -694,10 +674,19 @@ kernel_heap_free(s_kernel_heap_t *heap, void *val)
 }
 
 void
-kheap_initialize(void)
+kernel_heap_initialize(void)
 {
+    /*
+     * Assume we create the page table from KHEAP_START to KHEAP_START + KHEAP_INITIAL_SIZE
+     * in page_initialize.
+     */
+    if (kernel_heap == NULL) {
+        /* is_user = false, is_writable = true */
+        kernel_heap_initialize_i(kernel_heap, KHEAP_START,
+            KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_ADDR_MAX);
 
-
+        printf_vga_tk("Heap initialized.\n");
+    }
 }
 
 void *

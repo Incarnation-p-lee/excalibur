@@ -3,7 +3,6 @@
 
 #define PAGE_ENTRY_COUNT      1024
 #define PAGE_TABLE_COUNT      1024
-#define HEAP_SIZE             0x1000000  // 16 MB
 
 typedef struct page_table     s_page_table_t;
 typedef struct page_entry     s_page_entry_t;

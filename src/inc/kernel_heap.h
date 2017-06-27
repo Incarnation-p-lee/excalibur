@@ -34,18 +34,5 @@ struct kernel_heap {
     ptr_t             last_hole_addr;
 };
 
-#define KHEAP_HOLE_COUNT        0x10000
-#define KHEAP_BASE
-#define KHEAP_INITIAL_SIZE      0x20000
-#define KHEAP_MAGIC             0xA5A55A5A
-#define KHEAP_MIN_SIZE          KHEAP_INITIAL_SIZE
-#define KHEAP_HEADER_SIZE       sizeof(s_kernel_heap_header_t)
-#define KHEAP_FOOTER_SIZE       sizeof(s_kernel_heap_footer_t)
-#define KHEAP_INFO_SIZE         (KHEAP_HEADER_SIZE + KHEAP_FOOTER_SIZE)
-#define KHEAP_HOLE_MIN_SIZE     (sizeof(ptr_t) + KHEAP_INFO_SIZE)
-
-#define KHEAP_HOLE_SIZE(s)      ((s) + KHEAP_INFO_SIZE)
-#define KHEAP_USER_TO_HEADER(u) (void *)((ptr_t)(u) - (ptr_t)KHEAP_HEADER_SIZE)
-
 #endif
 

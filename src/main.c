@@ -24,7 +24,9 @@ entry_initialize(void)
     descriptor_table_gdt_initialize();
     descriptor_table_idt_initialize();
     irq_0_timer_initialize(1000);
+
     page_initialize();
+    kernel_heap_initialize();
 }
 
 int

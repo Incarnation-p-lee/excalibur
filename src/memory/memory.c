@@ -2,6 +2,7 @@
 #include "page.h"
 #include "memory_physical.h"
 #include "memory_declaration.h"
+#include "kernel_heap_internal.h"
 
 #include "memory_util.c"
 #include "memory_physical.c"
