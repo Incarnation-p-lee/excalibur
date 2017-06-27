@@ -14,8 +14,9 @@ static inline bool ordered_array_next_suitable_p(s_ordered_array_t *ordered_arra
 static inline bool ordered_array_prev_suitable_p(s_ordered_array_t *ordered_array, uint32 i);
 static inline bool ordered_array_suitable_p(s_ordered_array_t *ordered_array, uint32 i);
 static inline uint32 ordered_array_index_last(s_ordered_array_t *ordered_array);
-static inline uint32 ordered_array_limit(s_ordered_array_t *ordered_array);
+static inline uint32 ordered_array_limit_i(s_ordered_array_t *ordered_array);
 static inline uint32 ordered_array_size(s_ordered_array_t *ordered_array);
+static inline uint32 ordered_array_value_index_find_i(s_ordered_array_t *ordered_array, void *val);
 static inline void * ordered_array_value_i(s_ordered_array_t *ordered_array, uint32 i);
 static inline void ordered_array_adjust_i(s_ordered_array_t *ordered_array, uint32 i);
 static inline void ordered_array_dec(s_ordered_array_t *ordered_array);
@@ -26,6 +27,9 @@ static inline void ordered_array_prev_adjust(s_ordered_array_t *ordered_array, u
 static inline void ordered_array_remove_i(s_ordered_array_t *ordered_array, uint32 i);
 static inline void ordered_array_value_append(s_ordered_array_t *ordered_array, void *val);
 static inline void ordered_array_value_set(s_ordered_array_t *ordered_array, uint32 i, void *val);
+uint32 ordered_array_limit(s_ordered_array_t *ordered_array);
+uint32 ordered_array_value_index_find(s_ordered_array_t *ordered_array, void *val);
+void * ordered_array_place(s_ordered_array_t *ordered_array, void *addr, uint32 size, ordered_compare_t compare);
 void * ordered_array_value(s_ordered_array_t *ordered_array, uint32 i);
 void ordered_array_adjust(s_ordered_array_t *ordered_array, uint32 i);
 void ordered_array_destroy(s_ordered_array_t *oa);

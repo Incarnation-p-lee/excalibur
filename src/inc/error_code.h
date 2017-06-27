@@ -17,7 +17,5 @@ enum err_code {
 #define MEM_OVERWRITE "Memory been overwriten.\n"
 #define NOT_REACHED   "Should not reach herer.\n"
 
-#define IDX_INVALID   0xffffffffu
-
 #endif
 

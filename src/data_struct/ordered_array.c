@@ -39,11 +39,21 @@ ordered_array_size(s_ordered_array_t *ordered_array)
 }
 
 static inline uint32
-ordered_array_limit(s_ordered_array_t *ordered_array)
+ordered_array_limit_i(s_ordered_array_t *ordered_array)
 {
     kassert(ordered_array_legal_ip(ordered_array));
 
     return ordered_array->index;
+}
+
+uint32
+ordered_array_limit(s_ordered_array_t *ordered_array)
+{
+    if (ordered_array_illegal_ip(ordered_array)) {
+        return LIMIT_INVALID;
+    } else {
+        return ordered_array_limit_i(ordered_array);
+    }
 }
 
 static inline bool
@@ -62,6 +72,31 @@ bool
 ordered_array_illegal_p(s_ordered_array_t *ordered)
 {
     return !ordered_array_legal_ip(ordered);
+}
+
+void *
+ordered_array_place(s_ordered_array_t *ordered_array, void *addr, uint32 size,
+    ordered_compare_t compare)
+{
+    uint32 bytes_count;
+
+    if (ordered_array == NULL) {
+        return addr;
+    } else if (addr == NULL) {
+        return addr;
+    } else if (size == 0) {
+        return addr;
+    } else {
+        bytes_count = sizeof(*ordered_array->array) * size;
+        kmemset(addr, 0, bytes_count);
+
+        ordered_array->array = addr;
+        ordered_array->index = 0;
+        ordered_array->size = size;
+        ordered_array->compare = compare;
+
+        return (void *)((ptr_t)addr + bytes_count);
+    }
 }
 
 s_ordered_array_t *
@@ -95,6 +130,38 @@ ordered_array_destroy(s_ordered_array_t *oa)
     }
 }
 
+static inline uint32
+ordered_array_value_index_find_i(s_ordered_array_t *ordered_array, void *val)
+{
+    uint32 i;
+    uint32 limit;
+
+    kassert(ordered_array_legal_ip(ordered_array));
+
+    i = 0;
+    limit = ordered_array_limit_i(ordered_array);
+
+    while (i < limit) {
+        if (val == ordered_array_value_i(ordered_array, i)) {
+            return i;
+        }
+
+        i++;
+    }
+
+    return INDEX_INVALID;
+}
+
+uint32
+ordered_array_value_index_find(s_ordered_array_t *ordered_array, void *val)
+{
+    if (ordered_array_illegal_ip(ordered_array)) {
+        return INDEX_INVALID;
+    } else {
+        return ordered_array_value_index_find_i(ordered_array, val);
+    }
+}
+
 static inline bool
 ordered_array_empty_p(s_ordered_array_t *ordered_array)
 {
@@ -112,7 +179,7 @@ ordered_array_full_p(s_ordered_array_t *ordered)
 {
     kassert(ordered_array_legal_ip(ordered));
 
-    if (ordered_array_limit(ordered) == ordered_array_size(ordered)) {
+    if (ordered_array_limit_i(ordered) == ordered_array_size(ordered)) {
         return true;
     } else {
         return false;
@@ -168,7 +235,7 @@ ordered_array_insert_i(s_ordered_array_t *ordered_array, void *val)
     } else {
         i = 0;
         array_size = ordered_array_size(ordered_array);
-        array_limit = ordered_array_limit(ordered_array);
+        array_limit = ordered_array_limit_i(ordered_array);
 
         while (i < array_limit) {
             value_tmp = ordered_array_value_i(ordered_array, i);
@@ -211,7 +278,7 @@ static inline void *
 ordered_array_value_i(s_ordered_array_t *ordered_array, uint32 i)
 {
     kassert(ordered_array_legal_p(ordered_array));
-    kassert(i < ordered_array_limit(ordered_array));
+    kassert(i < ordered_array_limit_i(ordered_array));
 
     return ordered_array->array[i];
 }
@@ -222,7 +289,7 @@ ordered_array_value(s_ordered_array_t *ordered_array, uint32 i)
     if (ordered_array_illegal_ip(ordered_array)) {
         KERNEL_PANIC(INVALID_PARAM);
         return NULL;
-    } else if (i >= ordered_array_limit(ordered_array)) {
+    } else if (i >= ordered_array_limit_i(ordered_array)) {
         KERNEL_PANIC(INVALID_PARAM);
         return NULL;
     } else {
@@ -237,7 +304,7 @@ ordered_array_prev_suitable_p(s_ordered_array_t *ordered_array, uint32 i)
     void *val_prev;
 
     kassert(ordered_array_legal_ip(ordered_array));
-    kassert(i < ordered_array_limit(ordered_array));
+    kassert(i < ordered_array_limit_i(ordered_array));
     kassert(i > 0);
 
     val = ordered_array_value_i(ordered_array, i);
@@ -275,7 +342,7 @@ ordered_array_index_last(s_ordered_array_t *ordered_array)
     kassert(ordered_array_legal_ip(ordered_array));
     kassert(!ordered_array_empty_p(ordered_array));
 
-    return ordered_array_limit(ordered_array) - 1;
+    return ordered_array_limit_i(ordered_array) - 1;
 }
 
 static inline bool
@@ -295,9 +362,9 @@ static inline bool
 ordered_array_suitable_p(s_ordered_array_t *ordered_array, uint32 i)
 {
     kassert(ordered_array_legal_ip(ordered_array));
-    kassert(i < ordered_array_limit(ordered_array));
+    kassert(i < ordered_array_limit_i(ordered_array));
 
-    if (i == 0 && ordered_array_limit(ordered_array) == 1) {
+    if (i == 0 && ordered_array_limit_i(ordered_array) == 1) {
         return true;
     } else if (i == 0 && ordered_array_next_suitable_p(ordered_array, i)) {
         return true;
@@ -319,7 +386,7 @@ ordered_array_prev_adjust(s_ordered_array_t *ordered_array, uint32 i)
     void *val_tmp;
 
     kassert(ordered_array_legal_ip(ordered_array));
-    kassert(i < ordered_array_limit(ordered_array));
+    kassert(i < ordered_array_limit_i(ordered_array));
 
     val = ordered_array_value_i(ordered_array, i);
 
@@ -368,7 +435,7 @@ static inline void
 ordered_array_adjust_i(s_ordered_array_t *ordered_array, uint32 i)
 {
     kassert(ordered_array_legal_ip(ordered_array));
-    kassert(i < ordered_array_limit(ordered_array));
+    kassert(i < ordered_array_limit_i(ordered_array));
 
     if (ordered_array_suitable_p(ordered_array, i)) {
         return;
@@ -386,7 +453,7 @@ ordered_array_adjust(s_ordered_array_t *ordered_array, uint32 i)
 {
     if (ordered_array_illegal_ip(ordered_array)) {
         KERNEL_PANIC(INVALID_PARAM);
-    } else if (i >= ordered_array_limit(ordered_array)) {
+    } else if (i >= ordered_array_limit_i(ordered_array)) {
         KERNEL_PANIC(INVALID_PARAM);
     } else {
         return ordered_array_adjust_i(ordered_array, i);
@@ -400,9 +467,9 @@ ordered_array_remove_i(s_ordered_array_t *ordered_array, uint32 i)
     uint32 limit;
 
     kassert(ordered_array_legal_p(ordered_array));
-    kassert(i < ordered_array_limit(ordered_array));
+    kassert(i < ordered_array_limit_i(ordered_array));
 
-    limit = ordered_array_limit(ordered_array);
+    limit = ordered_array_limit_i(ordered_array);
 
     while (i + 1 < limit) {
         val = ordered_array_value_i(ordered_array, i + 1);
@@ -419,7 +486,7 @@ ordered_array_remove(s_ordered_array_t *ordered_array, uint32 i)
 {
     if (ordered_array_illegal_ip(ordered_array)) {
         KERNEL_PANIC(INVALID_PARAM);
-    } else if (i >= ordered_array_limit(ordered_array)) {
+    } else if (i >= ordered_array_limit_i(ordered_array)) {
         KERNEL_PANIC(INVALID_PARAM);
     } else {
         ordered_array_remove_i(ordered_array, i);

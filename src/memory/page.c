@@ -123,16 +123,31 @@ page_entry_frame(s_page_entry_t *page_entry)
 }
 
 static inline void
-page_entry_frame_set(s_page_entry_t *page_entry, ptr_t frame,
-    bool is_user, bool is_writable)
+page_entry_frame_set(s_page_entry_t *page_entry, ptr_t frame)
 {
     kassert(page_entry);
 
     page_entry->frame = frame;
+}
 
-    page_entry_attribute_us_set(page_entry, is_user);
-    page_entry_attribute_rw_set(page_entry, is_writable);
-    page_entry_attribute_present_set(page_entry, /* is_presented = */true);
+static inline s_page_entry_t *
+page_directory_page_get(s_page_directory_t *page_dirt, ptr_t addr)
+{
+    ptr_t i; /* table index */
+    ptr_t k; /* page index */
+    ptr_t frame;
+    s_page_table_t *page_table;
+
+    kassert(page_dirt);
+
+    frame = addr / PAGE_SIZE;
+    i = frame / PAGE_ENTRY_COUNT;
+    k = frame % PAGE_ENTRY_COUNT;
+
+    page_table = page_directory_page_table(page_dirt, i);
+    kassert(page_table);
+
+    return page_table_page_entry(page_table, k);
 }
 
 static inline s_page_entry_t *
@@ -179,12 +194,54 @@ page_directory_switch(s_page_directory_t *page_dirt)
     multiboot_env_cpu_detect();
 }
 
+static inline void
+page_entry_initialize(s_page_entry_t *page_entry, ptr_t frame, bool is_user,
+    bool is_writable)
+{
+    kassert(page_entry);
+
+    page_entry_frame_set(page_entry, frame);
+
+    page_entry_attribute_us_set(page_entry, is_user);
+    page_entry_attribute_rw_set(page_entry, is_writable);
+    page_entry_attribute_present_set(page_entry, /* is_presented = */true);
+}
+
+static inline s_page_entry_t *
+page_allocate(ptr_t addr, bool is_user, bool is_writable)
+{
+    ptr_t frame;
+    s_page_entry_t *page_entry;
+
+    frame = frame_allocate();
+    page_entry = page_directory_page_obtain(kernel_page_dirt, addr);
+
+    page_entry_initialize(page_entry, frame, is_user, is_writable);
+
+    return page_entry;
+}
+
+static inline void
+page_free(ptr_t addr)
+{
+    ptr_t frame;
+    ptr_t bit_idx;
+    ptr_t mask_idx;
+    s_page_entry_t *page_entry;
+
+    page_entry = page_directory_page_get(kernel_page_dirt, addr);
+    frame = page_entry->frame;
+
+    mask_idx = frame_bitmap_frame_mask_index(frame_bitmap, frame);
+    bit_idx = frame_bitmap_frame_bit_index(frame_bitmap, frame);
+
+    frame_bitmap_mask_clear(frame_bitmap, mask_idx, bit_idx);
+}
+
 void
 page_initialize(void)
 {
     ptr_t addr;
-    ptr_t frame;
-    s_page_entry_t *entry;
     ptr_t memory_phys_limit;
 
     memory_phys_limit = multiboot_data_info_physical_memory_limit();
@@ -199,10 +256,8 @@ page_initialize(void)
      */
     addr = 0;
     while (addr < placement_phys) {
-        frame = frame_allocate(frame_bitmap);
-        entry = page_directory_page_obtain(kernel_page_dirt, addr);
-        page_entry_frame_set(entry, frame, /* is_user = */false,
-            /* is_writable = */true);
+        /* is_user = false, is_writable = true */
+        page_allocate(addr, false, true);
 
         addr += PAGE_SIZE;
     }
@@ -210,4 +265,27 @@ page_initialize(void)
     /* Enable paging */
     page_directory_switch(kernel_page_dirt);
 }
+
+static inline void
+page_align_i(ptr_t *addr)
+{
+    kassert(addr);
+
+    if (PAGE_ALIGNED_P(*addr)) {
+        return;
+    } else {
+        PAGE_ALIGN(*addr);
+    }
+}
+
+void
+page_align(ptr_t *addr)
+{
+    if (addr == NULL) {
+        return;
+    } else {
+        page_align_i(addr);
+    }
+}
+
 

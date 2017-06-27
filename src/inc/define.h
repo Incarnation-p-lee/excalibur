@@ -31,23 +31,28 @@
 #define kassert_not_reached(msg)  assert_complain(msg, __FILE__, __FUNCTION__, __LINE__, false)
 #define KERNEL_PANIC(msg)         kassert_not_reached(msg)
 
-#define BM_INDEX(a)               ((a) / (sizeof(a) << 3))
-#define BM_OFFSET(a)              ((a) % (sizeof(a) << 3))
-
 #define BIT_SET                   1
 #define BIT_CLEAR                 0
 #define FRAME_BITMAP_SET          BIT_SET
 #define FRAME_BITMAP_CLEAR        BIT_CLEAR
-#define FRAME_NULL                0u
 #define PAGE_SIZE                 0x1000
+#define PAGE_MASK                 (PAGE_SIZE - 1)
 
-#define PTR_INVALID               (ptr_t)(-1)
+#define PTR_INVALID               (void *)(-1)
+#define INDEX_INVALID             (-1)
+#define LIMIT_INVALID             (-1)
+#define ADDR_INVALID              (ptr_t)(-1)
 #define MEMORY_INVALID            0u
+#define FRAME_INVALID             ADDR_INVALID
 
 #define ARRAY_CNT_OF(a)           (sizeof(a) / sizeof(a[0]))
 #define BIT_WIDTH(t)              (sizeof(t) * 8)
 #define U32_BIT_GET(x, idx)       ((uint32)(x) >> (idx) & 0x1)
 #define U32_BITS_GET(x, s, l)     (((uint32)(x) >> (s)) & ((0x1 << (l)) - 1))
+
+#define PAGE_ALIGNED_P(p)         (((ptr_t)p & PAGE_MASK) == 0 ? true : false)
+#define PAGE_UNALIGNED_P(p)       (!PAGE_ALIGNED_P(p))
+#define PAGE_ALIGN(p)             ((p) = ((p) & ~PAGE_MASK) + PAGE_SIZE)
 
 #endif
 

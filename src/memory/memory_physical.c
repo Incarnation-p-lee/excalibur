@@ -1,16 +1,13 @@
 static inline void *
 memory_physical_allocate_i(uint32 sz, bool is_page_aligned)
 {
-    ptr_t page_mask;
     void *memory_phys;
     ptr_t memory_phys_limit;
 
-    page_mask = PAGE_SIZE - 1;
     memory_phys_limit = multiboot_data_info_physical_memory_limit();
 
-    if (is_page_aligned && 0 != (placement_phys & page_mask)) {
-        placement_phys &= ~page_mask;
-        placement_phys += PAGE_SIZE;
+    if (is_page_aligned && PAGE_UNALIGNED_P(placement_phys)) {
+        PAGE_ALIGN(placement_phys);
     }
 
     if (placement_phys + sz > memory_phys_limit) {

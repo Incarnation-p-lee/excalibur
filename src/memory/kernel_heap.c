@@ -3,7 +3,7 @@ kernel_heap_legal_p(s_kernel_heap_t *heap)
 {
     if (heap == NULL) {
         return false;
-    } else if (ordered_array_illegal_p(heap->ordered)) {
+    } else if (ordered_array_illegal_p(kernel_heap_ordered_array(heap))) {
         return false;
     } else if (heap->addr_start > heap->addr_end) {
         return false;
@@ -15,6 +15,188 @@ kernel_heap_legal_p(s_kernel_heap_t *heap)
 }
 
 static inline ptr_t
+kernel_heap_addr_start(s_kernel_heap_t *heap)
+{
+    kassert(kernel_heap_legal_p(heap));
+
+    return heap->addr_start;
+}
+
+static inline ptr_t
+kernel_heap_addr_end(s_kernel_heap_t *heap)
+{
+    kassert(kernel_heap_legal_p(heap));
+
+    return heap->addr_end;
+}
+
+static inline void
+kernel_heap_addr_end_set(s_kernel_heap_t *heap, ptr_t addr_end)
+{
+    kassert(kernel_heap_legal_p(heap));
+
+    heap->addr_end = addr_end;
+}
+
+static inline ptr_t
+kernel_heap_last_hole_addr(s_kernel_heap_t *heap)
+{
+    kassert(kernel_heap_legal_p(heap));
+
+    return heap->last_hole_addr;
+}
+
+static inline bool
+kernel_heap_illegal_p(s_kernel_heap_t *heap)
+{
+    return !kernel_heap_legal_p(heap);
+}
+
+static inline s_ordered_array_t *
+kernel_heap_ordered_array(s_kernel_heap_t *heap)
+{
+    kassert(kernel_heap_legal_p(heap));
+
+    return &heap->ordered;
+}
+
+static inline bool
+kernel_heap_header_legal_p(s_kernel_heap_header_t *header)
+{
+    if (header == NULL) {
+        return false;
+    } else if (header->size == 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+static inline bool
+kernel_heap_footer_legal_p(s_kernel_heap_footer_t *footer)
+{
+    if (footer == NULL) {
+        return false;
+    } else if (footer->header == NULL) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+static inline ptr_t
+kernel_heap_hole_usable_limit(s_kernel_heap_header_t *header)
+{
+    ptr_t limit;
+    ptr_t hole_size;
+
+    kassert(kernel_heap_header_legal_p(header));
+
+    hole_size = (ptr_t)kernel_heap_hole_size(header);
+    limit = hole_size + (ptr_t)header - (ptr_t)KHEAP_FOOTER_SIZE;
+
+    return limit;
+}
+
+static inline bool
+kernel_heap_is_user_p(s_kernel_heap_t *heap)
+{
+    kassert(kernel_heap_legal_p(heap));
+
+    return heap->is_user;
+}
+
+static inline bool
+kernel_heap_is_writable_p(s_kernel_heap_t *heap)
+{
+    kassert(kernel_heap_legal_p(heap));
+
+    return heap->is_writable;
+}
+
+static inline bool
+kernel_heap_header_is_hole_p(s_kernel_heap_header_t *header)
+{
+    kassert(kernel_heap_header_legal_p(header));
+
+    return header->is_hole;
+}
+
+static inline bool
+kernel_heap_header_is_not_hole_p(s_kernel_heap_header_t *header)
+{
+    return !kernel_heap_header_is_hole_p(header);
+}
+
+static inline void
+kernel_heap_header_is_hole_set(s_kernel_heap_header_t *header, bool is_hole)
+{
+    kassert(kernel_heap_header_legal_p(header));
+
+    header->is_hole = is_hole;
+}
+
+static inline s_kernel_heap_footer_t *
+kernel_heap_header_to_left_footer(s_kernel_heap_header_t *header)
+{
+    s_kernel_heap_footer_t *last_footer;
+
+    kassert(kernel_heap_header_legal_p(header));
+
+    last_footer = (void *)((ptr_t)header - (ptr_t)KHEAP_FOOTER_SIZE);
+
+    return last_footer;
+}
+
+static inline s_kernel_heap_header_t *
+kernel_heap_footer_to_right_header(s_kernel_heap_footer_t *footer)
+{
+    s_kernel_heap_header_t *right_header;
+
+    kassert(kernel_heap_footer_legal_p(footer));
+
+    right_header = (void *)((ptr_t)footer + (ptr_t)KHEAP_FOOTER_SIZE);
+
+    return right_header;
+}
+
+static inline bool
+kernel_heap_footer_magic_valid_p(s_kernel_heap_footer_t *footer)
+{
+    kassert(kernel_heap_footer_legal_p(footer));
+
+    if (footer->magic == KHEAP_MAGIC) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+static inline bool
+kernel_heap_footer_magic_invalid_p(s_kernel_heap_footer_t *footer)
+{
+    return !kernel_heap_footer_magic_valid_p(footer);
+}
+
+static inline bool
+kernel_heap_header_magic_valid_p(s_kernel_heap_header_t *header)
+{
+    kassert(kernel_heap_header_legal_p(header));
+
+    if (header->magic == KHEAP_MAGIC) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+static inline bool
+kernel_heap_header_magic_invalid_p(s_kernel_heap_header_t *header)
+{
+    return !kernel_heap_header_magic_valid_p(header);
+}
+
+static inline ptr_t
 kernel_heap_size(s_kernel_heap_t *heap)
 {
     kassert(kernel_heap_legal_p(heap));
@@ -22,399 +204,494 @@ kernel_heap_size(s_kernel_heap_t *heap)
     return heap->addr_end - heap->addr_start;
 }
 
-// static inline uint32
-// kernel_heap_find_hole(s_kernel_heap_t *heap, void *val)
-// {
-//     uint32 i;
-// 
-//     kassert(val);
-//     kassert(kernel_heap_legal_p(heap));
-// 
-//     i = 0;
-//     while (i < heap->ordered->size) {
-//         if (val == ordered_array_lookup(&heap->ordered, i)) {
-//             return i;
-//         }
-//         i++;
-//     }
-// 
-//     return IDX_INVALID;
-// }
-// 
-// static inline sint32
-// kheap_compare(void *a, void *b)
-// {
-//     s_kheap_header_t *ka;
-//     s_kheap_header_t *kb;
-// 
-//     kassert(NULL != a);
-//     kassert(NULL != b);
-// 
-//     ka = a;
-//     kb = b;
-// 
-//     if (ka->size < kb->size) {
-//         return 1;
-//     } else if (ka->size > kb->size) {
-//         return -1;
-//     } else {
-//         return 0;
-//     }
-// }
-// 
-// s_kheap_t *
-// kheap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max,
-//     bool supervisor, bool read_only)
-// {
-//     s_kheap_t *heap;
-// 
-//     if (addr_start > addr_end || 0 == addr_max) {
-//         return NULL;
-//     } else if (0 != (addr_start & 0xfff)) {
-//         return NULL;
-//     } else if (0 != (addr_end & 0xfff)) {
-//         return NULL;
-//     } else {
-//         heap = kmalloc(sizeof(*heap));
-//         heap->ordered = ordered_array_place((void *)addr_start, KHEAP_IDX_SIZE, &kheap_compare);
-//         addr_start += sizeof(void *) * KHEAP_IDX_SIZE;
-// 
-//         if (0 != (addr_start & 0xfff)) {
-//             addr_start &= ((ptr_t)-1 << 12);
-//             addr_start += PAGE_SIZE;
-//         }
-// 
-//         heap->addr_start = addr_start;
-//         heap->addr_end = addr_end;
-//         heap->addr_max = addr_max;
-//         heap->supervisor = supervisor;
-//         heap->read_only = read_only;
-// 
-//         kheap_make_hole((void *)addr_start, addr_end - addr_start);
-//         ordered_array_insert(&heap->ordered, (void *)addr_start);
-//         // Fix-Me, no footer here ?
-// 
-//         return heap;
-//     }
-// }
-// 
-// static inline ptr_t
-// kheap_obtain_minimal_hole(s_kheap_t *heap, ptr_t *useable_addr,
-//     uint32 request_size, bool page_align)
-// {
-//     uint32 i;
-//     ptr_t hole_addr;
-//     ptr_t tmp_addr;
-//     uint32 hole_size;
-//     s_kheap_header_t *header;
-// 
-//     kassert(kheap_legal_p(heap));
-//     kassert(0 != request_size);
-//     kassert(NULL != useable_addr);
-// 
-//     i = 0;
-//     while (i < heap->ordered.size) {
-//         header = (void *)ordered_array_lookup(&heap->ordered, i);
-//         hole_addr = (ptr_t)header;
-//         tmp_addr = hole_addr + sizeof(s_kheap_header_t);
-// 
-//         if (page_align) {
-//             if (!PAGE_ALIGN_P(tmp_addr)) {
-//                 tmp_addr = (tmp_addr & PAGE_ALIGN_MASK) + PAGE_SIZE;
-//             }
-// 
-//             hole_size = tmp_addr - hole_addr + request_size;
-//             hole_size += sizeof(s_kheap_footer_t);
-// 
-//             if (header->size >= hole_size) {
-//                 goto FOUND;
-//             }
-//         } else if (header->size >= request_size) {
-//             goto FOUND;
-//         }
-//         i++;
-//     }
-// 
-//     *useable_addr = PTR_INVALID;
-//     return PTR_INVALID;
-// 
-// FOUND:
-//     *useable_addr = tmp_addr;
-//     ordered_array_remove(&heap->ordered, i);
-//     kassert(kheap_hole_legal_p((void *)hole_addr));
-// 
-//     return hole_addr;
-// }
-// 
-// static inline bool
-// kheap_hole_legal_p(void *hole_addr)
-// {
-//     s_kheap_header_t *header;
-//     s_kheap_footer_t *footer;
-// 
-//     kassert(NULL != hole_addr && (void *)PTR_INVALID != hole_addr);
-// 
-//     header = hole_addr;
-//     footer = kheap_obtain_footer(header);
-// 
-//     if (KHEAP_MAGIC != footer->magic || KHEAP_MAGIC != header->magic) {
-//         return false;
-//     } else if (footer->header != header) {
-//         return false;
-//     } else {
-//         return true;
-//     }
-// }
-// 
-// static inline s_kheap_footer_t *
-// kheap_make_hole(void *hole_addr, uint32 size)
-// {
-//     s_kheap_header_t *hole_header;
-//     s_kheap_footer_t *hole_footer;
-// 
-//     kassert(NULL != hole_addr && (void *)PTR_INVALID != hole_addr);
-//     kassert(size >= KHEAP_HOLE_MIN_SIZE);
-// 
-//     hole_header = (void *)hole_addr;
-//     hole_footer = (void *)(hole_addr + size - sizeof(s_kheap_footer_t));
-// 
-//     hole_header->magic = KHEAP_MAGIC;
-//     hole_header->is_hole = true;
-//     hole_header->size = size;
-// 
-//     hole_footer->magic = KHEAP_MAGIC;
-//     hole_footer->header = hole_header;
-// 
-//     kassert(kheap_hole_legal_p(hole_addr));
-//     return hole_footer;
-// }
-// 
-// static inline void
-// kheap_make_block(void *hole_addr, uint32 size)
-// {
-//     s_kheap_header_t *hole_header;
-// 
-//     kassert(NULL != hole_addr && (void *)PTR_INVALID != hole_addr);
-//     kassert(size >= KHEAP_HOLE_MIN_SIZE);
-// 
-//     kheap_make_hole(hole_addr, size);
-// 
-//     hole_header = (void *)hole_addr;
-//     hole_header->is_hole = false;
-// }
-// 
-// static inline void
-// kheap_handle_hole_unavailable(s_kheap_t *heap, uint32 hole_size)
-// {
-//     uint32 i;
-//     uint32 idx;
-//     ptr_t hole_addr;
-//     ptr_t heap_size;
-//     ptr_t last_addr;
-//     ptr_t added_size;
-//     s_kheap_header_t *header;
-// 
-//     kassert(kheap_legal_p(heap));
-//     kassert(hole_size >= KHEAP_MIN_SIZE);
-// 
-//     heap_size = heap->addr_end - heap->addr_start;
-//     kheap_resize(heap, heap_size + hole_size);
-//     kassert(heap->addr_end - heap->addr_start > heap_size);
-// 
-//     i = 0;
-//     last_addr = 0;
-//     idx = IDX_INVALID;
-//     added_size = heap->addr_end - heap->addr_start - heap_size;
-// 
-//     // optimize here, add one field addr_last
-//     while (i < heap->ordered.size) {
-//         hole_addr = (ptr_t)ordered_array_lookup(&heap->ordered, i);
-//         if (hole_addr > last_addr) {
-//             last_addr = hole_addr;
-//             idx = i;
-//         }
-//         i++;
-//     }
-// 
-//     if (IDX_INVALID == idx) { // If no hole in orderred array
-//         header = (s_kheap_header_t *)heap->addr_end;
-//         kheap_make_block(header, added_size);
-//         ordered_array_insert(&heap->ordered, header);
-//     } else {
-//         // Bug here ? if memory is block in use, which has bigger address than last_addr.
-//         header = (void *)last_addr;
-//         kheap_make_hole(header, header->size + added_size);
-//     }
-// }
-// 
-// void *
-// kheap_allocate(s_kheap_t *heap, uint32 request_size, bool page_align)
-// {
-//     ptr_t hole_addr;
-//     ptr_t split_addr;
-//     uint32 hole_size;
-//     uint32 rest_size;
-//     ptr_t useable_addr;
-//     uint32 lead_blank_size;
-// 
-//     kassert(0 != request_size);
-//     kassert(kheap_legal_p(heap));
-// 
-//     hole_addr = kheap_obtain_minimal_hole(heap, &useable_addr, request_size, page_align);
-// 
-//     if (PTR_INVALID == hole_addr) {
-//         hole_size = request_size + KHEAP_INFO_SIZE;
-//         if (page_align) {
-//             hole_size += PAGE_SIZE;
-//         }
-// 
-//         kheap_handle_hole_unavailable(heap, hole_size);
-//         return kheap_allocate(heap, request_size, page_align);
-//     } else {
-//         hole_size = ((s_kheap_header_t *)hole_addr)->size;
-//         lead_blank_size = (uint32)(useable_addr - hole_addr);
-//         lead_blank_size -= sizeof(s_kheap_header_t);
-// 
-//         if (lead_blank_size >= KHEAP_HOLE_MIN_SIZE) {
-//             split_addr = hole_addr;
-//             hole_addr += lead_blank_size;
-//             hole_size -= lead_blank_size;
-//             kheap_make_hole((void *)split_addr, lead_blank_size);
-//             ordered_array_insert(&heap->ordered, (void *)split_addr);
-//         }
-// 
-//         rest_size = (uint32)(useable_addr - hole_addr) + request_size;
-//         rest_size = hole_size - rest_size - sizeof(s_kheap_footer_t);
-// 
-//         if (rest_size >= KHEAP_HOLE_MIN_SIZE) {
-//             split_addr = hole_addr + (hole_size - rest_size);
-//             hole_size -= rest_size;
-//             kheap_make_hole((void *)split_addr, rest_size);
-//             ordered_array_insert(&heap->ordered, (void *)split_addr);
-//         }
-// 
-//         kheap_make_block((void *)hole_addr, hole_size);
-//         return (void *)useable_addr;
-//     }
-// }
-// 
-// static inline void *
-// kheap_obtain_footer(s_kheap_header_t *header)
-// {
-//     kassert(NULL != header);
-//     kassert(KHEAP_MAGIC == header->magic);
-//     kassert(header->size >= KHEAP_HOLE_MIN_SIZE);
-// 
-//     return (void *)((ptr_t)header + header->size - sizeof(s_kheap_footer_t));
-// }
-// 
-// void
-// kheap_free(s_kheap_t *heap, void *val)
-// {
-//     uint32 idx;
-//     ptr_t heap_size;
-//     uint32 hole_size;
-//     bool insert_needed;
-//     ptr_t deleted_size;
-//     s_kheap_header_t *header;
-//     s_kheap_footer_t *footer;
-//     s_kheap_header_t *next_header;
-//     s_kheap_footer_t *last_footer;
-// 
-//     kassert(NULL != val);
-//     kassert(kheap_legal_p(heap));
-// 
-//     insert_needed = true;
-//     header = (void *)((ptr_t)val - sizeof(s_kheap_header_t));
-//     header->is_hole = true;
-//     footer = kheap_obtain_footer(header);
-// 
-//     kassert(KHEAP_MAGIC == header->magic && KHEAP_MAGIC == footer->magic);
-// 
-//     last_footer = (void *)((ptr_t)header - sizeof(s_kheap_footer_t));
-//     if (KHEAP_MAGIC == last_footer->magic && last_footer->header->is_hole) {
-//         insert_needed = false;
-//         hole_size = last_footer->header->size + header->size;
-//         footer = kheap_make_hole(last_footer->header, hole_size);
-//         header = footer->header;
-//     }
-// 
-//     next_header = (void *)((ptr_t)header + header->size);
-//     if (KHEAP_MAGIC == next_header->magic && next_header->is_hole) {
-//         idx = kheap_find_hole(heap, next_header);
-//         ordered_array_remove(&heap->ordered, idx);
-// 
-//         hole_size = header->size + next_header->size;
-//         footer = kheap_make_hole(header, hole_size);
-//     }
-// 
-//     // If last hole in kheap
-//     if ((ptr_t)footer + sizeof(s_kheap_footer_t) == heap->addr_end) {
-//         heap_size = kheap_size(heap);
-//         kheap_resize(heap, (ptr_t)header - heap->addr_start);
-//         deleted_size = heap_size - kheap_size(heap);
-// 
-//         if (header->size >= deleted_size + KHEAP_HOLE_MIN_SIZE) {
-//             kheap_make_hole(header, header->size - deleted_size);
-//         } else if (header->size >= deleted_size) {
-//             idx = kheap_find_hole(heap, header);
-//             ordered_array_remove(&heap->ordered, idx);
-//             // May leave at most KHEAP_HOLE_MIN_SIZE
-//             return;
-//         } else {
-//             KERNEL_PANIC(MEM_OVERWRITE);
-//         }
-//     }
-// 
-//     if (insert_needed) {
-//         ordered_array_insert(&heap->ordered, header);
-//     } else {
-//         idx = kheap_find_hole(heap, header);
-//         ordered_array_adjust(&heap->ordered, idx);
-//     }
-// }
-// 
-// static inline void
-// kheap_resize(s_kheap_t *heap, uint32 new_size)
-// {
-//     ptr_t i;
-//     s_page_entry_t *pe;
-// 
-//     kassert(kheap_legal_p(heap));
-// 
-//     if (0 != (new_size & 0xfff)) {
-//         new_size &= ((ptr_t)-1 << 12);
-//         new_size += PAGE_SIZE;
-//     }
-// 
-//     i = heap->addr_end - heap->addr_start;
-//     kassert(0 == (i & 0xfff));
-// 
-//     if (new_size + heap->addr_start <= heap->addr_end) {
-//         // contract space
-//         if (new_size < KHEAP_MIN_SIZE) {
-//             new_size = KHEAP_MIN_SIZE;
-//         }
-// 
-//         while (new_size < i) {
-//             i -= PAGE_SIZE;
-//             pe = paging_get(heap->addr_start + i, false, kernel_dirt);
-//             frame_free(pe);
-//         }
-//     } else {
-//         // expand space
-//         kassert(new_size + heap->addr_start <= heap->addr_max);
-// 
-//         while (i < new_size) {
-//             pe = paging_get(heap->addr_start + i, true, kernel_dirt);
-//             frame_allocate(pe, heap->supervisor, !heap->read_only);
-//             i += PAGE_SIZE;
-//         }
-//     }
-// 
-//     kassert(i == new_size);
-//     heap->addr_end = heap->addr_start + new_size;
-// }
+static inline sint32
+kernel_heap_compare(void *a, void *b)
+{
+    uint32 size_a;
+    uint32 size_b;
+
+    kassert(a);
+    kassert(b);
+
+    size_a = kernel_heap_hole_size(a);
+    size_b = kernel_heap_hole_size(b);
+
+    if (size_a < size_b) {
+        return 1;
+    } else if (size_a > size_b) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+static inline s_kernel_heap_t *
+kernel_heap_create_i(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max,
+    bool is_user, bool is_writable)
+{
+    uint32 bytes_count;
+    s_kernel_heap_t *heap;
+    s_kernel_heap_header_t *header;
+
+    kassert(addr_start < addr_end);
+    kassert(addr_max > 0 && addr_max > addr_end);
+    kassert(PAGE_ALIGNED_P(addr_start));
+    kassert(PAGE_ALIGNED_P(addr_end));
+    kassert(PAGE_ALIGNED_P(addr_max));
+
+    heap = kmalloc(sizeof(*heap));
+    addr_start = (ptr_t)ordered_array_place(kernel_heap_ordered_array(heap),
+        (void *)addr_start, KHEAP_HOLE_COUNT, &kernel_heap_compare);
+
+    page_align_i(&addr_start);
+
+    heap->addr_start = addr_start;
+    heap->addr_end = addr_end;
+    heap->addr_max = addr_max;
+    heap->is_user = is_user;
+    heap->is_writable = is_writable;
+
+    bytes_count = (uint32)(addr_end - addr_start);
+    header = kernel_heap_hole_make((void *)addr_start, bytes_count);
+    ordered_array_insert(kernel_heap_ordered_array(heap), header);
+
+    return heap;
+}
+
+s_kernel_heap_t *
+kernel_heap_create(ptr_t addr_start, ptr_t addr_end, ptr_t addr_max,
+    bool is_user, bool is_writable)
+{
+    if (addr_start >= addr_end) {
+        return NULL;
+    } else if (addr_max == 0 || addr_max < addr_end) {
+        return NULL;
+    } else if (PAGE_UNALIGNED_P(addr_start)) {
+        return NULL;
+    } else if (PAGE_UNALIGNED_P(addr_end)) {
+        return NULL;
+    } else {
+        return kernel_heap_create_i(addr_start, addr_end, addr_max,
+            is_user, is_writable);
+    }
+}
+
+static inline ptr_t
+kernel_heap_hole_size(s_kernel_heap_header_t *header)
+{
+    kassert(kernel_heap_header_legal_p(header));
+
+    return header->size;
+}
+
+static inline s_kernel_heap_header_t *
+kernel_heap_minimal_hole_obtain(s_kernel_heap_t *heap, uint32 request_size,
+    ptr_t *usable_addr, bool is_page_aligned)
+{
+    uint32 i, limit;
+    uint32 hole_size;
+    s_ordered_array_t *ordered;
+    ptr_t request_addr, hole_addr;
+    s_kernel_heap_header_t *header;
+
+    kassert(kernel_heap_legal_p(heap));
+    kassert(request_size);
+    kassert(usable_addr);
+
+    i = 0;
+    ordered = kernel_heap_ordered_array(heap);
+    limit = ordered_array_limit(ordered);
+
+    while (i < limit) {
+        header = ordered_array_value(ordered, i);
+        hole_addr = (ptr_t)header;
+        request_addr = hole_addr + KHEAP_HEADER_SIZE;
+
+        if (is_page_aligned) {
+            page_align_i(&request_addr);
+        }
+
+        hole_size = request_addr - hole_addr + request_size;
+        hole_size += KHEAP_FOOTER_SIZE;
+
+        if (hole_size <= kernel_heap_hole_size(header)) {
+            *usable_addr = request_addr;
+            ordered_array_remove(ordered, i);
+            return header;
+        }
+
+        i++;
+    }
+
+    *usable_addr = ADDR_INVALID;
+    return PTR_INVALID;
+}
+
+static inline bool
+kernel_heap_hole_legal_p(void *hole_addr)
+{
+    s_kernel_heap_header_t *header;
+    s_kernel_heap_footer_t *footer;
+
+    kassert(hole_addr);
+
+    header = hole_addr;
+    footer = kernel_heap_header_to_footer(header);
+
+    if (footer->magic != KHEAP_MAGIC) {
+        return false;
+    } else if (header->magic != KHEAP_MAGIC) {
+        return false;
+    } else if (footer->header != header) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+static inline s_kernel_heap_header_t *
+kernel_heap_hole_make(void *hole_addr, uint32 size)
+{
+    uint32 bytes_count;
+    s_kernel_heap_header_t *header;
+    s_kernel_heap_footer_t *footer;
+
+    kassert(hole_addr);
+    kassert(size >= KHEAP_HOLE_MIN_SIZE);
+
+    header = hole_addr;
+    bytes_count = size - KHEAP_FOOTER_SIZE;
+    footer = (void *)((ptr_t)hole_addr + bytes_count);
+
+    header->magic = KHEAP_MAGIC;
+    header->is_hole = true;
+    header->size = size;
+
+    footer->magic = KHEAP_MAGIC;
+    footer->header = header;
+
+    return header;
+}
+
+static inline void
+kernel_heap_block_make(void *hole_addr, uint32 size)
+{
+    s_kernel_heap_header_t *hole_header;
+
+    kassert(hole_addr);
+    kassert(size >= KHEAP_HOLE_MIN_SIZE);
+
+    hole_header = kernel_heap_hole_make(hole_addr, size);
+    kernel_heap_header_is_hole_set(hole_header, /* is_hole = */false);
+}
+
+static inline uint32
+kernel_heap_hole_front_size(s_kernel_heap_header_t *header,
+    ptr_t usable_addr)
+{
+    kassert(kernel_heap_header_legal_p(header));
+    kassert(usable_addr >= kernel_heap_hole_size(header) + KHEAP_HEADER_SIZE);
+
+    return (uint32)(usable_addr - KHEAP_HEADER_SIZE - (ptr_t)header);
+}
+
+static inline uint32
+kernel_heap_hole_rear_size(s_kernel_heap_header_t *header,
+    ptr_t usable_addr, uint32 req_size)
+{
+    ptr_t usable_limit;
+
+    kassert(kernel_heap_header_legal_p(header));
+    kassert(usable_addr >= kernel_heap_hole_size(header) + KHEAP_HEADER_SIZE);
+    kassert(usable_addr + req_size <= kernel_heap_hole_usable_limit(header));
+
+    usable_limit = (ptr_t)kernel_heap_hole_usable_limit(header);
+
+    return (uint32)(usable_limit - usable_addr - (ptr_t)req_size);
+}
+
+/*
+ *                                usable_addr
+ *                                    |
+ * |  <- front size  ->  |            |                       | <- rear size     -> |
+ * +--------+------------+------------+----------+------------+------------+--------+
+ * | header | free space | new_header | req_size | new footer | free space | footer |
+ * +--------+------------+------------+----------+------------+------------+--------+
+ *                                                                         |
+ *                                                                  usable_limit
+ */
+static inline void
+kernel_heap_hole_split(s_kernel_heap_header_t *header, ptr_t usable_addr,
+    uint32 req_size, s_ordered_array_t *ordered)
+{
+    ptr_t hole_addr, addr_start;
+    uint32 hole_size, front_size, rear_size;
+
+    kassert(req_size);
+    kassert(ordered_array_legal_p(ordered));
+    kassert(kernel_heap_header_legal_p(header));
+
+    hole_size = kernel_heap_hole_size(header);
+    hole_addr = (ptr_t)header;
+    front_size = kernel_heap_hole_front_size(header, usable_addr);
+    rear_size = kernel_heap_hole_rear_size(header, usable_addr, req_size);
+
+    if (front_size >= KHEAP_HOLE_MIN_SIZE) {
+        addr_start = hole_addr;
+        kernel_heap_hole_make((void *)addr_start, front_size);
+        ordered_array_insert(ordered, (void *)addr_start);
+
+        hole_addr += front_size;
+        hole_size -= front_size;
+    }
+
+    if (rear_size >= KHEAP_HOLE_MIN_SIZE) {
+        addr_start = hole_addr + (ptr_t)(hole_size - rear_size);
+        kernel_heap_hole_make((void *)addr_start, rear_size);
+        ordered_array_insert(ordered, (void *)addr_start);
+
+        hole_size -= rear_size;
+    }
+
+    kernel_heap_block_make((void *)hole_addr, hole_size);
+}
+
+static inline void
+kernel_heap_resize(s_kernel_heap_t *heap, uint32 new_size)
+{
+    ptr_t addr;
+    uint32 heap_size;
+    bool is_user, is_writable;
+    s_kernel_heap_header_t *header;
+
+    kassert(new_size);
+    kassert(PAGE_ALIGNED_P(new_size));
+    kassert(kernel_heap_legal_p(heap));
+
+    page_align_i(&new_size);
+    heap_size = kernel_heap_size(heap);
+
+    if (heap_size == new_size) {
+        return;
+    } else if (new_size < heap_size) { /* contract space */
+        addr = kernel_heap_addr_end(heap);
+
+        while (new_size < heap_size) {
+            addr -= PAGE_SIZE;
+            page_free(addr);
+
+            heap_size -= PAGE_SIZE;
+        }
+    } else { /* expand space */
+        addr = kernel_heap_addr_end(heap);
+        is_user = kernel_heap_is_user_p(heap);
+        is_writable = kernel_heap_is_writable_p(heap);
+
+        while (heap_size < new_size) {
+            page_allocate(addr, is_user, is_writable);
+
+            addr += PAGE_SIZE;
+            heap_size += PAGE_SIZE;
+        }
+
+        header = (void *)kernel_heap_addr_end(heap);
+        kernel_heap_hole_make(header, new_size);
+        ordered_array_insert(kernel_heap_ordered_array(heap), header);
+    }
+
+    kernel_heap_addr_end_set(heap, kernel_heap_addr_start(heap) + new_size);
+}
+
+static inline void *
+kernel_heap_allocate_i(s_kernel_heap_t *heap, uint32 req_size,
+    bool is_page_aligned)
+{
+    uint32 new_size;
+    ptr_t usable_addr;
+    s_ordered_array_t *ordered;
+    s_kernel_heap_header_t *header;
+
+    kassert(req_size);
+    kassert(kernel_heap_legal_p(heap));
+
+    ordered = kernel_heap_ordered_array(heap);
+    header = kernel_heap_minimal_hole_obtain(heap, req_size, &usable_addr,
+        is_page_aligned);
+
+    if (header == PTR_INVALID) { /* no suitable hole */
+        new_size = KHEAP_HOLE_SIZE(req_size);
+
+        if (is_page_aligned) {
+            new_size += PAGE_SIZE;
+        }
+
+        kernel_heap_resize(heap, new_size);
+    }
+
+    kernel_heap_hole_split(header, usable_addr, req_size, ordered);
+    return (void *)usable_addr;
+}
+
+void *
+kernel_heap_allocate(s_kernel_heap_t *heap, uint32 request_size,
+    bool is_page_aligned)
+{
+    if (kernel_heap_illegal_p(heap)) {
+        return PTR_INVALID;
+    } else if (request_size == 0) {
+        return PTR_INVALID;
+    } else {
+        return kernel_heap_allocate_i(heap, request_size, is_page_aligned);
+    }
+
+}
+
+static inline s_kernel_heap_footer_t *
+kernel_heap_header_to_footer(s_kernel_heap_header_t *header)
+{
+    ptr_t hole_size;
+    ptr_t footer_addr;
+
+    kassert(kernel_heap_header_legal_p(header));
+
+    hole_size = (ptr_t)kernel_heap_hole_size(header);
+    footer_addr = (ptr_t)header + hole_size - KHEAP_FOOTER_SIZE;
+
+    return (void *)footer_addr;
+}
+
+static inline s_kernel_heap_header_t *
+kernel_heap_footer_to_header(s_kernel_heap_footer_t *footer)
+{
+    kassert(kernel_heap_footer_legal_p(footer));
+
+    return footer->header;
+}
+
+static inline s_kernel_heap_header_t *
+kernel_heap_header_left_unify(s_kernel_heap_header_t *header)
+{
+    s_kernel_heap_header_t *left_header;
+    s_kernel_heap_footer_t *left_footer;
+
+    kassert(kernel_heap_header_legal_p(header));
+
+    left_footer = kernel_heap_header_to_left_footer(header);
+    left_header = kernel_heap_footer_to_header(left_footer);
+
+    if (kernel_heap_footer_magic_invalid_p(left_footer)) {
+        return NULL;
+    } else if (kernel_heap_header_magic_invalid_p(left_header)) {
+        return NULL;
+    } else if (kernel_heap_header_is_not_hole_p(left_header)) {
+        return NULL;
+    } else {
+        return left_header;
+    }
+}
+
+static inline s_kernel_heap_header_t *
+kernel_heap_footer_right_unify(s_kernel_heap_footer_t *footer)
+{
+    s_kernel_heap_header_t *right_header;
+    s_kernel_heap_footer_t *right_footer;
+
+    kassert(kernel_heap_footer_legal_p(footer));
+
+    right_header = kernel_heap_footer_to_right_header(footer);
+    right_footer = kernel_heap_header_to_footer(right_header);
+
+    if (kernel_heap_footer_magic_invalid_p(right_footer)) {
+        return NULL;
+    } else if (kernel_heap_header_magic_invalid_p(right_header)) {
+        return NULL;
+    } else if (kernel_heap_header_is_not_hole_p(right_header)) {
+        return NULL;
+    } else {
+        return right_header;
+    }
+}
+
+static inline void
+kernel_heap_hole_remove(s_kernel_heap_t *heap, s_kernel_heap_header_t *header)
+{
+    uint32 i;
+    uint32 limit;
+    s_ordered_array_t *ordered;
+
+    kassert(kernel_heap_legal_p(heap));
+    kassert(kernel_heap_header_legal_p(header));
+
+    i = 0;
+    ordered = kernel_heap_ordered_array(heap);
+    limit = ordered_array_limit(ordered);
+
+    while (i < limit) {
+        if (header == ordered_array_value(ordered, i)) {
+            ordered_array_remove(ordered, i);
+            return;
+        }
+
+        i++;
+    }
+}
+
+static inline void
+kernel_heap_free_i(s_kernel_heap_t *heap, void *val)
+{
+    void *hole_addr;
+    uint32 hole_size;
+    s_kernel_heap_footer_t *footer;
+    s_kernel_heap_header_t *header, *left_header, *right_header;
+
+    kassert(val);
+    kassert(kernel_heap_legal_p(heap));
+
+    header = KHEAP_USER_TO_HEADER(val);
+    footer = kernel_heap_header_to_footer(header);
+
+    hole_size = kernel_heap_hole_size(header);
+    kernel_heap_header_is_hole_set(header, /* is_hole = */true);
+
+    left_header = kernel_heap_header_left_unify(header);
+    right_header = kernel_heap_footer_right_unify(footer);
+
+    if (left_header && right_header) {
+        hole_addr = left_header;
+        hole_size += kernel_heap_hole_size(left_header);
+        hole_size += kernel_heap_hole_size(right_header);
+
+        kernel_heap_hole_remove(heap, right_header);
+        kernel_heap_hole_make((void *)hole_addr, hole_size);
+    } else if (left_header) {
+        hole_addr = left_header;
+        hole_size += kernel_heap_hole_size(left_header);
+
+        kernel_heap_hole_make(hole_addr, hole_size);
+    } else if (right_header) {
+        hole_addr = header;
+        hole_size += kernel_heap_hole_size(right_header);
+
+        kernel_heap_hole_make(hole_addr, hole_size);
+    } else {
+        hole_addr = header;
+
+        header = kernel_heap_hole_make(hole_addr, hole_size);
+        ordered_array_insert(kernel_heap_ordered_array(heap), header);
+    }
+}
+
+void
+kernel_heap_free(s_kernel_heap_t *heap, void *val)
+{
+    if (val == NULL) {
+        return;
+    } else if (kernel_heap_illegal_p(heap)) {
+        return;
+    } else {
+        kernel_heap_free_i(heap, val);
+    }
+}
 
 void
 kheap_initialize(void)

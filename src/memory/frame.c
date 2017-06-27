@@ -22,17 +22,21 @@ frame_bitmap_create(ptr_t memory_limit)
     return frame_bitmap;
 }
 
-// static inline void
-// frame_clear(s_frame_bitmap_t *frame_bitmap, ptr_t frame)
-// {
-//     ptr_t idx;
-//     ptr_t off;
-// 
-//     idx = BM_INDEX(frame);
-//     off = BM_OFFSET(frame);
-// 
-//     frames_bitmap[idx] &= ~(0x1 << off);
-// }
+static inline uint32
+frame_bitmap_frame_mask_index(s_frame_bitmap_t *frame_bitmap, ptr_t frame)
+{
+    kassert(frame_bitmap);
+
+    return frame / (sizeof(frame_bitmap->bitmap[0]) * 8);
+}
+
+static inline uint32
+frame_bitmap_frame_bit_index(s_frame_bitmap_t *frame_bitmap, ptr_t frame)
+{
+    kassert(frame_bitmap);
+
+    return frame % (sizeof(frame_bitmap->bitmap[0]) * 8);
+}
 
 static inline void
 frame_bitmap_mask_set(s_frame_bitmap_t *frame_bitmap, uint32 mask_idx,
@@ -43,6 +47,17 @@ frame_bitmap_mask_set(s_frame_bitmap_t *frame_bitmap, uint32 mask_idx,
     kassert(bit_idx < BIT_WIDTH(frame_bitmap->bitmap[0]));
 
     frame_bitmap->bitmap[mask_idx] |= (ptr_t)1 << bit_idx;
+}
+
+static inline void
+frame_bitmap_mask_clear(s_frame_bitmap_t *frame_bitmap, uint32 mask_idx,
+    uint32 bit_idx)
+{
+    kassert(frame_bitmap);
+    kassert(mask_idx < frame_bitmap_limit(frame_bitmap));
+    kassert(bit_idx < BIT_WIDTH(frame_bitmap->bitmap[0]));
+
+    frame_bitmap->bitmap[mask_idx] &= ~((ptr_t)1 << bit_idx);
 }
 
 static inline ptr_t
@@ -96,7 +111,7 @@ frame_bitmap_mask(s_frame_bitmap_t *frame_bitmap, uint32 i)
 }
 
 static inline ptr_t
-frame_allocate(s_frame_bitmap_t *frame_bitmap)
+frame_allocate(void)
 {
     uint32 i;
     uint32 j;
@@ -128,20 +143,6 @@ frame_allocate(s_frame_bitmap_t *frame_bitmap)
     }
 
     KERNEL_PANIC(NO_FRAME);
-    return FRAME_NULL;
+    return FRAME_INVALID;
 }
-
-// static inline void
-// frame_free(s_page_entry_t *page_entry)
-// {
-//     ptr_t frame;
-// 
-//     kassert(page);
-// 
-//     frame = page->frame;
-//     if (frame) {
-//         frame_clear(frame);
-//         page->frame = FRAME_NULL;
-//     }
-// }
 
