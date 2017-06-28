@@ -179,6 +179,12 @@ page_directory_switch(s_page_directory_t *page_dirt)
     multiboot_env_cpu_detect();
 }
 
+static inline void
+page_enabled_range_print(ptr_t addr_start, ptr_t addr_end)
+{
+    printf_vga_tk("Page enabled from %x -> %x.\n", addr_start, addr_end);
+}
+
 void
 page_initialize(void)
 {
@@ -198,7 +204,9 @@ page_initialize(void)
      * so we can access this transparently as if paging is not enabled
      */
     addr = 0;
-    while (addr < placement_phys) {
+    page_enabled_range_print(addr, placement_phys + PAGE_SIZE);
+
+    while (addr < placement_phys + PAGE_SIZE) {
         frame = frame_allocate(frame_bitmap);
         entry = page_directory_page_obtain(kernel_page_dirt, addr);
         page_entry_frame_set(entry, frame, /* is_user = */false,

@@ -28,6 +28,7 @@ static inline void memory_set_in_dword(uint32 *base, uint8 v, uint32 len);
 static inline void page_directory_page_table_phys_set(s_page_directory_t *page_dirt, uint32 i, ptr_t page_table_phys);
 static inline void page_directory_page_table_set(s_page_directory_t *page_dirt, uint32 i, s_page_table_t *page_table);
 static inline void page_directory_switch(s_page_directory_t *page_dirt);
+static inline void page_enabled_range_print(ptr_t addr_start, ptr_t addr_end);
 static inline void page_entry_attribute_present_set(s_page_entry_t *page_entry, bool is_presented);
 static inline void page_entry_attribute_rw_set(s_page_entry_t *page_entry, bool is_writable);
 static inline void page_entry_attribute_us_set(s_page_entry_t *page_entry, bool is_user);

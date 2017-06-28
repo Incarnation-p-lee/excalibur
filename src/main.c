@@ -14,7 +14,9 @@ test_paging(void)
 {
     uint32 *ptr;
 
-    ptr = (void *)0x800000;
+    // ptr = (void *)0x800000;
+    // *ptr = 0xdeadbeaf;
+    ptr = (void *)0x4ffffffc;
     *ptr = 0xdeadbeaf;
 }
 
