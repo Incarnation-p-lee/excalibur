@@ -28,7 +28,7 @@ Note That both page and frame must be aligned on 4KB boundary.
 Page entry layout
 31            12 11    9 8    7  6   5  4    3   2     1    0
 +---------------+-------+------+---+---+------+-----+-----+---+
-| frame address | AVLIL | RSVD | D | A | RSVD | U/R | R/W | P |
+| frame address | AVLIL | RSVD | D | A | RSVD | U/S | R/W | P |
 +---------------+-------+------+---+---+------+-----+-----+---+
 
 P:     set if the page is present in memory.
@@ -79,8 +79,4 @@ fault in CR2 register. This can be overwriten by page fault handler.
 <Frame allocation>
 If we map a page to a frame, we need some way of finding a free frame. It is wise to use
 bitset.
-
-
-
-
 

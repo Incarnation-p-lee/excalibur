@@ -2,6 +2,7 @@
 #define HAVE_DEFINED_INTERRUPT_H
 
 typedef enum interrupt_nmbr e_interrupt_nmbr_t;
+typedef struct pro_context  s_pro_context_t;
 
 enum interrupt_nmbr { /* for ISR (interrupt service runtine */
     DIV_BY_Z,     /*   0 Division by zero exception */
@@ -36,7 +37,14 @@ enum interrupt_nmbr { /* for ISR (interrupt service runtine */
     PLACEHOLDER_29,
     PLACEHOLDER_30,
     PLACEHOLDER_31,
-    IRQ_TIMER,    /*  32 timer */
+    IRQ_0_TIMER,  /*  32 timer */
+    IRQ_1_PS,
+    IRQ_2_PS,
+    IRQ_3_PS,
+    IRQ_4_PS,
+    IRQ_5_PS,
+    IRQ_6_PS,
+    IRQ_7_PS,
 };
 
 struct pro_context {
@@ -62,7 +70,6 @@ struct pro_context {
     uint32 usr_esp;
     uint32 ss;
 } __attribute__((packed));
-typedef struct pro_context s_pro_context_t;
 
 #define PAGE_FAULT_PRST        0x1
 #define PAGE_FAULT_WRITE       0x2

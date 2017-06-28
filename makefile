@@ -11,6 +11,7 @@ inc                :=$(base)/inc
 script             :=script
 script_module_decl :=$(script)/generate_declaration.pl
 script_external    :=$(script)/generate_external.pl
+external           :=$(inc)/external.h
 
 CFLAG              =-nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32 -Wall -Wextra -Werror -c
 LD_SCRIPT          =link.ld
@@ -28,7 +29,13 @@ decl               =$(subst .o,_declaration.h, $(obj_partial))
 obj                =$(obj_asm) $(obj_c)
 dep                =$(dep_c) $(dep_asm)
 
-external           :=$(inc)/external.h
+#
+# Make sure boot.o will locate at first 8KB of elf, grub will search multi-boot
+# magic number in that range.
+#
+obj_tmp            =$(obj_c) $(obj_asm)
+obj_boot           =$(filter %/boot.o, $(obj_tmp))
+obj                =$(obj_boot) $(shell echo $(obj_tmp) | sed -e 's:$(obj_boot)::')
 
 vpath %.h $(inc)
 

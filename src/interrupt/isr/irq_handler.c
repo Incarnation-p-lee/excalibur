@@ -6,33 +6,26 @@ irq_handler_nmbr_isr_to_irq(uint32 isr_nmbr)
     return isr_nmbr - IRQ_BASE;
 }
 
-void
-irq_handler_main(s_pro_context_t context)
-{
-    uint32 irq_nmbr;
-    uint32 isr_nmbr;
-    isr_handler_t handler;
-
-    isr_nmbr = context.int_nmbr;
-    irq_nmbr = irq_handler_nmbr_isr_to_irq(isr_nmbr);
-    handler = isr_handler_array[isr_nmbr];
-
-    pic_send_eoi(irq_nmbr);
-    handler(&context);
-}
-
 static inline void
 irq_0_timer_handler(s_pro_context_t *context)
 {
     tick++;
 
+    if (tick % 200000 == 0) {
+        printf_vga_tk("Triggered Time Tick -> eip %x.\n", context->eip);
+    }
+}
+
+static inline void
+irq_7_handler(s_pro_context_t *context)
+{
     if (false) {
-        printf_vga_tk("Timer-Tick: %x -> %x.\n", tick, context->eip);
+        printf_vga_tk("pli28 triggered irq 7 -> eip %x esp %x\n", context->eip);
     }
 }
 
 void
-irq_0_timer_init(uint32 freq)
+irq_0_timer_initialize(uint32 freq)
 {
     uint32 divisor;
     uint8 low;
@@ -57,5 +50,26 @@ uint32
 irq_0_timer_tick(void)
 {
     return tick;
+}
+
+void
+irq_handler_main(s_pro_context_t context)
+{
+    uint32 irq_nmbr;
+    uint32 isr_nmbr;
+    isr_handler_t handler;
+
+    isr_nmbr = context.int_nmbr;
+    irq_nmbr = irq_handler_nmbr_isr_to_irq(isr_nmbr);
+    handler = isr_handler_array[isr_nmbr];
+
+    pic_send_eoi(irq_nmbr);
+
+    if (handler) {
+        handler(&context);
+    } else {
+        printf_vga_tk("Unsupported irq %d within isr %d\n", irq_nmbr, isr_nmbr);
+        KERNEL_PANIC("Unsupported IRQ\n");
+    }
 }
 

@@ -1,5 +1,9 @@
-#ifndef HAVE_DEFINED_KHEAP_H
-#define HAVE_DEFINED_KHEAP_H
+#ifndef HAVE_DEFINED_KERNEL_HEAP_H
+#define HAVE_DEFINED_KERNEL_HEAP_H
+
+typedef struct kernel_heap_header s_kernel_heap_header_t;
+typedef struct kernel_heap_footer s_kernel_heap_footer_t;
+typedef struct kernel_heap        s_kernel_heap_t;
 
 /*
  * Block/Hole memory structure layout
@@ -9,28 +13,25 @@
  * | magic | hole | size |               | magic | header |
  * +-------+------+------+---------------+-------+--------+
  */
-struct kheap_header {
+struct kernel_heap_header {
     uint32 magic;
     bool   is_hole;
-    uint32 size;    // sizeof the block, including the end footer
+    uint32 size;    /* sizeof the block, including the end footer */
 };
-typedef struct kheap_header s_kheap_header_t;
 
-struct kheap_footer {
-    uint32           magic;
-    s_kheap_header_t *header;
+struct kernel_heap_footer {
+    uint32                 magic;
+    s_kernel_heap_header_t *header;
 };
-typedef struct kheap_footer s_kheap_footer_t;
 
-struct kheap {
-    struct ordered_array ordered;
-    bool                 supervisor;
-    bool                 read_only;
-    ptr_t                addr_start;
-    ptr_t                addr_end;
-    ptr_t                addr_max;
+struct kernel_heap {
+    s_ordered_array_t *ordered;
+    bool              supervisor;
+    bool              read_only;
+    ptr_t             addr_start;
+    ptr_t             addr_end;
+    ptr_t             addr_max;
 };
-typedef struct kheap s_kheap_t;
 
 #define KHEAP_BASE
 #define KHEAP_HEADER_SIZE

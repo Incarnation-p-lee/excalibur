@@ -7,7 +7,12 @@ isr_handler_main(s_pro_context_t context)
     int_nmbr = context.int_nmbr;
     handler = isr_handler_array[int_nmbr];
 
-    handler(&context);
+    if (handler) {
+        handler(&context);
+    } else {
+        printf_vga_tk("Unsupported isq %d.\n", int_nmbr);
+        KERNEL_PANIC("Unsupported ISR\n");
+    }
 }
 
 static inline void
@@ -26,6 +31,7 @@ static inline void
 isr_6_invalid_opcode_handler(s_pro_context_t *context)
 {
     printf_vga_tk("Invalid opcode at eip -> %x.\n", context->eip);
+    KERNEL_PANIC("invlid opcoden\n");
 }
 
 static inline void
@@ -69,5 +75,4 @@ isr_14_paging_fault_handler(s_pro_context_t *context)
     printf_vga("Page Fault at address %x.\n", fault_addr);
     KERNEL_PANIC("Page Fault");
 }
-
 

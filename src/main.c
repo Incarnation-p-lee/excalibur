@@ -14,17 +14,17 @@ test_paging(void)
 {
     uint32 *ptr;
 
-    ptr = (void *)0x8000010;
+    ptr = (void *)0x800000;
     *ptr = 0xdeadbeaf;
 }
 
 static inline void
 entry_initialize(void)
 {
-    descriptor_table_gdt_init();
-    descriptor_table_idt_init();
-    irq_0_timer_init(1000);
-    paging_initialize();
+    descriptor_table_gdt_initialize();
+    descriptor_table_idt_initialize();
+    irq_0_timer_initialize(1000);
+    page_initialize();
 }
 
 int
@@ -34,13 +34,14 @@ entry(uint32 magic, void *boot_header, void *boot_info)
     printf_vga_tk("Hello, The World of OS.\n");
 
     multiboot_env_detect(magic, boot_header, boot_info);
-
     entry_initialize();
 
     test_idt_setup();
 
     test_paging();
 
-    return 0xdeadbeaf;
+    printf_vga_tk("Reach end of entry, will idle.\n");
+
+    return 0x0;
 }
 
