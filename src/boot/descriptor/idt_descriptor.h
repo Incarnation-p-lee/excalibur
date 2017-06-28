@@ -70,7 +70,7 @@ struct idt_entry {
 
 #define ATTR_INT_32       (ATTR_TYPE_INTR_32 | ATTR_PRST)
 
-static struct idt_entry    idt_entry_list[IDT_ENTRY_CNT];
+static struct idt_entry    idt[IDT_ENTRY_CNT];
 static struct idt_register idt_reg;
 
 extern void idt_table_flush(uint32);
