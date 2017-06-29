@@ -26,23 +26,25 @@ struct gdt_register {
  * +---+-----+---+-----+----------------+---+-----+----+----+----+----+----+
  */
 struct gdt_attribute_access {
-    uint8 acc:1; // Segment has been accessed or not
-    uint8 rw:1;  // Read-only or Read/Write
-    uint8 dc:1;  // Direction for data segment, 0 grow up, 1 grow down or
-                 // Execution for code segment, 0 indicate DPL and more DPL
-                 //                              1 indicate only the DPL specify
-    uint8 ex:1;  // Segment can be executed or not.
-    uint8 dt:1;  // Descriptor Type, always 1 for GDT
-    uint8 dpl:2; // Descriptor privilege level, ring 0-3
-    uint8 p:1;   // Segment is present or not
+    uint8 acc:1; /* Segment has been accessed or not */
+    uint8 rw:1;  /* Read-only or Read/Write */
+    uint8 dc:1;  /*
+                  * Direction for data segment, 0 grow up, 1 grow down or
+                  * Execution for code segment, 0 indicate DPL and more DPL
+                  *                            1 indicate only the DPL specify
+                  */
+    uint8 ex:1;  /* Segment can be executed or not. */
+    uint8 dt:1;  /* Descriptor Type, always 1 for GDT */
+    uint8 dpl:2; /* Descriptor privilege level, ring 0-3 */
+    uint8 p:1;   /* Segment is present or not */
 } __attribute__((packed));
 
 struct gdt_attribute_flags {
+    uint8 limit_high:4;  /* High 4 bit of limit, bit <16, 19> of limit */
     uint8 avl:1;
     uint8 pack:1;
     uint8 db:1;          /* Operand size, 0 16-bit 1 32-bit */
     uint8 g:1;           /* Granularity defines the limit unit in byte or 4KB */
-    uint8 limit_high:4; /* High 4 bit of limit, bit <16, 19> of limit */
 } __attribute__((packed));
 
 /*
@@ -134,10 +136,10 @@ struct gdt_entry {
 #define USR_DATA_ACC    (ACC_PRST | ACC_DPL_RING_3 | ACC_DT_GDT | ACC_EX_DATA \
     | ACC_DC_DPL_M | ACC_RW)
 
-#define CODE_FLAG       (FLAG_DB_OPND_32 | FLAG_G_BYTE)
-#define DATA_FLAG       (FLAG_DB_OPND_32 | FLAG_G_BYTE)
-#define USR_CODE_FLAG   (FLAG_DB_OPND_32 | FLAG_G_BYTE)
-#define USR_DATA_FLAG   (FLAG_DB_OPND_32 | FLAG_G_BYTE)
+#define CODE_FLAG       (FLAG_DB_OPND_32 | FLAG_G_4KB)
+#define DATA_FLAG       (FLAG_DB_OPND_32 | FLAG_G_4KB)
+#define USR_CODE_FLAG   (FLAG_DB_OPND_32 | FLAG_G_4KB)
+#define USR_DATA_FLAG   (FLAG_DB_OPND_32 | FLAG_G_4KB)
 
 static s_gdt_entry_t    gdt[GDT_ENTRY_CNT];
 static s_gdt_register_t gdt_reg;

@@ -25,17 +25,10 @@ entry_initialize(void)
 {
     descriptor_table_gdt_initialize();
     descriptor_table_idt_initialize();
+
     irq_0_timer_initialize(1000);
 
     page_initialize();
-
-    uint32 *p;
-    // 0x50000000 limit, 4ffffffc will trigger page fault
-    // 1280 MB
-    // p = (void *)0x4ffffffc;
-    p = (void *)0x50000000;
-    *p = 0xa;
-    printf_vga_tk("pli28 heap memory touched\n");
     kernel_heap_initialize();
 }
 
