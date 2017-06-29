@@ -16,9 +16,9 @@ multiboot_env_cpu_detect(void)
     }
 
     if (U32_BIT_GET(cr0, 31) == 1) {
-        printf_vga_tk("Paging enabled.\n");
+        printf_vga_tk("Page enabled.\n");
     } else {
-        printf_vga_tk("Paging disabled.\n");
+        printf_vga_tk("Page disabled.\n");
     }
 }
 

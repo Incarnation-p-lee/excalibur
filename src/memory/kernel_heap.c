@@ -513,20 +513,6 @@ kernel_heap_allocate_i(s_kernel_heap_t *heap, uint32 req_size,
     return (void *)usable_addr;
 }
 
-void *
-kernel_heap_allocate(s_kernel_heap_t *heap, uint32 request_size,
-    bool is_page_aligned)
-{
-    if (kernel_heap_illegal_p(heap)) {
-        return PTR_INVALID;
-    } else if (request_size == 0) {
-        return PTR_INVALID;
-    } else {
-        return kernel_heap_allocate_i(heap, request_size, is_page_aligned);
-    }
-
-}
-
 static inline s_kernel_heap_footer_t *
 kernel_heap_header_to_footer(s_kernel_heap_header_t *header)
 {
@@ -662,16 +648,13 @@ kernel_heap_free_i(s_kernel_heap_t *heap, void *val)
     }
 }
 
-void
-kernel_heap_free(s_kernel_heap_t *heap, void *val)
+static inline void
+kernel_heap_free(s_kernel_heap_t *heap, void *ptr)
 {
-    if (val == NULL) {
-        return;
-    } else if (kernel_heap_illegal_p(heap)) {
-        return;
-    } else {
-        kernel_heap_free_i(heap, val);
-    }
+    kassert(ptr);
+    kassert(kernel_heap_legal_p(heap));
+
+    kernel_heap_free_i(heap, ptr);
 }
 
 void
@@ -690,9 +673,27 @@ kernel_heap_initialize(void)
 }
 
 void *
-kmalloc(uint32 sz)
+kmalloc(uint32 request_size)
 {
-    printf_vga_tk("pli28 heap allocate size %d.\n", sz);
-    return NULL;
+    if (kernel_heap_illegal_p(kernel_heap)) {
+        return PTR_INVALID;
+    } else if (request_size == 0) {
+        return PTR_INVALID;
+    } else {
+        /* is_page_aligned = false */
+        return kernel_heap_allocate_i(kernel_heap, request_size, false);
+    }
+}
+
+void
+kfree(void *ptr)
+{
+    if (ptr == NULL) {
+        return;
+    } else if (kernel_heap_illegal_p(kernel_heap)) {
+        return;
+    } else {
+        kernel_heap_free(kernel_heap, ptr);
+    }
 }
 

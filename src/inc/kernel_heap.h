@@ -1,6 +1,9 @@
 #ifndef HAVE_DEFINED_KERNEL_HEAP_H
 #define HAVE_DEFINED_KERNEL_HEAP_H
 
+#define KHEAP_START             0xC0000000
+#define KHEAP_ADDR_MAX          0xCFFFF000
+
 typedef struct kernel_heap_header s_kernel_heap_header_t;
 typedef struct kernel_heap_footer s_kernel_heap_footer_t;
 typedef struct kernel_heap        s_kernel_heap_t;

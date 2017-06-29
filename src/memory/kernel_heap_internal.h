@@ -2,10 +2,7 @@
 #define HAVE_DEFINED_KERNEL_HEAP_INTERNAL_H
 
 #define KHEAP_HOLE_COUNT        0x10000
-#define KHEAP_START             0xC0000000
-#define KHEAP_ADDR_MAX          0xCFFFF000
-// #define KHEAP_INITIAL_SIZE      0x400000 /* 4 MB */
-#define KHEAP_INITIAL_SIZE      0x2000 /* 8KB */
+#define KHEAP_INITIAL_SIZE      0x400000 /* 4 MB */
 #define KHEAP_MAGIC             0xA5A55A5A
 
 #define KHEAP_HEADER_SIZE       sizeof(s_kernel_heap_header_t)

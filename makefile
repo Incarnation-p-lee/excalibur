@@ -53,6 +53,7 @@ include src/interrupt/makefile.mk
 include src/interrupt/isr/makefile.mk
 include src/memory/makefile.mk
 include src/screen/makefile.mk
+include src/test/makefile.mk
 
 -include $(dep)
 

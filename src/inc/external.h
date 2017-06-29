@@ -16,8 +16,7 @@ extern uint32 ordered_array_value_index_find(s_ordered_array_t *ordered_array, v
 extern uint32 string_len_k(char *s);
 extern uint64 time_stamp_counter(void);
 extern uint8 io_bus_read_byte(uint16 port);
-extern void * kernel_heap_allocate(s_kernel_heap_t *heap, uint32 request_size, bool is_page_aligned);
-extern void * kmalloc(uint32 sz);
+extern void * kmalloc(uint32 request_size);
 extern void * ordered_array_place(s_ordered_array_t *ordered_array, void *addr, uint32 size, ordered_compare_t compare);
 extern void * ordered_array_value(s_ordered_array_t *ordered_array, uint32 i);
 extern void descriptor_table_gdt_initialize(void);
@@ -26,8 +25,8 @@ extern void io_bus_write_byte(uint16 port, uint8 val);
 extern void irq_0_timer_initialize(uint32 freq);
 extern void irq_handler_main(s_pro_context_t context);
 extern void isr_handler_main(s_pro_context_t context);
-extern void kernel_heap_free(s_kernel_heap_t *heap, void *val);
 extern void kernel_heap_initialize(void);
+extern void kfree(void *ptr);
 extern void kmemory_copy(void *to, void *from, uint32 len);
 extern void kmemset(void *base, uint8 v, uint32 len);
 extern void multiboot_env_cpu_detect(void);
@@ -46,6 +45,7 @@ extern void screen_monitor_put_char(char c);
 extern void screen_monitor_write_string(char *c);
 extern void screen_monitor_write_uint32(uint32 u);
 extern void screen_monitor_write_uint32_hex(uint32 u);
+extern void test_main(void);
 
 #endif
 

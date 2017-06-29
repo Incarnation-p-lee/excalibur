@@ -18,13 +18,13 @@ isr_handler_main(s_pro_context_t context)
 static inline void
 isr_0_divide_by_zero_handler(s_pro_context_t *context)
 {
-    printf_vga_tk("Divide by zero at eip -> %x.\n", context->eip);
+    printf_vga_tk("    Divide by zero at eip -> %x.\n", context->eip);
 }
 
 static inline void
 isr_3_breakpoint_handler(s_pro_context_t *context)
 {
-    printf_vga_tk("Breakpoint at eip -> %x.\n", context->eip);
+    printf_vga_tk("    Breakpoint at eip -> %x.\n", context->eip);
 }
 
 static inline void
