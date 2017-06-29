@@ -26,6 +26,13 @@ entry_initialize(void)
     irq_0_timer_initialize(1000);
 
     page_initialize();
+
+    uint32 *p;
+    // 0x50000000 limit, 4ffffffc will trigger page fault
+    // 1280 MB
+    p = (void *)0xc0000000;
+    *p = 0xa;
+    printf_vga_tk("pli28 heap memory touched\n");
     kernel_heap_initialize();
 }
 

@@ -47,8 +47,8 @@ memory_set_in_dword(uint32 *base, uint8 v, uint32 len)
     uint32 remainder;
     uint32 cnt;
 
-    kassert(NULL != base);
-    kassert(0 != len);
+    kassert(base);
+    kassert(len);
 
     remainder = len % sizeof(element);
 
