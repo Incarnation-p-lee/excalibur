@@ -19,7 +19,7 @@ irq_0_timer_handler(s_pro_context_t *context)
 static inline void
 irq_7_handler(s_pro_context_t *context)
 {
-    if (0) {
+    if (false) {
         printf_vga_tk("pli28 triggered irq 7 -> eip %x esp %x\n", context->eip);
     }
 }

@@ -12,14 +12,8 @@
 #define DPL_RING_2                2
 #define DPL_RING_3                3
 
-#define CODE_SEG_BASE             0x0
-#define CODE_SEG_LMT              0xffffffff
-#define DATA_SEG_BASE             0x0
-#define DATA_SEG_LMT              0xffffffff
-#define USR_CODE_SEG_BASE         0x0
-#define USR_CODE_SEG_LMT          0xffffffff
-#define USR_DATA_SEG_BASE         0x0
-#define USR_DATA_SEG_LMT          0xffffffff
+#define U32_BIT(x, idx)           ((uint32)(x) >> (idx) & 0x1)
+#define U32_BITS(x, s, l)         (((uint32)(x) >> (s)) & ((0x1 << (l)) - 1))
 
 #define CHAR_NULL                 0x0
 #define CHAR_ZERO                 0x30

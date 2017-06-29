@@ -238,6 +238,12 @@ page_free(ptr_t addr)
     frame_bitmap_mask_clear(frame_bitmap, mask_idx, bit_idx);
 }
 
+static inline void
+page_enabled_range_print(ptr_t addr_start, ptr_t addr_end)
+{
+    printf_vga_tk("Page enabled from %x -> %x.\n", addr_start, addr_end);
+}
+
 void
 page_initialize(void)
 {
@@ -247,8 +253,6 @@ page_initialize(void)
     memory_phys_limit = multiboot_data_info_physical_memory_limit();
     frame_bitmap = frame_bitmap_create(memory_phys_limit);
     kernel_heap = memory_physical_allocate(sizeof(*kernel_heap));
-
-    /* Init page directory */
     current_page_dirt = kernel_page_dirt = page_directory_create();
 
     /*
@@ -264,6 +268,7 @@ page_initialize(void)
     }
 
     addr = 0;
+    page_enabled_range_print(addr, placement_phys + PAGE_SIZE);
     while (addr < placement_phys + PAGE_SIZE) {
         /* is_user = false, is_writable = true */
         page_allocate(addr, false, true);
@@ -273,6 +278,7 @@ page_initialize(void)
 
     /* Now allocate frame for heap */
     addr = KHEAP_START;
+    page_enabled_range_print(addr, KHEAP_START + KHEAP_INITIAL_SIZE);
     while (addr < KHEAP_START + KHEAP_INITIAL_SIZE) {
         /* is_user = false, is_writable = true */
         page_allocate(addr, false, true);

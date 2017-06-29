@@ -14,7 +14,9 @@ test_paging(void)
 {
     uint32 *ptr;
 
-    ptr = (void *)0x800000;
+    // ptr = (void *)0x800000;
+    // *ptr = 0xdeadbeaf;
+    ptr = (void *)0x4ffffffc;
     *ptr = 0xdeadbeaf;
 }
 
@@ -30,7 +32,7 @@ entry_initialize(void)
     uint32 *p;
     // 0x50000000 limit, 4ffffffc will trigger page fault
     // 1280 MB
-    p = (void *)0xc0000000;
+    p = (void *)0x4ffffffc;
     *p = 0xa;
     printf_vga_tk("pli28 heap memory touched\n");
     kernel_heap_initialize();

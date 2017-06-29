@@ -1,6 +1,10 @@
 #ifndef HAVE_DEFINED_GDT_DESCRIPTOR_H
 #define HAVE_DEFINED_GDT_DESCRIPTOR_H
 
+typedef struct gdt_entry            s_gdt_entry_t;
+typedef struct gdt_register         s_gdt_register_t;
+typedef struct gdt_attribute_access s_gdt_attribute_access_t;
+typedef struct gdt_attribute_flags  s_gdt_attribute_flags_t;
 
 /*
  * Global Descriptor Table Register
@@ -13,7 +17,6 @@ struct gdt_register {
     uint16 limit;
     uint32 base;
 } __attribute__((packed));
-typedef struct gdt_register s_gdt_register_t;
 
 /*
  * Descriptor Attribute
@@ -33,7 +36,6 @@ struct gdt_attribute_access {
     uint8 dpl:2; // Descriptor privilege level, ring 0-3
     uint8 p:1;   // Segment is present or not
 } __attribute__((packed));
-typedef struct gdt_register s_gdt_attribute_access_t;
 
 struct gdt_attribute_flags {
     uint8 avl:1;
@@ -42,7 +44,6 @@ struct gdt_attribute_flags {
     uint8 g:1;     // Granularity which defines the limit unit in byte or 4KB
     uint8 lmt_h:4; // High 4 bit of limit, bit <16, 19> of limit
 } __attribute__((packed));
-typedef struct gdt_register s_gdt_attribute_flags_t;
 
 /*
  * Global Descriptor Table Entry (Global Descriptor)
@@ -61,7 +62,6 @@ struct gdt_entry {
     struct gdt_attribute_flags  flags;
     uint8                       base_h;
 } __attribute__((packed));
-typedef struct gdt_entry s_gdt_entry_t;
 
 #define GDT_ENTRY_CNT     5
 
@@ -117,7 +117,20 @@ typedef struct gdt_entry s_gdt_entry_t;
 #define USR_CODE_SEG_FLAG (FLAG_DB_OPND_32 | FLAG_G_BYTE)
 #define USR_DATA_SEG_FLAG (FLAG_DB_OPND_32 | FLAG_G_BYTE)
 
-static s_gdt_entry_t    gdt_entry_list[GDT_ENTRY_CNT];
+#define CODE_SEG_BASE             0x0
+#define CODE_SEG_LMT              0xfffff
+
+#define DATA_SEG_BASE             0x0
+#define DATA_SEG_LMT              0xfffff
+
+#define STACK_SEG_BASE            0x300000
+#define STACK_SEG_LMT             0xfffff
+
+#define USR_CODE_SEG_LMT          0xFFFFF
+#define USR_CODE_SEG_BASE         0xFFFFF
+#define USR_DATA_SEG_LMT          0xFFFFF
+
+static s_gdt_entry_t    gdt[GDT_ENTRY_CNT];
 static s_gdt_register_t gdt_reg;
 
 extern void gdt_table_flush(uint32);
