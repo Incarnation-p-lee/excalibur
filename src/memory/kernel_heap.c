@@ -3,7 +3,7 @@ kernel_heap_legal_p(s_kernel_heap_t *heap)
 {
     if (heap == NULL) {
         return false;
-    } else if (ordered_array_illegal_p(kernel_heap_ordered_array(heap))) {
+    } else if (ordered_array_illegal_p(&heap->ordered)) {
         return false;
     } else if (heap->addr_start > heap->addr_end) {
         return false;
@@ -67,9 +67,17 @@ kernel_heap_header_legal_p(s_kernel_heap_header_t *header)
         return false;
     } else if (header->size == 0) {
         return false;
+    } else if (header->magic != KHEAP_MAGIC) {
+        return false;
     } else {
         return true;
     }
+}
+
+static inline bool
+kernel_heap_header_illegal_p(s_kernel_heap_header_t *header)
+{
+    return !kernel_heap_header_legal_p(header);
 }
 
 static inline bool
@@ -79,9 +87,17 @@ kernel_heap_footer_legal_p(s_kernel_heap_footer_t *footer)
         return false;
     } else if (footer->header == NULL) {
         return false;
+    } else if (footer->magic != KHEAP_MAGIC) {
+        return false;
     } else {
         return true;
     }
+}
+
+static inline bool
+kernel_heap_footer_illegal_p(s_kernel_heap_footer_t *footer)
+{
+    return !kernel_heap_footer_legal_p(footer);
 }
 
 static inline ptr_t
@@ -158,24 +174,6 @@ kernel_heap_footer_to_right_header(s_kernel_heap_footer_t *footer)
     right_header = (void *)((ptr_t)footer + (ptr_t)KHEAP_FOOTER_SIZE);
 
     return right_header;
-}
-
-static inline bool
-kernel_heap_footer_magic_valid_p(s_kernel_heap_footer_t *footer)
-{
-    kassert(kernel_heap_footer_legal_p(footer));
-
-    if (footer->magic == KHEAP_MAGIC) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-static inline bool
-kernel_heap_footer_magic_invalid_p(s_kernel_heap_footer_t *footer)
-{
-    return !kernel_heap_footer_magic_valid_p(footer);
 }
 
 static inline bool
@@ -544,13 +542,18 @@ kernel_heap_header_left_unify(s_kernel_heap_header_t *header)
     kassert(kernel_heap_header_legal_p(header));
 
     left_footer = kernel_heap_header_to_left_footer(header);
+
+    if (kernel_heap_footer_illegal_p(left_footer)) {
+        return NULL;
+    }
+
     left_header = kernel_heap_footer_to_header(left_footer);
 
-    if (kernel_heap_footer_magic_invalid_p(left_footer)) {
+    if (kernel_heap_header_illegal_p(left_header)) {
         return NULL;
-    } else if (kernel_heap_header_magic_invalid_p(left_header)) {
-        return NULL;
-    } else if (kernel_heap_header_is_not_hole_p(left_header)) {
+    }
+
+    if (kernel_heap_header_is_not_hole_p(left_header)) {
         return NULL;
     } else {
         return left_header;
@@ -566,13 +569,18 @@ kernel_heap_footer_right_unify(s_kernel_heap_footer_t *footer)
     kassert(kernel_heap_footer_legal_p(footer));
 
     right_header = kernel_heap_footer_to_right_header(footer);
+
+    if (kernel_heap_header_illegal_p(right_header)) {
+        return NULL;
+    }
+
     right_footer = kernel_heap_header_to_footer(right_header);
 
-    if (kernel_heap_footer_magic_invalid_p(right_footer)) {
+    if (kernel_heap_footer_illegal_p(right_footer)) {
         return NULL;
-    } else if (kernel_heap_header_magic_invalid_p(right_header)) {
-        return NULL;
-    } else if (kernel_heap_header_is_not_hole_p(right_header)) {
+    }
+
+    if (kernel_heap_header_is_not_hole_p(right_header)) {
         return NULL;
     } else {
         return right_header;

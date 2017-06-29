@@ -3,9 +3,9 @@
 
 static inline bool frame_bitmap_mask_clear_p(ptr_t mask, uint32 i);
 static inline bool frame_bitmap_mask_set_p(ptr_t frame_bitmap, uint32 i);
+static inline bool kernel_heap_footer_illegal_p(s_kernel_heap_footer_t *footer);
 static inline bool kernel_heap_footer_legal_p(s_kernel_heap_footer_t *footer);
-static inline bool kernel_heap_footer_magic_invalid_p(s_kernel_heap_footer_t *footer);
-static inline bool kernel_heap_footer_magic_valid_p(s_kernel_heap_footer_t *footer);
+static inline bool kernel_heap_header_illegal_p(s_kernel_heap_header_t *header);
 static inline bool kernel_heap_header_is_hole_p(s_kernel_heap_header_t *header);
 static inline bool kernel_heap_header_is_not_hole_p(s_kernel_heap_header_t *header);
 static inline bool kernel_heap_header_legal_p(s_kernel_heap_header_t *header);

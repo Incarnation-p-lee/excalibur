@@ -38,17 +38,17 @@ test_heap(void)
     printf_vga_tk("Test heap:\n");
 
     p_a = kmalloc(8);
+    printf_vga_tk("    Allocate 0x8 bytes at %x.\n", p_a);
     p_b = kmalloc(8);
-    printf_vga_tk("    Allocate 8 bytes at %x.\n", p_a);
-    printf_vga_tk("    Allocate 8 bytes at %x.\n", p_b);
+    printf_vga_tk("    Allocate 0x8 bytes at %x.\n", p_b);
 
     kfree(p_a);
-    kfree(p_b);
     printf_vga_tk("    Free %x.\n", p_a);
+    kfree(p_b);
     printf_vga_tk("    Free %x.\n", p_b);
 
-    p_c = kmalloc(16);
-    printf_vga_tk("    Allocate 16 bytes at %x.\n", p_c);
+    p_c = kmalloc(0xf);
+    printf_vga_tk("    Allocate 0xf bytes at %x.\n", p_c);
 
     kfree(p_c);
     printf_vga_tk("    Free %x.\n", p_c);
