@@ -4,17 +4,6 @@
 #define true                      1
 #define false                     0
 
-#define ATTR_CLR                  0
-#define ATTR_SET                  1
-
-#define DPL_RING_0                0
-#define DPL_RING_1                1
-#define DPL_RING_2                2
-#define DPL_RING_3                3
-
-#define U32_BIT(x, idx)           ((uint32)(x) >> (idx) & 0x1)
-#define U32_BITS(x, s, l)         (((uint32)(x) >> (s)) & ((0x1 << (l)) - 1))
-
 #define CHAR_NULL                 0x0
 #define CHAR_ZERO                 0x30
 #define CHAR_a                    0x61
@@ -42,7 +31,7 @@
 #define ARRAY_CNT_OF(a)           (sizeof(a) / sizeof(a[0]))
 #define BIT_WIDTH(t)              (sizeof(t) * 8)
 #define U32_BIT_GET(x, idx)       ((uint32)(x) >> (idx) & 0x1)
-#define U32_BITS_GET(x, s, l)     (((uint32)(x) >> (s)) & ((0x1 << (l)) - 1))
+#define U32_BITS_GET(x, s, len)   (((uint32)(x) >> (s)) & ((0x1 << (len)) - 1))
 
 #define PAGE_ALIGNED_P(p)         (((ptr_t)p & PAGE_MASK) == 0 ? true : false)
 #define PAGE_UNALIGNED_P(p)       (!PAGE_ALIGNED_P(p))
