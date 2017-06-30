@@ -59,13 +59,14 @@ static inline void frame_bitmap_mask_clear(s_frame_bitmap_t *frame_bitmap, uint3
 static inline void frame_bitmap_mask_set(s_frame_bitmap_t *frame_bitmap, uint32 mask_idx, uint32 bit_idx);
 static inline void kernel_heap_addr_end_set(s_kernel_heap_t *heap, ptr_t addr_end);
 static inline void kernel_heap_block_make(void *hole_addr, uint32 size);
+static inline void kernel_heap_contract(s_kernel_heap_t *heap, uint32 new_size);
+static inline void kernel_heap_expand(s_kernel_heap_t *heap, uint32 expand_size);
 static inline void kernel_heap_free(s_kernel_heap_t *heap, void *ptr);
 static inline void kernel_heap_free_i(s_kernel_heap_t *heap, void *val);
 static inline void kernel_heap_header_is_hole_set(s_kernel_heap_header_t *header, bool is_hole);
 static inline void kernel_heap_hole_remove(s_kernel_heap_t *heap, s_kernel_heap_header_t *header);
 static inline void kernel_heap_hole_split(s_kernel_heap_header_t *header, ptr_t usable_addr, uint32 req_size, s_ordered_array_t *ordered);
 static inline void kernel_heap_initialize_i(s_kernel_heap_t *heap, ptr_t addr_start, ptr_t addr_end, ptr_t addr_limit);
-static inline void kernel_heap_resize(s_kernel_heap_t *heap, uint32 new_size);
 static inline void memory_copy_in_byte(void *to, void *from, uint32 len);
 static inline void memory_copy_in_dword(uint32 *to, uint32 *from, uint32 len);
 static inline void memory_set_in_byte(void *base, uint8 v, uint32 len);

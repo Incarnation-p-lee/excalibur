@@ -285,7 +285,7 @@ page_initialize(void)
     /* Now allocate frame for heap */
     addr = KHEAP_START;
     page_enabled_range_print(addr, KHEAP_START + KHEAP_INITIAL_SIZE);
-    while (addr < KHEAP_LIMIT) {
+    while (addr < KHEAP_START + KHEAP_INITIAL_SIZE) {
         /* is_user = false, is_writable = true */
         page_allocate(addr, false, true);
 

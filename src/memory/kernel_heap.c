@@ -436,48 +436,58 @@ kernel_heap_hole_split(s_kernel_heap_header_t *header, ptr_t usable_addr,
 }
 
 static inline void
-kernel_heap_resize(s_kernel_heap_t *heap, uint32 new_size)
+kernel_heap_expand(s_kernel_heap_t *heap, uint32 expand_size)
 {
-    uint32 heap_size;
-    ptr_t addr, frame;
     bool is_user, is_writable;
     s_page_entry_t *page_entry;
+    ptr_t addr, frame, addr_limit;
     s_kernel_heap_header_t *header;
 
-    kassert(new_size);
+    kassert(expand_size);
     kassert(kernel_heap_legal_p(heap));
 
+    page_align_i(&expand_size);
+
+    addr = kernel_heap_addr_end(heap);
+    addr_limit = addr + expand_size;
+
+    is_user = kernel_heap_is_user_p(heap);
+    is_writable = kernel_heap_is_writable_p(heap);
+
+    while (addr < addr_limit) {
+        frame = frame_allocate();
+        page_entry = page_entry_get(addr);
+        page_entry_initialize(page_entry, frame, is_user, is_writable);
+
+        addr += PAGE_SIZE;
+    }
+
+    header = (void *)kernel_heap_addr_end(heap);
+    kernel_heap_hole_make(header, expand_size);
+    ordered_array_insert(kernel_heap_ordered_array(heap), header);
+
+    kernel_heap_addr_end_set(heap, kernel_heap_addr_start(heap) + expand_size);
+}
+
+static inline void
+kernel_heap_contract(s_kernel_heap_t *heap, uint32 new_size)
+{
+    ptr_t addr;
+    uint32 heap_size;
+
+    kassert(kernel_heap_legal_p(heap));
+    kassert(new_size < kernel_heap_size(heap));
+
     page_align_i(&new_size);
+
     heap_size = kernel_heap_size(heap);
+    addr = kernel_heap_addr_end(heap);
 
-    if (heap_size == new_size) {
-        return;
-    } else if (new_size < heap_size) { /* contract space */
-        addr = kernel_heap_addr_end(heap);
+    while (new_size < heap_size) {
+        addr -= PAGE_SIZE;
+        page_free(addr);
 
-        while (new_size < heap_size) {
-            addr -= PAGE_SIZE;
-            page_free(addr);
-
-            heap_size -= PAGE_SIZE;
-        }
-    } else { /* new_size > heap_size expand space */
-        addr = kernel_heap_addr_end(heap);
-        is_user = kernel_heap_is_user_p(heap);
-        is_writable = kernel_heap_is_writable_p(heap);
-
-        while (heap_size < new_size) {
-            frame = frame_allocate();
-            page_entry = page_entry_get(addr);
-            page_entry_initialize(page_entry, frame, is_user, is_writable);
-
-            addr += PAGE_SIZE;
-            heap_size += PAGE_SIZE;
-        }
-
-        header = (void *)kernel_heap_addr_end(heap);
-        kernel_heap_hole_make(header, new_size);
-        ordered_array_insert(kernel_heap_ordered_array(heap), header);
+        heap_size -= PAGE_SIZE;
     }
 
     kernel_heap_addr_end_set(heap, kernel_heap_addr_start(heap) + new_size);
@@ -487,7 +497,7 @@ static inline void *
 kernel_heap_allocate_i(s_kernel_heap_t *heap, uint32 req_size,
     bool is_page_aligned)
 {
-    uint32 new_size;
+    uint32 expand_size;
     ptr_t usable_addr;
     s_ordered_array_t *ordered;
     s_kernel_heap_header_t *header;
@@ -500,13 +510,13 @@ kernel_heap_allocate_i(s_kernel_heap_t *heap, uint32 req_size,
         is_page_aligned);
 
     if (header == PTR_INVALID) { /* no suitable hole */
-        new_size = KHEAP_HOLE_SIZE(req_size);
+        expand_size = KHEAP_HOLE_SIZE(req_size);
 
         if (is_page_aligned) {
-            new_size += PAGE_SIZE;
+            expand_size += PAGE_SIZE;
         }
 
-        kernel_heap_resize(heap, new_size);
+        kernel_heap_expand(heap, expand_size);
         header = kernel_heap_minimal_hole_obtain(heap, req_size, &usable_addr,
             is_page_aligned);
 
