@@ -438,17 +438,18 @@ kernel_heap_hole_split(s_kernel_heap_header_t *header, ptr_t usable_addr,
 static inline void
 kernel_heap_expand(s_kernel_heap_t *heap, uint32 expand_size)
 {
+    uint32 hole_size;
     bool is_user, is_writable;
     s_page_entry_t *page_entry;
     ptr_t addr, frame, addr_limit;
-    s_kernel_heap_header_t *header;
+    s_kernel_heap_header_t *header, *left_header;
 
     kassert(expand_size);
     kassert(kernel_heap_legal_p(heap));
 
     page_align_i(&expand_size);
 
-    addr = kernel_heap_addr_end(heap);
+    header = (void *)(addr = kernel_heap_addr_end(heap));
     addr_limit = addr + expand_size;
 
     is_user = kernel_heap_is_user_p(heap);
@@ -462,11 +463,18 @@ kernel_heap_expand(s_kernel_heap_t *heap, uint32 expand_size)
         addr += PAGE_SIZE;
     }
 
-    header = (void *)kernel_heap_addr_end(heap);
-    kernel_heap_hole_make(header, expand_size);
-    ordered_array_insert(kernel_heap_ordered_array(heap), header);
-
     kernel_heap_addr_end_set(heap, kernel_heap_addr_start(heap) + expand_size);
+
+    kernel_heap_hole_make(header, expand_size);
+    left_header = kernel_heap_header_left_unify(header);
+
+    if (left_header) {
+        header = left_header;
+        hole_size = kernel_heap_hole_size(left_header) + expand_size;
+        kernel_heap_hole_make(header, hole_size);
+    }
+
+    ordered_array_insert(kernel_heap_ordered_array(heap), header);
 }
 
 static inline void
