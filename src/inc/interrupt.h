@@ -38,7 +38,7 @@ enum interrupt_nmbr { /* for ISR (interrupt service runtine */
     PLACEHOLDER_30,
     PLACEHOLDER_31,
     IRQ_0_TIMER,  /*  32 timer */
-    IRQ_1_PS,
+    IRQ_1_KEYBOARD,
     IRQ_2_PS,
     IRQ_3_PS,
     IRQ_4_PS,

@@ -46,6 +46,8 @@ isr_14_paging_fault_handler(s_pro_context_t *context)
     uint32 err_code;
     ptr_t fault_addr;
 
+    printf_vga_tk("Page fault triggered -> %x.\n", context->eip);
+
     asm volatile (
         "mov %%cr2, %0\n\t"
         :"=r"(fault_addr));

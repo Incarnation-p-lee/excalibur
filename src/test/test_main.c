@@ -33,25 +33,35 @@ test_page(void)
 static inline void
 test_heap(void)
 {
+    uint32 size;
     uint32 *p_a, *p_b, *p_c;
 
     printf_vga_tk("Test heap:\n");
 
-    p_a = kmalloc(8);
-    printf_vga_tk("    Allocate 0x8 bytes at %x.\n", p_a);
-    p_b = kmalloc(8);
-    printf_vga_tk("    Allocate 0x8 bytes at %x.\n", p_b);
+    size = 8;
 
+    p_a = kmalloc(size);
+    p_b = kmalloc(size);
+    printf_vga_tk("    Allocate %x bytes at %x.\n", size, p_a);
+    printf_vga_tk("    Allocate %x bytes at %x.\n", size, p_b);
     kfree(p_a);
-    printf_vga_tk("    Free %x.\n", p_a);
     kfree(p_b);
+    printf_vga_tk("    Free %x.\n", p_a);
     printf_vga_tk("    Free %x.\n", p_b);
 
-    p_c = kmalloc(0xf);
-    printf_vga_tk("    Allocate 0xf bytes at %x.\n", p_c);
+    size = 0xf;
 
+    p_c = kmalloc(size);
+    printf_vga_tk("    Allocate %x bytes at %x.\n", size, p_c);
     kfree(p_c);
     printf_vga_tk("    Free %x.\n", p_c);
+
+    size = 0x400000;
+
+    p_a = kmalloc(0x400000);
+    printf_vga_tk("    Allocate %x bytes at %x.\n", size, p_a);
+    kfree(p_a);
+    printf_vga_tk("    Free %x.\n", p_a);
 
     printf_vga_tk("Test heap ............... OK.\n");
 }

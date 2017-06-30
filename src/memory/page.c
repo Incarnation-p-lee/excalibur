@@ -131,7 +131,13 @@ page_entry_frame_set(s_page_entry_t *page_entry, ptr_t frame)
 }
 
 static inline s_page_entry_t *
-page_directory_page_get(s_page_directory_t *page_dirt, ptr_t addr)
+page_entry_get(ptr_t addr)
+{
+    return page_directory_page_entry_get(kernel_page_dirt, addr);
+}
+
+static inline s_page_entry_t *
+page_directory_page_entry_get(s_page_directory_t *page_dirt, ptr_t addr)
 {
     ptr_t i; /* table index */
     ptr_t k; /* page index */
@@ -229,7 +235,7 @@ page_free(ptr_t addr)
     ptr_t mask_idx;
     s_page_entry_t *page_entry;
 
-    page_entry = page_directory_page_get(kernel_page_dirt, addr);
+    page_entry = page_directory_page_entry_get(kernel_page_dirt, addr);
     frame = page_entry->frame;
 
     mask_idx = frame_bitmap_frame_mask_index(frame_bitmap, frame);
@@ -261,7 +267,7 @@ page_initialize(void)
      * So we can access this transparently as if paging is not enabled
      */
     addr = KHEAP_START;
-    while (addr < KHEAP_START + KHEAP_INITIAL_SIZE) {
+    while (addr < KHEAP_LIMIT) {
         page_directory_page_obtain(kernel_page_dirt, addr);
 
         addr += PAGE_SIZE;
@@ -279,7 +285,7 @@ page_initialize(void)
     /* Now allocate frame for heap */
     addr = KHEAP_START;
     page_enabled_range_print(addr, KHEAP_START + KHEAP_INITIAL_SIZE);
-    while (addr < KHEAP_START + KHEAP_INITIAL_SIZE) {
+    while (addr < KHEAP_LIMIT) {
         /* is_user = false, is_writable = true */
         page_allocate(addr, false, true);
 

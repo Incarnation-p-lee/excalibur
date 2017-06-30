@@ -2,7 +2,7 @@
 #define HAVE_DEFINED_KERNEL_HEAP_H
 
 #define KHEAP_START             0xC0000000
-#define KHEAP_ADDR_MAX          0xCFFFF000
+#define KHEAP_LIMIT             0xC4000000 /* At most 64 MB for heap */
 
 typedef struct kernel_heap_header s_kernel_heap_header_t;
 typedef struct kernel_heap_footer s_kernel_heap_footer_t;
@@ -33,7 +33,7 @@ struct kernel_heap {
     bool              is_writable;
     ptr_t             addr_start;
     ptr_t             addr_end;
-    ptr_t             addr_max;
+    ptr_t             addr_limit;
     ptr_t             last_hole_addr;
 };
 

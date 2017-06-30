@@ -7,7 +7,7 @@ kernel_heap_legal_p(s_kernel_heap_t *heap)
         return false;
     } else if (heap->addr_start > heap->addr_end) {
         return false;
-    } else if (heap->addr_end > heap->addr_max) {
+    } else if (heap->addr_end > heap->addr_limit) {
         return false;
     } else {
         return true;
@@ -225,7 +225,7 @@ kernel_heap_compare(void *a, void *b)
 
 static inline void
 kernel_heap_initialize_i(s_kernel_heap_t *heap, ptr_t addr_start,
-    ptr_t addr_end, ptr_t addr_max)
+    ptr_t addr_end, ptr_t addr_limit)
 {
     uint32 bytes_count;
     s_ordered_array_t *ordered;
@@ -233,10 +233,10 @@ kernel_heap_initialize_i(s_kernel_heap_t *heap, ptr_t addr_start,
 
     kassert(heap);
     kassert(addr_start < addr_end);
-    kassert(addr_max > 0 && addr_max > addr_end);
+    kassert(addr_limit > 0 && addr_limit > addr_end);
     kassert(PAGE_ALIGNED_P(addr_start));
     kassert(PAGE_ALIGNED_P(addr_end));
-    kassert(PAGE_ALIGNED_P(addr_max));
+    kassert(PAGE_ALIGNED_P(addr_limit));
 
     ordered = &heap->ordered; /* heap is not initialized here */
     addr_start = (ptr_t)ordered_array_place(ordered, (void *)addr_start,
@@ -246,7 +246,7 @@ kernel_heap_initialize_i(s_kernel_heap_t *heap, ptr_t addr_start,
 
     heap->addr_start = addr_start;
     heap->addr_end = addr_end;
-    heap->addr_max = addr_max;
+    heap->addr_limit = addr_limit;
     heap->is_user = false;
     heap->is_writable = true;
 
@@ -438,13 +438,13 @@ kernel_heap_hole_split(s_kernel_heap_header_t *header, ptr_t usable_addr,
 static inline void
 kernel_heap_resize(s_kernel_heap_t *heap, uint32 new_size)
 {
-    ptr_t addr;
     uint32 heap_size;
+    ptr_t addr, frame;
     bool is_user, is_writable;
+    s_page_entry_t *page_entry;
     s_kernel_heap_header_t *header;
 
     kassert(new_size);
-    kassert(PAGE_ALIGNED_P(new_size));
     kassert(kernel_heap_legal_p(heap));
 
     page_align_i(&new_size);
@@ -461,13 +461,15 @@ kernel_heap_resize(s_kernel_heap_t *heap, uint32 new_size)
 
             heap_size -= PAGE_SIZE;
         }
-    } else { /* expand space */
+    } else { /* new_size > heap_size expand space */
         addr = kernel_heap_addr_end(heap);
         is_user = kernel_heap_is_user_p(heap);
         is_writable = kernel_heap_is_writable_p(heap);
 
         while (heap_size < new_size) {
-            page_allocate(addr, is_user, is_writable);
+            frame = frame_allocate();
+            page_entry = page_entry_get(addr);
+            page_entry_initialize(page_entry, frame, is_user, is_writable);
 
             addr += PAGE_SIZE;
             heap_size += PAGE_SIZE;
@@ -505,6 +507,10 @@ kernel_heap_allocate_i(s_kernel_heap_t *heap, uint32 req_size,
         }
 
         kernel_heap_resize(heap, new_size);
+        header = kernel_heap_minimal_hole_obtain(heap, req_size, &usable_addr,
+            is_page_aligned);
+
+        kassert(header != PTR_INVALID);
     }
 
     kernel_heap_hole_split(header, usable_addr, req_size, ordered);
@@ -674,7 +680,7 @@ kernel_heap_initialize(void)
      */
     if (kernel_heap != NULL) {
         kernel_heap_initialize_i(kernel_heap, KHEAP_START,
-            KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_ADDR_MAX);
+            KHEAP_START + KHEAP_INITIAL_SIZE, KHEAP_LIMIT);
 
         printf_vga_tk("Heap initialized.\n");
     }

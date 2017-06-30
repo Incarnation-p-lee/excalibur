@@ -17,6 +17,14 @@ irq_0_timer_handler(s_pro_context_t *context)
 }
 
 static inline void
+irq_1_keyboard_handler(s_pro_context_t *context)
+{
+    if (false) {
+        printf_vga_tk("Triggered keyboard -> eip %x.\n", context->eip);
+    }
+}
+
+static inline void
 irq_7_handler(s_pro_context_t *context)
 {
     if (false) {
