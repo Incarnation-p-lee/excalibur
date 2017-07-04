@@ -10,24 +10,19 @@
  * load or store, we will make it simple.
  */
 
-#define NAME_MAX          128
-#define HEADER_MAX        64
+#define INITRD_NAME_MAX   128
+#define INITRD_HEADER_MAX 64
 #define INITRD_MAGIC      0xbf
-#define INITRD_NAME       "initrd.img"
-
-#define RETURN_IF_TRUE(x) if (x) { return ; }
-#define ARRAY_CNT_OF(a)   (sizeof(a) / sizeof(a[0]))
 
 typedef struct initrd_header s_initrd_header_t;
 
 struct initrd_header {
     uint8  magic;
-    char   name[NAME_MAX];
+    char   name[INITRD_NAME_MAX];
     uint32 offset;
     uint32 length;
 };
 
-static s_initrd_header_t header_array[HEADER_MAX];
 
 /*
  * initrd image layout
@@ -42,6 +37,9 @@ static s_initrd_header_t header_array[HEADER_MAX];
  * | ...          |
  * | file n - 1   |
  * +--------------+
+ *
+ * To-do
+ * For now, this structure do not support sub directory, will add it later.
  */
 
 #endif

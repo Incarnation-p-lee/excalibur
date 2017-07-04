@@ -5,6 +5,7 @@
 
 #include "type.h"
 #include "initrd.h"
+#include "initrd_internal.h"
 #include "initrd_declaration.h"
 
 #include "initrd_image.c"

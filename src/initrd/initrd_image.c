@@ -43,14 +43,14 @@ initrd_image_make(uint32 argc, char **argv)
 
     assert(argv);
     assert((argc & 0x1) == 0x1);
-    assert((argc - 1) / 2 <= HEADER_MAX);
+    assert((argc - 1) / 2 <= INITRD_HEADER_MAX);
 
     i = 0;
     limit = (argc - 1) / 2;
     offset = initrd_header_size();
 
     fd = fopen(INITRD_NAME, "w");
-    fwrite(header_array, sizeof(s_initrd_header_t), HEADER_MAX, fd);
+    fwrite(header_array, sizeof(s_initrd_header_t), INITRD_HEADER_MAX, fd);
     fwrite(&limit, sizeof(limit), 1, fd);
 
     while (i < limit) {
