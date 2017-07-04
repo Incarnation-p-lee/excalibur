@@ -148,7 +148,7 @@ $(INITRD_TARGET):$(initrd_obj)
 	$(CC) -o $@ $<
 
 $(initrd_obj):$(initrd_src)
-	@echo "    Compile  $(notdir $@)"
+	@echo "    Compile  $(notdir $<)"
 	$(CC) $(INITRD_CC_FLAG) -o $@ $<
 	
 

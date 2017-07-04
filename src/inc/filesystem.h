@@ -11,7 +11,7 @@ typedef void (*f_close_t)(s_fs_node_t *);
 typedef s_directory_t * (*f_readdir_t)(s_fs_node_t *, uint32);
 typedef s_fs_node_t * (*f_finddir_t)(s_fs_node_t *, char *);
 
-#define NAME_MAX          128
+#define FS_NAME_MAX       128
 
 #define FS_FILE           0x1u
 #define FS_DIRECTORY      0x2u
@@ -32,7 +32,7 @@ typedef s_fs_node_t * (*f_finddir_t)(s_fs_node_t *, char *);
  */
 
 struct filesystem_node {
-    char            name[NAME_MAX];
+    char            name[FS_NAME_MAX];
     uint32          flags;
     uint32          mask;
     uint32          uid;
@@ -54,7 +54,7 @@ struct filesystem_node {
 };
 
 struct directory {
-    char   name[NAME_MAX];
+    char   name[FS_NAME_MAX];
     uint32 inode;
 };
 
