@@ -54,6 +54,7 @@ include src/interrupt/isr/makefile.mk
 include src/memory/makefile.mk
 include src/screen/makefile.mk
 include src/test/makefile.mk
+include src/vfs/makefile.mk
 
 -include $(dep)
 
@@ -65,7 +66,7 @@ CFLAG              +=$(if $(RELEASE),$(CF_RELEASE),$(CF_DEBUG))
 ASMFLAG            +=$(if $(RELEASE),$(CF_RELEASE),$(CF_DEBUG))
 ASMFLAG            +=$(addprefix -I,$(dir $@))
 
-.PHONY:all help clean
+.PHONY:all help clean initrd
 
 TARGET             :=$(out)/kernel
 TARGET_DEP         :=$(dep) $(external) $(decl)
@@ -108,19 +109,46 @@ $(obj_asm):%.o:%.s
 
 clean:
 	@echo "    Clean    Object"
-	@$(RM) $(obj)
+	@$(RM) $(obj) $(initrd_obj)
 	@echo "    Clean    Depend"
-	@$(RM) $(dep)
+	@$(RM) $(dep) $(initrd_dep)
 
 help:
 	@echo
 	@echo "  make            :Default debug build"
 	@echo "  make RELEASE=1  :Release build"
 	@echo "  make V=1        :Verbose build"
+	@echo "  make initrd     :initrd.bin build"
 	@echo
 
 ## define list ##
 define update_decl_depend
     @echo "$(basename $<)_declaration.h: $(addprefix $(dir @),$(shell ls $(dir $@)*.c ))" >> $@
 endef
+
+## Initrd ##
+INITRD_TARGET      :=$(out)/initrd.bin
+INITRD_CC_FLAG     =-c $(if $(RELEASE),-o2,-g) $(addprefix -I,$(inc))
+
+initrd_src         =$(base)/initrd/initrd.c
+initrd_obj         =$(subst .c,.o, $(initrd_src))
+initrd_dep         =$(subst .c,.d, $(initrd_src))
+
+-include $(initrd_dep)
+
+initrd:$(INITRD_TARGET)
+
+$(initrd_dep):%.d:%.c
+	@echo "    Depend   $(notdir $@)"
+	$(CC) -M -MT '$(basename $<).o $(basename $<).d' $(INITRD_CC_FLAG) $< > $@
+	$(update_decl_depend)
+
+$(INITRD_TARGET):$(initrd_obj)
+	@echo "    Link     $(notdir $@)"
+	$(CC) -o $@ $<
+
+$(initrd_obj):$(initrd_src)
+	@echo "    Compile  $(notdir $@)"
+	$(CC) $(INITRD_CC_FLAG) -o $@ $<
+	
 

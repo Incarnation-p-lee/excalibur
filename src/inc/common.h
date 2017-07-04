@@ -9,7 +9,7 @@
 #include "kernel_heap.h"
 #include "multiboot.h"
 #include "external_data.h"
-// #include "filesystem.h"
+#include "filesystem.h"
 
 #include "external.h"
 

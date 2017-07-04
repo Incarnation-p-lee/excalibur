@@ -4,12 +4,18 @@
 extern bool assert_complain(const char *msg, const char *file, const char *fun, uint32 line, bool exp);
 extern bool ordered_array_illegal_p(s_ordered_array_t *ordered);
 extern bool ordered_array_legal_p(s_ordered_array_t *ordered);
+extern int main(char argc, char **argv);
 extern ptr_t multiboot_data_info_physical_memory_limit(void);
 extern ptr_t multiboot_data_info_physical_memory_lower(void);
 extern ptr_t multiboot_data_info_physical_memory_upper(void);
+extern s_directory_t * filesystem_readdir(s_fs_node_t *fs_node, uint32 index);
 extern s_ordered_array_t * ordered_array_create(uint32 size, ordered_compare_t compare);
 extern sint32 ordered_array_standard_compare(const void *a, const void *b);
 extern uint16 io_bus_read_word(uint16 port);
+extern uint32 filesystem_close(s_fs_node_t *fs_node);
+extern uint32 filesystem_open(s_fs_node_t *fs_node);
+extern uint32 filesystem_read(s_fs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf);
+extern uint32 filesystem_write(s_fs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf);
 extern uint32 irq_0_timer_tick(void);
 extern uint32 ordered_array_limit(s_ordered_array_t *ordered_array);
 extern uint32 ordered_array_value_index_find(s_ordered_array_t *ordered_array, void *val);
