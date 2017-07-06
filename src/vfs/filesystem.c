@@ -1,7 +1,7 @@
 uint32
 filesystem_read(s_fs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf)
 {
-    if (filesystem_node_illegal_p(fs_node)) {
+    if (filesystem_node_illegal_ip(fs_node)) {
         return 0;
     } else if (filesystem_node_unreadable_p(fs_node)) {
         return 0;
@@ -17,7 +17,7 @@ filesystem_read(s_fs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf)
 uint32
 filesystem_write(s_fs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf)
 {
-    if (filesystem_node_illegal_p(fs_node)) {
+    if (filesystem_node_illegal_ip(fs_node)) {
         return 0;
     } else if (filesystem_node_unwritable_p(fs_node)) {
         return 0;
@@ -33,7 +33,7 @@ filesystem_write(s_fs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf)
 uint32
 filesystem_open(s_fs_node_t *fs_node)
 {
-    if (filesystem_node_illegal_p(fs_node)) {
+    if (filesystem_node_illegal_ip(fs_node)) {
         return 0;
     } else if (filesystem_node_unopenable_p(fs_node)) {
         return 0;
@@ -46,7 +46,7 @@ filesystem_open(s_fs_node_t *fs_node)
 uint32
 filesystem_close(s_fs_node_t *fs_node)
 {
-    if (filesystem_node_illegal_p(fs_node)) {
+    if (filesystem_node_illegal_ip(fs_node)) {
         return 0;
     } else if (filesystem_node_unopenable_p(fs_node)) {
         return 0;
@@ -59,7 +59,7 @@ filesystem_close(s_fs_node_t *fs_node)
 s_directory_t *
 filesystem_readdir(s_fs_node_t *fs_node, uint32 index)
 {
-    if (filesystem_node_illegal_p(fs_node)) {
+    if (filesystem_node_illegal_ip(fs_node)) {
         return PTR_INVALID;
     } else if (filesystem_node_dir_unreadable_p(fs_node)) {
         return PTR_INVALID;

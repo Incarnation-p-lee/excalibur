@@ -55,6 +55,7 @@ include src/memory/makefile.mk
 include src/screen/makefile.mk
 include src/test/makefile.mk
 include src/vfs/makefile.mk
+include src/vfs/fs_initrd/makefile.mk
 
 -include $(dep)
 
@@ -151,4 +152,3 @@ $(initrd_obj):$(initrd_src)
 	@echo "    Compile  $(notdir $<)"
 	$(CC) $(INITRD_CC_FLAG) -o $@ $<
 	
-

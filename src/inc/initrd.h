@@ -27,9 +27,9 @@ struct initrd_header {
 /*
  * initrd image layout
  * +--------------+   <-   offset 0
- * | header_array |
- * +--------------+
  * | array count  |
+ * +--------------+
+ * | header array |
  * +--------------+
  * | file 0       |
  * | file 1       |

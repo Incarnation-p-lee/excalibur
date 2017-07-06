@@ -4,7 +4,7 @@
 #define true                      1
 #define false                     0
 
-#define CHAR_NULL                 0x0
+#define CHAR_NULL                 ((char)0x0)
 #define CHAR_ZERO                 0x30
 #define CHAR_a                    0x61
 
@@ -27,6 +27,7 @@
 #define ADDR_INVALID              (ptr_t)(-1)
 #define MEMORY_INVALID            0u
 #define FRAME_INVALID             ADDR_INVALID
+#define INODE_INVALID             (-1)
 
 #define ARRAY_CNT_OF(a)           (sizeof(a) / sizeof(a[0]))
 #define BIT_WIDTH(t)              (sizeof(t) * 8)
