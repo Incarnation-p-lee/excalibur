@@ -4,11 +4,11 @@ printf_k(char *format, void *param)
      uint32 len;
      char buf[PR_BUF_SIZE + 1];
 
-     kassert(NULL != format);
-     kassert(NULL != param);
+     kassert(format);
+     kassert(param);
 
      buf[PR_BUF_SIZE] = '\0';
-     len = string_len_k(format);
+     len = string_len(format);
 
      while (len > PR_BUF_SIZE) {
          kmemory_copy(buf, format, PR_BUF_SIZE);
@@ -29,8 +29,8 @@ printf_k_one_buf(char *buf, void *base)
     char *s;
     char *trvl;
 
-    kassert(NULL != buf);
-    kassert(NULL != base);
+    kassert(buf);
+    kassert(base);
 
     s = buf;
     trvl = buf;
