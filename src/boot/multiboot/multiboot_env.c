@@ -43,8 +43,7 @@ multiboot_env_os_image_detect(void)
     image_start = (ptr_t)&boot;
     image_end = (ptr_t)&end;
 
-    printf_vga_tk("OS image start -> %x\n", image_start);
-    printf_vga_tk("OS image end -> %x\n", image_end);
+    printf_vga_tk("OS image load: %x -> %x.\n", image_start, image_end);
 }
 
 static inline void
@@ -54,11 +53,40 @@ multiboot_data_initialize(void)
 }
 
 static inline void
-multiboot_env_data_detect(s_multiboot_header_t *header, s_multiboot_info_t *info)
+multiboot_env_data_detect_physical_memory(void)
 {
     uint32 memory_lower;
     uint32 memory_upper;
 
+    memory_lower = multiboot_data_info_physical_memory_lower();
+    memory_upper = multiboot_data_info_physical_memory_upper();
+
+    printf_vga_tk("Physical memory %d KB -> %d KB.\n", memory_lower, memory_upper);
+}
+
+static inline void
+multiboot_env_data_detect_boot_modules(void)
+{
+    uint32 i;
+    uint32 limit;
+    s_boot_module_t *module;
+
+    kassert(multiboot_data_info_flag_enabled_p(MULTIBOOT_FLAG_MODS));
+
+    i = 0;
+    limit = multiboot_data_info_boot_modules_count_i();
+
+    while (i < limit) {
+        module = multiboot_data_info_boot_module(i);
+        printf_vga_tk("Multi-Boot module %d -> %s.\n", i, module->string);
+
+        i++;
+    }
+}
+
+static inline void
+multiboot_env_data_detect(s_multiboot_header_t *header, s_multiboot_info_t *info)
+{
     kassert(header);
     kassert(info);
 
@@ -66,11 +94,8 @@ multiboot_env_data_detect(s_multiboot_header_t *header, s_multiboot_info_t *info
     multiboot_data_header_initialize(header);
     multiboot_data_info_initialize(info);
 
-    memory_lower = multiboot_data_info_physical_memory_lower();
-    memory_upper = multiboot_data_info_physical_memory_upper();
-
-    printf_vga_tk("Physical memory lower -> %d KB.\n", memory_lower);
-    printf_vga_tk("Physical memory upper -> %d KB.\n", memory_upper);
+    multiboot_env_data_detect_physical_memory();
+    multiboot_env_data_detect_boot_modules();
 }
 
 void
@@ -85,5 +110,7 @@ multiboot_env_detect(uint32 magic, void *boot_header, void *boot_info)
     if (boot_header && boot_info) {
         multiboot_env_data_detect(boot_header, boot_info);
     }
+
+    memory_physical_placement_set(multiboot_data_info_end_address());
 }
 

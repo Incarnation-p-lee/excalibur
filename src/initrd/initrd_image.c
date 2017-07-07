@@ -59,7 +59,9 @@ initrd_image_make(uint32 argc, char **argv)
         header = initrd_header_array_header(i);
 
         fs = fopen(op_1, "r");
-        RETURN_IF_TRUE(fs == NULL);
+        if (fs == NULL) {
+            printf("Failed to locate file %s.\n", op_1);
+        }
 
         printf("Copy file from %s -> %s\n", op_1, op_2);
         strcpy(header->name, op_2);

@@ -38,7 +38,7 @@ struct frame_bitmap {
     uint32 frame_limit;
 };
 
-static ptr_t placement_phys = (ptr_t)&end;
+static ptr_t placement_phys = 0;
 
 static s_frame_bitmap_t *frame_bitmap;
 

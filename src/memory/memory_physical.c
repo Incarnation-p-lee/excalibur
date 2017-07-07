@@ -36,3 +36,12 @@ memory_physical_allocate(uint32 sz)
     return memory_physical_allocate_i(sz, /* is_page_aligned = */false);
 }
 
+void
+memory_physical_placement_set(ptr_t addr_phys)
+{
+    if (placement_phys == 0) {
+        placement_phys = addr_phys;
+        printf_vga_tk("Set physical memory placement -> %x.\n", addr_phys);
+    }
+}
+

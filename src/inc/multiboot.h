@@ -3,8 +3,21 @@
 
 typedef struct multiboot_header      s_multiboot_header_t;
 typedef struct multiboot_information s_multiboot_info_t;
-typedef struct a_out_symbol_table    s_a_out_symbol_table_t;
+typedef struct aout_symbol_table     s_aout_symbol_table_t;
 typedef struct elf_header_table      s_elf_header_table_t;
+typedef struct boot_module           s_boot_module_t;
+
+#define MULTIBOOT_FLAG_MEMORY        0x1u
+#define MULTIBOOT_FLAG_DEVICE        0x2u
+#define MULTIBOOT_FLAG_CMDLINE       0x4u
+#define MULTIBOOT_FLAG_MODS          0x8u
+#define MULTIBOOT_FLAG_AOUT          0x10u
+#define MULTIBOOT_FLAG_ELF           0x20u
+#define MULTIBOOT_FLAG_MMAP          0x40u
+#define MULTIBOOT_FLAG_CONFIG        0x80u
+#define MULTIBOOT_FLAG_LOADER        0x100u
+#define MULTIBOOT_FLAG_APM           0x200u
+#define MULTIBOOT_FLAG_VBE           0x400u
 
 /*
  * flags specifies feature that OS image request from boot loader, bit [0-15]
@@ -43,7 +56,7 @@ struct multiboot_header {
     uint32 depth;
 };
 
-struct a_out_symbol_table {
+struct aout_symbol_table {
     uint32 table_size;
     uint32 string_size;
     uint32 addr;
@@ -57,10 +70,28 @@ struct elf_header_table {
     uint32 shndx;
 };
 
+struct boot_module {
+    uint32 module_start;
+    uint32 module_end;
+    char   *string;
+    uint32 reserved;
+};
+
 /*
  * flags indicates the presence and valid of following fields in structure.
  *     bit  0: memory_lower and memory_upper valid, count in KB.
  *     bit  1: boot_device is vaild, indicated the device of OS image.
+ *     bit  3: mods indicate to kernel what boot modules were loaded along with
+ *             the kernel image.
+ *             mods_addr contains the physical address of first module. Each
+ *             module structure is:
+ *
+ *             0            4         8        12
+ *             +-----------+---------+--------+----------+
+ *             | mod_start | mod_end | string | reserved |
+ *             +-----------+---------+--------+----------+
+ *             string: privide an string to be associated with boot modules.
+
  *     bit  4 & 5: exclusive.
  *          4: symbol table from a.out kernel
  *          5: section header table from elf kernel
@@ -77,7 +108,7 @@ struct multiboot_information {
     uint32 mods_addr;
 
     union {
-        s_a_out_symbol_table_t symbol;
+        s_aout_symbol_table_t  symbol;
         s_elf_header_table_t   header;
     };
 

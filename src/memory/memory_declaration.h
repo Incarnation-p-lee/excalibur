@@ -87,6 +87,7 @@ void kernel_heap_initialize(void);
 void kfree(void *ptr);
 void kmemory_copy(void *to, void *from, uint32 len);
 void kmemset(void *base, uint8 v, uint32 len);
+void memory_physical_placement_set(ptr_t addr_phys);
 void page_align(ptr_t *addr);
 void page_initialize(void);
 

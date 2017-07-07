@@ -28,6 +28,7 @@
 #define MEMORY_INVALID            0u
 #define FRAME_INVALID             ADDR_INVALID
 #define INODE_INVALID             (-1)
+#define COUNT_INVALID             (-1)
 
 #define ARRAY_CNT_OF(a)           (sizeof(a) / sizeof(a[0]))
 #define BIT_WIDTH(t)              (sizeof(t) * 8)
