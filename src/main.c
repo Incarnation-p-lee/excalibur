@@ -4,7 +4,8 @@ int
 entry(uint32 magic, void *boot_header, void *boot_info)
 {
     printf_vga_clear();
-    printf_vga_tk("Hello, The World of OS.\n");
+    printf_vga_tk("Hello World of OS Development.\n");
+
     multiboot_env_detect(magic, boot_header, boot_info);
 
     descriptor_table_gdt_initialize();

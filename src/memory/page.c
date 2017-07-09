@@ -260,7 +260,6 @@ page_initialize(void)
     frame_bitmap = frame_bitmap_create(memory_phys_limit);
     kernel_heap = memory_physical_allocate(sizeof(*kernel_heap));
     current_page_dirt = kernel_page_dirt = page_directory_create();
-
     /*
      * Allocate page entry without frame, leave the frame from 0x0 to
      * placement_phys maps to page 0x0 to placement_phys in virtual memory.

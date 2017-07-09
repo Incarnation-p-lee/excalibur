@@ -1,6 +1,7 @@
 #ifndef SRC_SCREEN_DECLARATION_H
 #define SRC_SCREEN_DECLARATION_H
 
+static inline uint16 * screen_monitor_location(uint32 x, uint32 y);
 static inline void screen_monitor_cursor_apply(void);
 static inline void screen_monitor_one_line_scroll(void);
 void screen_monitor_clear(void);

@@ -198,7 +198,6 @@ multiboot_data_info_physical_memory_upper(void)
 ptr_t
 multiboot_data_info_physical_memory_limit(void)
 {
-    ptr_t page_mask;
     ptr_t memory_kb_limit;
     ptr_t memory_bytes_limit;
 
@@ -206,12 +205,11 @@ multiboot_data_info_physical_memory_limit(void)
         KERNEL_PANIC("Invalid data of multiboot info.\n");
         return MEMORY_INVALID;
     } else {
-        page_mask = PAGE_SIZE - 1;
         memory_kb_limit = multiboot_data_info_physical_memory_upper_i();
         memory_bytes_limit = memory_kb_limit * 1024;
 
-        if ((memory_bytes_limit & page_mask) != 0) {
-            memory_bytes_limit &= ~page_mask;
+        if ((memory_bytes_limit & PAGE_MASK) != 0) {
+            memory_bytes_limit &= ~PAGE_MASK;
         }
 
         return memory_bytes_limit;

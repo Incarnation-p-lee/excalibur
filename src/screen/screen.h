@@ -25,6 +25,7 @@
 
 #define SCREEN_X        80
 #define SCREEN_Y        25
+#define SCREEN_X_BYTES  (sizeof(*video) * SCREEN_X)
 
 #define BACKSPACE       0x8
 #define H_TAB           0x9
@@ -39,7 +40,7 @@ static uint16 cursor_y = 0;
 /*
  * video memory start address of VGA controller dedicated.
  */
-uint16 *video = (uint16 *)0xB8000;
+static uint16 *video = (uint16 *)0xB8000;
 
 #endif
 

@@ -43,6 +43,7 @@ extern void kernel_heap_initialize(void);
 extern void kfree(void *ptr);
 extern void kmemory_copy(void *to, void *from, uint32 len);
 extern void kmemset(void *base, uint8 v, uint32 len);
+extern void kmemset_u16(void *base, uint16 val, uint32 len);
 extern void memory_physical_placement_set(ptr_t addr_phys);
 extern void multiboot_env_cpu_detect(void);
 extern void multiboot_env_detect(uint32 magic, void *boot_header, void *boot_info);
