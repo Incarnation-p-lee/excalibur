@@ -1,9 +1,6 @@
 #ifndef HAVE_DEFINED_INTERRUPT_HANDLER_H
 #define HAVE_DEFINED_INTERRUPT_HANDLER_H
 
-typedef void (*isr_handler_t)(s_pro_context_t *context);
-
-static uint32 tick = 0;
 static isr_handler_t isr_handler_array[] = {
     [DIV_BY_Z]       = &isr_0_divide_by_zero_handler,
     [BRK_EXPT]       = &isr_3_breakpoint_handler,

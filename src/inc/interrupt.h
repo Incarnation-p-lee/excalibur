@@ -4,6 +4,8 @@
 typedef enum interrupt_nmbr e_interrupt_nmbr_t;
 typedef struct pro_context  s_pro_context_t;
 
+typedef void (*isr_handler_t)(s_pro_context_t *context);
+
 enum interrupt_nmbr { /* for ISR (interrupt service runtine */
     DIV_BY_Z,     /*   0 Division by zero exception */
     DBG_EXPT,     /*   1 Debug exception */

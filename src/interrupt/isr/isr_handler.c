@@ -1,3 +1,21 @@
+static inline isr_handler_t
+isr_handler_get_i(uint32 i)
+{
+    kassert(i < ARRAY_CNT_OF(isr_handler_array));
+
+    return isr_handler_array[i];
+}
+
+isr_handler_t
+isr_handler_get(uint32 i)
+{
+    if (i >= ARRAY_CNT_OF(isr_handler_array)) {
+        return PTR_INVALID;
+    } else {
+        return isr_handler_get_i(i);
+    }
+}
+
 void
 isr_handler_main(s_pro_context_t context)
 {
@@ -5,7 +23,7 @@ isr_handler_main(s_pro_context_t context)
     e_interrupt_nmbr_t int_nmbr;
 
     int_nmbr = context.int_nmbr;
-    handler = isr_handler_array[int_nmbr];
+    handler = isr_handler_get_i(int_nmbr);
 
     if (handler) {
         handler(&context);

@@ -6,7 +6,7 @@ irq_handler_nmbr_isr_to_irq(uint32 isr_nmbr)
     return isr_nmbr - IRQ_BASE;
 }
 
-static inline void
+void
 irq_0_timer_handler(s_pro_context_t *context)
 {
     tick++;
@@ -16,7 +16,7 @@ irq_0_timer_handler(s_pro_context_t *context)
     }
 }
 
-static inline void
+void
 irq_1_keyboard_handler(s_pro_context_t *context)
 {
     if (false) {
@@ -24,7 +24,7 @@ irq_1_keyboard_handler(s_pro_context_t *context)
     }
 }
 
-static inline void
+void
 irq_7_handler(s_pro_context_t *context)
 {
     if (false) {
@@ -69,7 +69,7 @@ irq_handler_main(s_pro_context_t context)
 
     isr_nmbr = context.int_nmbr;
     irq_nmbr = irq_handler_nmbr_isr_to_irq(isr_nmbr);
-    handler = isr_handler_array[isr_nmbr];
+    handler = isr_handler_get(isr_nmbr);
 
     pic_send_eoi(irq_nmbr);
 

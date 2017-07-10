@@ -51,6 +51,7 @@ include src/common/print/makefile.mk
 include src/data_struct/makefile.mk
 include src/interrupt/makefile.mk
 include src/interrupt/isr/makefile.mk
+include src/interrupt/isr/irq/makefile.mk
 include src/memory/makefile.mk
 include src/screen/makefile.mk
 include src/test/makefile.mk
