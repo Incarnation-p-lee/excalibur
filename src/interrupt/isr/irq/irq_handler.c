@@ -17,14 +17,6 @@ irq_0_timer_handler(s_pro_context_t *context)
 }
 
 void
-irq_1_keyboard_handler(s_pro_context_t *context)
-{
-    if (false) {
-        printf_vga_tk("Triggered keyboard -> eip %x.\n", context->eip);
-    }
-}
-
-void
 irq_7_handler(s_pro_context_t *context)
 {
     if (false) {
@@ -71,7 +63,7 @@ irq_handler_main(s_pro_context_t context)
     irq_nmbr = irq_handler_nmbr_isr_to_irq(isr_nmbr);
     handler = isr_handler_get(isr_nmbr);
 
-    pic_send_eoi(irq_nmbr);
+    pic_send_eoi(irq_nmbr); /* send eoi ASAP */
 
     if (handler) {
         handler(&context);

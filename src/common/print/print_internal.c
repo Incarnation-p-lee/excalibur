@@ -54,6 +54,10 @@ printf_k_one_buf(char *buf, void *base)
                     screen_monitor_write_string(*(char **)base);
                     base += sizeof(char *);
                     break;
+                case 'c':
+                    screen_monitor_write_char(*(char *)base);
+                    base += sizeof(char);
+                    break;
                 default:
                     break;
             }

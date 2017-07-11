@@ -113,6 +113,12 @@ screen_monitor_write_string(char *c)
 }
 
 void
+screen_monitor_write_char(char c)
+{
+    screen_monitor_put_char(c);
+}
+
+void
 screen_monitor_write_uint32(uint32 u)
 {
     uint32 tmp;

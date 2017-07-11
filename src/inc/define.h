@@ -39,5 +39,8 @@
 #define PAGE_UNALIGNED_P(p)       (!PAGE_ALIGNED_P(p))
 #define PAGE_ALIGN(p)             ((p) = ((p) & ~PAGE_MASK) + PAGE_SIZE)
 
+#define RETURN_IF_TRUE(x)         if ((x)) { return ; }
+#define RETURN_IF_FALSE(x)        if (!(x)) { return ; }
+
 #endif
 

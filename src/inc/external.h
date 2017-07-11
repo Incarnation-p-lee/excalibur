@@ -69,6 +69,7 @@ extern void printf_vga(char *format, ...);
 extern void printf_vga_tk(char *format, ...);
 extern void screen_monitor_clear(void);
 extern void screen_monitor_put_char(char c);
+extern void screen_monitor_write_char(char c);
 extern void screen_monitor_write_string(char *c);
 extern void screen_monitor_write_uint32(uint32 u);
 extern void screen_monitor_write_uint32_hex(uint32 u);
