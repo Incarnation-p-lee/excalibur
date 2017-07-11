@@ -47,7 +47,7 @@ screen_monitor_one_line_scroll(void)
     kmemset_u16(line, blank, SCREEN_X); // Bug here.
 }
 
-void
+static inline void
 screen_monitor_put_char(char c)
 {
     uint16 attribute;
@@ -110,70 +110,5 @@ screen_monitor_write_string(char *c)
     while (c[i]) {
         screen_monitor_put_char(c[i++]);
     }
-}
-
-void
-screen_monitor_write_char(char c)
-{
-    screen_monitor_put_char(c);
-}
-
-void
-screen_monitor_write_uint32(uint32 u)
-{
-    uint32 tmp;
-    char buf[11];
-    uint32 index;
-
-    index = 0;
-
-    while (index < ARRAY_CNT_OF(buf)) {
-        buf[index++] = CHAR_ZERO;
-    }
-
-    buf[--index] = CHAR_NULL;
-
-    while (u) {
-        tmp = u % 10;
-        tmp += CHAR_ZERO;
-
-        buf[--index] = (char)tmp;
-        u = u / 10;
-    }
-
-    screen_monitor_write_string(buf);
-}
-
-void
-screen_monitor_write_uint32_hex(uint32 u)
-{
-    uint32 index;
-    char buf[9];
-    uint32 tmp;
-
-    screen_monitor_write_string("0x");
-
-    index = 0;
-
-    while (index < ARRAY_CNT_OF(buf)) {
-        buf[index++] = CHAR_ZERO;
-    }
-
-    buf[--index] = CHAR_NULL;
-
-    while (u) {
-        tmp = u % 16;
-
-        if (tmp < 10) {
-            tmp += CHAR_ZERO;        // Offset to char 0 - 9.
-        } else {
-            tmp = tmp - 10 + CHAR_a; // Offset to char a - f.
-        }
-
-        buf[--index] = (char)tmp;
-        u = u >> 4;
-    }
-
-    screen_monitor_write_string(buf);
 }
 
