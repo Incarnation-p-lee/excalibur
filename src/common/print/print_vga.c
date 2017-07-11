@@ -5,7 +5,7 @@ printf_vga(char *format, ...)
 
     if (format && ('\0' != *format)) {
         param = (void *)&format + sizeof(format);
-        printf_k(format, param);
+        print_format(format, param);
     }
 }
 
@@ -18,7 +18,7 @@ printf_vga_tk(char *format, ...)
         printf_vga("[%x] ", irq_0_timer_tick());
 
         param = (void *)&format + sizeof(format);
-        printf_k(format, param);
+        print_format(format, param);
     }
 }
 
