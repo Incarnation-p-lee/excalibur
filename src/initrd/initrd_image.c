@@ -34,6 +34,32 @@ initrd_file_copy(FILE *fd, FILE *fs, s_initrd_header_t *header)
     free(buf);
 }
 
+static inline uint32
+initrd_image_file_length(FILE *fd)
+{
+    assert(fd);
+
+    fseek(fd, 0, SEEK_END);
+
+    return ftell(fd);
+}
+
+static inline char *
+initrd_image_file_basename(char *fullname)
+{
+    char *c;
+
+    assert(fullname);
+
+    c = strrchr(fullname, '/');
+
+    if (c == NULL) {
+        return fullname;
+    } else {
+        return c + 1;
+    }
+}
+
 static inline void
 initrd_image_make(uint32 argc, char **argv)
 {
@@ -46,16 +72,16 @@ initrd_image_make(uint32 argc, char **argv)
     assert(argc > 1);
     assert(argc - 1 <= INITRD_HEADER_MAX);
 
-    i = 1;
-    limit = argc;
+    i = 0;
+    limit = argc - 1;
     offset = initrd_header_size();
 
     fd = fopen(INITRD_NAME, "w");
-    fwrite(header_array, sizeof(s_initrd_header_t), INITRD_HEADER_MAX, fd);
     fwrite(&limit, sizeof(limit), 1, fd);
+    fwrite(header_array, sizeof(s_initrd_header_t), INITRD_HEADER_MAX, fd);
 
     while (i < limit) {
-        name = argv[i];
+        name = argv[i + 1];
         header = initrd_header_array_header(i);
 
         fs = fopen(name, "r");
@@ -63,13 +89,11 @@ initrd_image_make(uint32 argc, char **argv)
             printf("Failed to locate file %s.\n", name);
         }
 
-        strcpy(header->name, name);
-
-        fseek(fs, 0, SEEK_END);
+        strcpy(header->name, initrd_image_file_basename(name));
 
         header->offset = offset;
         header->magic = INITRD_MAGIC;
-        header->length = ftell(fd);
+        header->length = initrd_image_file_length(fs);
         offset += header->length;
 
         initrd_file_copy(fd, fs, header);
@@ -79,5 +103,56 @@ initrd_image_make(uint32 argc, char **argv)
     }
 
     fclose(fd);
+}
+
+static inline bool
+initrd_image_release_p(char argc, char **argv)
+{
+    assert(argv);
+
+    if (argc != 2) {
+        return false;
+    } else if (strcmp(argv[1], INITRD_NAME) != 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+static inline void
+initrd_image_release(char *name)
+{
+    FILE *fd;
+    char *buf;
+    uint32 length;
+    uint32 i, limit;
+    s_initrd_header_t *header;
+
+    assert(name);
+    assert(strcmp(name, INITRD_NAME) == 0);
+
+    fd = fopen(INITRD_NAME, "r");
+
+    length = initrd_image_file_length(fd);
+    buf = malloc(length);
+    fseek(fd, 0, SEEK_SET);
+    fread(buf, length, 1, fd);
+    fclose(fd);
+
+    i = 0;
+    limit = *(uint32 *)buf;
+    header = (void *)(buf + sizeof(limit));
+
+    while (i < limit) {
+        fd = fopen(header->name, "w");
+        fwrite(buf + header->offset, header->length, 1, fd);
+        fclose(fd);
+        printf("Release file %s -> length %x.\n", header->name, header->length);
+
+        header++;
+        i++;
+    }
+
+    free(buf);
 }
 
