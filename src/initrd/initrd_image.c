@@ -22,6 +22,8 @@ initrd_file_copy(FILE *fd, FILE *fs, s_initrd_header_t *header)
     assert(fs);
     assert(header);
 
+    printf("Copy file %s -> length %x.\n", header->name, header->length);
+
     length = header->length;
     buf = malloc(length);
 
@@ -35,18 +37,17 @@ initrd_file_copy(FILE *fd, FILE *fs, s_initrd_header_t *header)
 static inline void
 initrd_image_make(uint32 argc, char **argv)
 {
+    char *name;
     FILE *fd, *fs;
-    uint32 offset;
-    uint32 i, limit;
-    char *op_1, *op_2;
+    uint32 i, offset, limit;
     s_initrd_header_t *header;
 
     assert(argv);
-    assert((argc & 0x1) == 0x1);
-    assert((argc - 1) / 2 <= INITRD_HEADER_MAX);
+    assert(argc > 1);
+    assert(argc - 1 <= INITRD_HEADER_MAX);
 
-    i = 0;
-    limit = (argc - 1) / 2;
+    i = 1;
+    limit = argc;
     offset = initrd_header_size();
 
     fd = fopen(INITRD_NAME, "w");
@@ -54,17 +55,16 @@ initrd_image_make(uint32 argc, char **argv)
     fwrite(&limit, sizeof(limit), 1, fd);
 
     while (i < limit) {
-        op_1 = argv[2 * i + 1];
-        op_2 = argv[2 * i + 2];
+        name = argv[i];
         header = initrd_header_array_header(i);
 
-        fs = fopen(op_1, "r");
+        fs = fopen(name, "r");
         if (fs == NULL) {
-            printf("Failed to locate file %s.\n", op_1);
+            printf("Failed to locate file %s.\n", name);
         }
 
-        printf("Copy file from %s -> %s\n", op_1, op_2);
-        strcpy(header->name, op_2);
+        strcpy(header->name, name);
+
         fseek(fs, 0, SEEK_END);
 
         header->offset = offset;
