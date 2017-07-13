@@ -9,7 +9,7 @@ initrd_header_array_header(uint32 i)
 static inline uint32
 initrd_header_size(void)
 {
-    return sizeof(header_array) + sizeof(ARRAY_CNT_OF(header_array));
+    return sizeof(header_array) + sizeof(uint32);
 }
 
 static inline uint32
@@ -61,6 +61,29 @@ initrd_image_file_basename(char *fullname)
 }
 
 static inline void
+initrd_header_initialize(s_initrd_header_t *header, char *fullname,
+    uint32 *offset)
+{
+    FILE *fd;
+
+    assert(header);
+    assert(fullname);
+    assert(offset);
+
+    fd = fopen(fullname, "r");
+    assert(fd);
+
+    strcpy(header->name, initrd_image_file_basename(fullname));
+
+    header->offset = *offset;
+    header->magic = INITRD_MAGIC;
+    header->length = initrd_image_file_length(fd);
+    *offset += header->length;
+
+    fclose(fd);
+}
+
+static inline void
 initrd_image_make(uint32 argc, char **argv)
 {
     char *name;
@@ -78,6 +101,16 @@ initrd_image_make(uint32 argc, char **argv)
 
     fd = fopen(INITRD_NAME, "w");
     fwrite(&limit, sizeof(limit), 1, fd);
+
+    while (i < limit) {
+        name = argv[i + 1];
+        header = initrd_header_array_header(i);
+        initrd_header_initialize(header, name, &offset);
+
+        i++;
+    }
+
+    i = 0;
     fwrite(header_array, sizeof(s_initrd_header_t), INITRD_HEADER_MAX, fd);
 
     while (i < limit) {
@@ -85,17 +118,6 @@ initrd_image_make(uint32 argc, char **argv)
         header = initrd_header_array_header(i);
 
         fs = fopen(name, "r");
-        if (fs == NULL) {
-            printf("Failed to locate file %s.\n", name);
-        }
-
-        strcpy(header->name, initrd_image_file_basename(name));
-
-        header->offset = offset;
-        header->magic = INITRD_MAGIC;
-        header->length = initrd_image_file_length(fs);
-        offset += header->length;
-
         initrd_file_copy(fd, fs, header);
         fclose(fs);
 
