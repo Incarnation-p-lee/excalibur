@@ -102,7 +102,7 @@ screen_monitor_clear(void)
 }
 
 void
-screen_monitor_write_string(char *c)
+screen_monitor_string_write(char *c)
 {
     int i;
 
@@ -110,5 +110,11 @@ screen_monitor_write_string(char *c)
     while (c[i]) {
         screen_monitor_put_char(c[i++]);
     }
+}
+
+void
+screen_monitor_char_write(char c)
+{
+    screen_monitor_put_char(c);
 }
 

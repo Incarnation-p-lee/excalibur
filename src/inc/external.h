@@ -67,8 +67,9 @@ extern void page_initialize(void);
 extern void pic_send_eoi(uint32 irq);
 extern void printf_vga(char *format, ...);
 extern void printf_vga_tk(char *format, ...);
+extern void screen_monitor_char_write(char c);
 extern void screen_monitor_clear(void);
-extern void screen_monitor_write_string(char *c);
+extern void screen_monitor_string_write(char *c);
 extern void test_main(void);
 
 #endif

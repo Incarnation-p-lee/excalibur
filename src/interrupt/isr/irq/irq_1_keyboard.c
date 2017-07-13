@@ -266,7 +266,7 @@ irq_1_keyboard_handler(s_pro_context_t *context)
 
     if (release) {
         c = irq_1_keyboard_key_to_ascii(key);
-        printf_vga("%c", c);
+        screen_monitor_char_write(c);
         irq_1_keyboard_key_release(key);
     } else { /* press key */
         irq_1_keyboard_pressed_key_add(key);
