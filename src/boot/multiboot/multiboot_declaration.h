@@ -1,18 +1,22 @@
 #ifndef SRC_BOOT_MULTIBOOT_DECLARATION_H
 #define SRC_BOOT_MULTIBOOT_DECLARATION_H
 
-ptr_t multiboot_data_info_boot_module_start(uint32 i);
+char * multiboot_env_module_name(s_boot_module_t *module);
 ptr_t multiboot_data_info_modules_addr(void);
 ptr_t multiboot_data_info_physical_memory_limit(void);
 ptr_t multiboot_data_info_physical_memory_lower(void);
 ptr_t multiboot_data_info_physical_memory_upper(void);
+ptr_t multiboot_env_module_addr_start(s_boot_module_t *module);
+s_boot_module_t * multiboot_data_info_boot_module(uint32 i);
+static inline bool multiboot_data_boot_module_illegal_p(s_boot_module_t *module);
+static inline bool multiboot_data_boot_module_legal_p(s_boot_module_t *module);
 static inline bool multiboot_data_info_flag_disabled_p(uint32 flag);
 static inline bool multiboot_data_info_flag_enabled_p(uint32 flag);
 static inline bool multiboot_data_invalid_p(uint32 i);
 static inline bool multiboot_data_valid_p(uint32 i);
 static inline ptr_t multiboot_data_info_end_address(void);
 static inline ptr_t multiboot_data_info_modules_addr_i(void);
-static inline s_boot_module_t * multiboot_data_info_boot_module(uint32 i);
+static inline s_boot_module_t * multiboot_data_info_boot_module_i(uint32 i);
 static inline uint32 multiboot_data_info_boot_modules_count_i(void);
 static inline uint32 multiboot_data_info_flag(void);
 static inline uint32 multiboot_data_info_physical_memory_lower_i(void);

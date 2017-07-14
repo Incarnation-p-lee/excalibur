@@ -1,27 +1,3 @@
-void
-multiboot_env_cpu_detect(void)
-{
-    uint32 cr0;
-
-    asm volatile (
-        "mov %%cr0, %%eax\n\t"
-        "mov %%eax, %0\n\t"
-        :"=r"(cr0)
-        :);
-
-    if (cr0 & 0x1) {
-        printf_vga_tk("In Protect Mode.\n");
-    } else {
-        printf_vga_tk("In Real Mode.\n");
-    }
-
-    if (U32_BIT_GET(cr0, 31) == 1) {
-        printf_vga_tk("Page enabled.\n");
-    } else {
-        printf_vga_tk("Page disabled.\n");
-    }
-}
-
 static inline void
 multiboot_env_stack_detect(void)
 {
@@ -77,7 +53,7 @@ multiboot_env_data_detect_boot_modules(void)
     limit = multiboot_data_info_boot_modules_count_i();
 
     while (i < limit) {
-        module = multiboot_data_info_boot_module(i);
+        module = multiboot_data_info_boot_module_i(i);
         printf_vga_tk("Multi-Boot module %d -> %s.\n", i, module->string);
 
         i++;
@@ -112,5 +88,49 @@ multiboot_env_detect(uint32 magic, void *boot_header, void *boot_info)
     }
 
     memory_physical_placement_set(multiboot_data_info_end_address());
+}
+
+void
+multiboot_env_cpu_detect(void)
+{
+    uint32 cr0;
+
+    asm volatile (
+        "mov %%cr0, %%eax\n\t"
+        "mov %%eax, %0\n\t"
+        :"=r"(cr0)
+        :);
+
+    if (cr0 & 0x1) {
+        printf_vga_tk("In Protect Mode.\n");
+    } else {
+        printf_vga_tk("In Real Mode.\n");
+    }
+
+    if (U32_BIT_GET(cr0, 31) == 1) {
+        printf_vga_tk("Page enabled.\n");
+    } else {
+        printf_vga_tk("Page disabled.\n");
+    }
+}
+
+ptr_t
+multiboot_env_module_addr_start(s_boot_module_t *module)
+{
+    if (multiboot_data_boot_module_illegal_p(module)) {
+        return ADDR_INVALID;
+    } else {
+        return module->start;
+    }
+}
+
+char *
+multiboot_env_module_name(s_boot_module_t *module)
+{
+    if (multiboot_data_boot_module_illegal_p(module)) {
+        return PTR_INVALID;
+    } else {
+        return module->string;
+    }
 }
 

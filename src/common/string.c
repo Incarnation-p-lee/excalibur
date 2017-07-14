@@ -57,3 +57,74 @@ string_copy(char *d, char *s)
     }
 }
 
+static inline char *
+string_basename_i(char *fullname)
+{
+    char *c;
+    char *basename;
+
+    kassert(fullname);
+
+    c = basename = fullname;
+
+    while (*c) {
+        if (*c == CHAR_SLASH) {
+            basename = c + 1;
+        }
+
+        c++;
+    }
+
+    return basename;
+}
+
+char *
+string_basename(char *fullname)
+{
+    if (fullname == NULL) {
+        return PTR_INVALID;
+    } else {
+        return string_basename_i(fullname);
+    }
+}
+
+static inline sint32
+string_compare_i(char *a, char *b)
+{
+    kassert(a);
+    kassert(b);
+
+    while (*a && *b) {
+        if (*a > *b) {
+            return 1;
+        } else if (*a < *b) {
+            return -1;
+        } else {
+            a++;
+            b++;
+        }
+    }
+
+    if (*a) {
+        return 1;
+    } else if (*b) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+sint32
+string_compare(char *a, char *b)
+{
+    if (a == NULL && b == NULL) {
+        return 0;
+    } else if (a == NULL) {
+        return -1;
+    } else if (b == NULL) {
+        return 1;
+    } else {
+        return string_compare_i(a, b);
+    }
+}
+

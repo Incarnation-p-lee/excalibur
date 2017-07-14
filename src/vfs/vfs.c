@@ -1,5 +1,5 @@
 #include "common.h"
-#include "filesystem_data.h"
+#include "vfs_data.h"
 
-#include "filesystem_util.c"
-#include "filesystem.c"
+#include "vfs_util.c"
+#include "vfs_internal.c"

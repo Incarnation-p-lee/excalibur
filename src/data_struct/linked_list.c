@@ -196,3 +196,21 @@ linked_list_tail_p(s_linked_list_t *node)
     }
 }
 
+static inline void
+linked_list_initialize_i(s_linked_list_t *node)
+{
+    kassert(linked_list_legal_p(node));
+
+    node->next = node->prev = NULL;
+}
+
+void
+linked_list_initialize(s_linked_list_t *node)
+{
+    if (linked_list_illegal_p(node)) {
+        return;
+    } else {
+        linked_list_initialize_i(node);
+    }
+}
+

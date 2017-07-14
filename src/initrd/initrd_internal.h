@@ -4,8 +4,6 @@
 #define true              1
 #define false             0
 
-#define INITRD_NAME       "initrd.img"
-
 #define RETURN_IF_TRUE(x) if (x) { return ; }
 #define ARRAY_CNT_OF(a)   (sizeof(a) / sizeof(a[0]))
 

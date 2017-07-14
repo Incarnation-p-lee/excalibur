@@ -7,6 +7,7 @@
 #define CHAR_NULL                 ((char)0x0)
 #define CHAR_ZERO                 0x30
 #define CHAR_a                    0x61
+#define CHAR_SLASH                '/'
 
 #define printf_vga_clear          screen_monitor_clear
 

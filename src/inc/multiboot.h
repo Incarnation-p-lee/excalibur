@@ -71,8 +71,8 @@ struct elf_header_table {
 };
 
 struct boot_module {
-    uint32 module_start;
-    uint32 module_end;
+    uint32 start;
+    uint32 end;
     char   *string;
     uint32 reserved;
 };

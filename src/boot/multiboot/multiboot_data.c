@@ -1,3 +1,23 @@
+static inline bool
+multiboot_data_boot_module_legal_p(s_boot_module_t *module)
+{
+    if (module == NULL) {
+        return false;
+    } else if (module->string == NULL) {
+        return false;
+    } else if (module->start > module->end) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+static inline bool
+multiboot_data_boot_module_illegal_p(s_boot_module_t *module)
+{
+    return !multiboot_data_boot_module_legal_p(module);
+}
+
 static inline void
 multiboot_data_valid_set(uint32 i)
 {
@@ -115,8 +135,20 @@ multiboot_data_info_boot_modules_count_i(void)
     return multiboot_data.info.mods_count;
 }
 
-static inline s_boot_module_t *
+s_boot_module_t *
 multiboot_data_info_boot_module(uint32 i)
+{
+    if (i >= multiboot_data_info_boot_modules_count_i()) {
+        return PTR_INVALID;
+    } else if (multiboot_data_info_flag_disabled_p(MULTIBOOT_FLAG_MODS)) {
+        return PTR_INVALID;
+    } else {
+       return multiboot_data_info_boot_module_i(i);
+    }
+}
+
+static inline s_boot_module_t *
+multiboot_data_info_boot_module_i(uint32 i)
 {
     s_boot_module_t *module;
 
@@ -126,19 +158,6 @@ multiboot_data_info_boot_module(uint32 i)
     module = (void *)multiboot_data_info_modules_addr_i();
 
     return &module[i];
-}
-
-ptr_t
-multiboot_data_info_boot_module_start(uint32 i)
-{
-    s_boot_module_t *module;
-
-    kassert(i < multiboot_data_info_boot_modules_count_i());
-    kassert(multiboot_data_info_flag_enabled_p(MULTIBOOT_FLAG_MODS));
-
-    module = multiboot_data_info_boot_module(i);
-
-    return module->module_start;
 }
 
 static inline ptr_t
@@ -158,7 +177,7 @@ multiboot_data_info_end_address(void)
     } else {
         module = multiboot_data_info_boot_module(mods_count - 1);
 
-        return (ptr_t)module->module_end;
+        return (ptr_t)module->end;
     }
 }
 
