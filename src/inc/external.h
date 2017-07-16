@@ -3,13 +3,16 @@
 
 extern bool assert_complain(const char *msg, const char *file, const char *fun, uint32 line, bool exp);
 extern bool linked_list_head_p(s_linked_list_t *node);
+extern bool linked_list_legal_p(s_linked_list_t *linked_list);
 extern bool linked_list_tail_p(s_linked_list_t *node);
 extern bool ordered_array_illegal_p(s_ordered_array_t *ordered);
 extern bool ordered_array_legal_p(s_ordered_array_t *ordered);
+extern bool vfs_node_file_p(s_vfs_node_t *vfs_node);
 extern bool vfs_node_illegal_p(s_vfs_node_t *vfs_node);
 extern bool vfs_node_legal_p(s_vfs_node_t *vfs_node);
 extern char * multiboot_env_module_name(s_boot_module_t *module);
 extern char * string_basename(char *fullname);
+extern char * vfs_node_name(s_vfs_node_t *vfs_node);
 extern isr_handler_t isr_handler_get(uint32 i);
 extern ptr_t multiboot_data_info_modules_addr(void);
 extern ptr_t multiboot_data_info_physical_memory_limit(void);
@@ -26,7 +29,11 @@ extern s_ordered_array_t * ordered_array_create(uint32 size, ordered_compare_t c
 extern s_vfs_node_t * fs_initrd_initialize(ptr_t location);
 extern s_vfs_node_t * vfs_dir_node_create(char *name, f_readdir_t readdir, f_finddir_t finddir);
 extern s_vfs_node_t * vfs_file_node_create(char *name, f_read_t read, f_write_t write);
+extern s_vfs_node_t * vfs_fs_root_obtain(char *fs_name);
+extern s_vfs_node_t * vfs_fs_root_obtain_i(char *fs_name);
+extern s_vfs_node_t * vfs_node_next(s_vfs_node_t *vfs_node);
 extern s_vfs_node_t * vfs_readdir(s_vfs_node_t *vfs_node, uint32 index);
+extern s_vfs_node_t * vfs_sub_node_first(s_vfs_node_t *vfs_node);
 extern sint32 ordered_array_standard_compare(const void *a, const void *b);
 extern sint32 string_compare(char *a, char *b);
 extern uint16 io_bus_read_word(uint16 port);
@@ -79,6 +86,10 @@ extern void screen_monitor_clear(void);
 extern void screen_monitor_string_write(char *c);
 extern void test_main(void);
 extern void vfs_initialize(void);
+extern void vfs_node_flags_add(s_vfs_node_t *vfs_node, uint32 flags);
+extern void vfs_node_inode_set(s_vfs_node_t *vfs_node, uint32 inode);
+extern void vfs_node_length_set(s_vfs_node_t *vfs_node, uint32 length);
+extern void vfs_sub_node_add(s_vfs_node_t *vfs_node, s_vfs_node_t *added);
 
 #endif
 

@@ -24,6 +24,7 @@ struct initrd_header {
     uint32          length;
     uint32          flags;
     s_linked_list_t list;
+    s_linked_list_t *sub_list;
 };
 
 

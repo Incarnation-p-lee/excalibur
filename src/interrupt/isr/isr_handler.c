@@ -72,6 +72,8 @@ isr_14_paging_fault_handler(s_pro_context_t *context)
 
     err_code = context->err_code;
 
+    printf_vga("Page Fault at address %x.\n", fault_addr);
+
     if (!(err_code & PAGE_FAULT_PRST)) {
         printf_vga("Page is not present.\n");
     }
@@ -92,7 +94,6 @@ isr_14_paging_fault_handler(s_pro_context_t *context)
         printf_vga("Page in instruction fetch.\n");
     }
 
-    printf_vga("Page Fault at address %x.\n", fault_addr);
     KERNEL_PANIC("Page Fault");
 }
 

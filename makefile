@@ -68,12 +68,12 @@ CFLAG              +=$(if $(RELEASE),$(CF_RELEASE),$(CF_DEBUG))
 ASMFLAG            +=$(if $(RELEASE),$(CF_RELEASE),$(CF_DEBUG))
 ASMFLAG            +=$(addprefix -I,$(dir $@))
 
-.PHONY:all help clean initrd
+.PHONY: all help clean initrd
 
 TARGET             :=$(out)/kernel
 TARGET_DEP         :=$(dep) $(external) $(decl)
 
-all:$(out) $(TARGET_DEP) $(TARGET)
+all: $(out) $(TARGET_DEP) $(TARGET)
 
 $(out):
 	@echo "    MakeDir  $@"
@@ -129,16 +129,25 @@ define update_decl_depend
 endef
 
 ## Initrd ##
-INITRD_TARGET      :=$(out)/initrd.bin
-INITRD_CC_FLAG     =-c $(if $(RELEASE),-o2,-g) $(addprefix -I,$(inc))
+INITRD_TARGET      :=$(out)/initrd.elf
+
+INITRD_CC_FLAG     =-m32 -Wall -Wextra -Werror -c
+INITRD_CC_FLAG     +=$(if $(RELEASE),-o2,-g) $(addprefix -I,$(inc))
+INITRD_LD_FLAG     =-m32
+INITRD_LD_FLAG     +=-m32 $(if $(RELEASE),-o2,-g)
 
 initrd_src         =$(base)/initrd/initrd.c
 initrd_obj         =$(subst .c,.o, $(initrd_src))
 initrd_dep         =$(subst .c,.d, $(initrd_src))
+initrd_decl        =$(subst .o,_declaration.h, $(initrd_obj))
 
 -include $(initrd_dep)
 
-initrd:$(INITRD_TARGET)
+initrd: $(initrd_decl) $(INITRD_TARGET)
+
+$(initrd_decl):
+	@echo "    Generate $(notdir $@)"
+	$(PERL) $(script_module_decl) $@ $^
 
 $(initrd_dep):%.d:%.c
 	@echo "    Depend   $(notdir $@)"
@@ -147,9 +156,9 @@ $(initrd_dep):%.d:%.c
 
 $(INITRD_TARGET):$(initrd_obj)
 	@echo "    Link     $(notdir $@)"
-	$(CC) -o $@ $<
+	$(CC) $(INITRD_LD_FLAG) $< -o $@
 
 $(initrd_obj):$(initrd_src)
 	@echo "    Compile  $(notdir $<)"
-	$(CC) $(INITRD_CC_FLAG) -o $@ $<
-	
+	$(CC) $(INITRD_CC_FLAG) $< -o $@
+

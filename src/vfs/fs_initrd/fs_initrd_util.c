@@ -4,6 +4,14 @@ fs_initrd_header(uint32 i)
     return &initrd_header_array[i];
 }
 
+static inline char *
+fs_initrd_header_name(s_initrd_header_t *header)
+{
+    kassert(fs_initrd_header_legal_p(header));
+
+    return header->name;
+}
+
 static inline bool
 fs_initrd_header_legal_p(s_initrd_header_t *header)
 {
@@ -38,5 +46,21 @@ fs_initrd_header_set(ptr_t location)
     kassert(location);
 
     initrd_header_array = (void *)location;
+}
+
+static inline ptr_t
+fs_initrd_addr_start(void)
+{
+    kassert(initrd_addr_start);
+
+    return initrd_addr_start;
+}
+
+static inline void
+fs_initrd_addr_start_set(ptr_t addr)
+{
+    kassert(addr);
+
+    initrd_addr_start = addr;
 }
 

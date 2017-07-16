@@ -43,5 +43,7 @@
 #define RETURN_IF_TRUE(x)         if ((x)) { return ; }
 #define RETURN_IF_FALSE(x)        if (!(x)) { return ; }
 
+#define CONTAINER_OF(p, t, m)     ((t *)((ptr_t)(p) - (ptr_t)(&((t *)0)->m)))
+
 #endif
 

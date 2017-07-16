@@ -1,8 +1,8 @@
 #ifndef HAVE_DEFINED_KERNEL_HEAP_H
 #define HAVE_DEFINED_KERNEL_HEAP_H
 
-#define KHEAP_START             0xC0000000
-#define KHEAP_LIMIT             0xC4000000 /* At most 64 MB for heap */
+#define KHEAP_START               0xC0000000
+#define KHEAP_LIMIT               0xC4000000 /* At most 64 MB for heap */
 
 typedef struct kernel_heap_header s_kernel_heap_header_t;
 typedef struct kernel_heap_footer s_kernel_heap_footer_t;

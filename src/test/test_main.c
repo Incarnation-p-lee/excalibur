@@ -66,11 +66,57 @@ test_heap(void)
     printf_vga_tk("Test heap ............... OK.\n");
 }
 
+static inline void
+test_vfs_file_print(s_vfs_node_t *vfs_node)
+{
+    uint8 *buf;
+    uint32 length;
+
+    kassert(vfs_node_legal_p(vfs_node));
+
+    printf_vga_tk("    Find file %s content:\n", vfs_node_name(vfs_node));
+
+    length = vfs_node_length(vfs_node);
+    buf = kmalloc(length + 1);
+
+    vfs_node->read(vfs_node, 0, length, buf);
+    buf[length] = CHAR_NULL;
+
+    printf_vga("%s", buf);
+
+    kfree(buf);
+}
+
+static inline void
+test_vfs(void)
+{
+    s_vfs_node_t *root;
+    s_vfs_node_t *node;
+
+    printf_vga_tk("Test vfs:\n");
+
+    root = vfs_fs_root_obtain(FS_INITRD);
+    printf_vga_tk("    Obtain %s.\n", FS_INITRD);
+
+    node = vfs_sub_node_first(root);
+
+    while (node) {
+        if (vfs_node_file_p(node)) {
+            test_vfs_file_print(node);
+        }
+
+        node = vfs_node_next(node);
+    }
+
+    printf_vga_tk("Test vfs ................ OK.\n");
+}
+
 void
 test_main(void)
 {
-    test_isr();
-    test_page();
-    test_heap();
+    // test_isr();
+    // test_page();
+    // test_heap();
+    test_vfs();
 }
 

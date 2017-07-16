@@ -87,6 +87,7 @@ static inline void page_entry_attribute_us_set(s_page_entry_t *page_entry, bool 
 static inline void page_entry_frame_set(s_page_entry_t *page_entry, ptr_t frame);
 static inline void page_entry_initialize(s_page_entry_t *page_entry, ptr_t frame, bool is_user, bool is_writable);
 static inline void page_free(ptr_t addr);
+static inline void print_header(s_kernel_heap_header_t *header);
 void * kmalloc(uint32 request_size);
 void kernel_heap_initialize(void);
 void kfree(void *ptr);

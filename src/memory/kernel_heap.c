@@ -417,6 +417,7 @@ kernel_heap_hole_split(s_kernel_heap_header_t *header, ptr_t usable_addr,
 
     if (front_size >= KHEAP_HOLE_MIN_SIZE) {
         addr_start = hole_addr;
+
         kernel_heap_hole_make((void *)addr_start, front_size);
         ordered_array_insert(ordered, (void *)addr_start);
 
@@ -426,6 +427,7 @@ kernel_heap_hole_split(s_kernel_heap_header_t *header, ptr_t usable_addr,
 
     if (rear_size >= KHEAP_HOLE_MIN_SIZE) {
         addr_start = hole_addr + (ptr_t)(hole_size - rear_size);
+
         kernel_heap_hole_make((void *)addr_start, rear_size);
         ordered_array_insert(ordered, (void *)addr_start);
 
@@ -636,6 +638,13 @@ kernel_heap_hole_remove(s_kernel_heap_t *heap, s_kernel_heap_header_t *header)
 }
 
 static inline void
+print_header(s_kernel_heap_header_t *header)
+{
+    printf_vga_tk("header -> %x magic -> %x hole %d size %x\n",
+        header, header->magic, header->is_hole, header->size);
+}
+
+static inline void
 kernel_heap_free_i(s_kernel_heap_t *heap, void *val)
 {
     void *hole_addr;
@@ -654,6 +663,13 @@ kernel_heap_free_i(s_kernel_heap_t *heap, void *val)
 
     left_header = kernel_heap_header_left_unify(header);
     right_header = kernel_heap_footer_right_unify(footer);
+
+    // if (val == (void *)0xc0040294) {
+    if (false) {
+        print_header(header);
+        print_header(left_header);
+        print_header(right_header);
+    }
 
     if (left_header && right_header) {
         hole_addr = left_header;

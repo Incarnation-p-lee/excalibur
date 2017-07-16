@@ -1,5 +1,5 @@
 int
-main(char argc, char **argv)
+main(int argc, char **argv)
 {
     if (argv == NULL) {
         return -1;

@@ -1,13 +1,14 @@
 static inline uint32
 fs_initrd_read(s_vfs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf)
 {
+    ptr_t addr;
     uint32 inode;
     uint32 file_length;
     s_initrd_header_t *header;
 
-    kassert(vfs_node_legal_p(fs_node));
-    kassert(size);
     kassert(buf);
+    kassert(size);
+    kassert(vfs_node_legal_p(fs_node));
 
     inode = vfs_node_inode(fs_node);
     header = fs_initrd_header(inode);
@@ -19,7 +20,8 @@ fs_initrd_read(s_vfs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf)
         size = file_length - offset;
     }
 
-    kmemory_copy(buf, (void *)(header->offset + offset), size);
+    addr = fs_initrd_addr_start() + (ptr_t)(header->offset + offset);
+    kmemory_copy(buf, (void *)addr, size);
 
     return size;
 }
@@ -27,7 +29,6 @@ fs_initrd_read(s_vfs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf)
 static inline uint32
 fs_initrd_write(s_vfs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf)
 {
-
     kassert(size);
     kassert(buf);
     kassert(offset);
@@ -61,31 +62,36 @@ fs_initrd_initialize_i(ptr_t location)
 {
     uint32 i;
     uint32 count;
-    s_vfs_node_t *fs_node_root;
+    s_vfs_node_t *root;
+    s_vfs_node_t *vfs_node;
     s_initrd_header_t *header;
 
     kassert(location);
 
     count = fs_initrd_header_count(location);
     fs_initrd_header_set(location + sizeof(count));
+    fs_initrd_addr_start_set(location);
 
-    fs_node_root = vfs_dir_node_create(FS_INITRD_NAME,
-        &fs_initrd_readdir, &fs_initrd_finddir);
-    fs_node_array = kmalloc(sizeof(*fs_node_array) * count);
+    root = vfs_dir_node_create(FS_INITRD, &fs_initrd_readdir,
+        &fs_initrd_finddir);
+    vfs_node_flags_add(root, FS_ROOT);
 
     i = 0;
 
     while (i < count) {
         header = fs_initrd_header(i);
-        fs_node_array[i] = vfs_file_node_create(header->name,
+        vfs_node = vfs_file_node_create(fs_initrd_header_name(header),
             &fs_initrd_read, &fs_initrd_write);
+        vfs_sub_node_add(root, vfs_node);
+        vfs_node_length_set(vfs_node, fs_initrd_header_length(header));
+        vfs_node_inode_set(vfs_node, i);
 
         i++;
     }
 
     printf_vga_tk("Initrd filesystem initialized.\n");
 
-    return fs_node_root;
+    return root;
 }
 
 s_vfs_node_t *

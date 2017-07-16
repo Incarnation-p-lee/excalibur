@@ -190,8 +190,20 @@ vfs_node_length(s_vfs_node_t *vfs_node)
     }
 }
 
-static inline void
+void
 vfs_node_flags_add(s_vfs_node_t *vfs_node, uint32 flags)
+{
+    if (flags >= FS_FLAGS_MAX) {
+        return;
+    } else if (vfs_node_illegal_ip(vfs_node)) {
+        return;
+    } else {
+        vfs_node_flags_add_i(vfs_node, flags);
+    }
+}
+
+static inline void
+vfs_node_flags_add_i(s_vfs_node_t *vfs_node, uint32 flags)
 {
     kassert(flags < FS_FLAGS_MAX);
     kassert(vfs_node_legal_ip(vfs_node));
@@ -199,3 +211,197 @@ vfs_node_flags_add(s_vfs_node_t *vfs_node, uint32 flags)
     vfs_node->flags |= flags;
 }
 
+static inline s_linked_list_t *
+vfs_node_list(s_vfs_node_t *vfs_node)
+{
+    kassert(vfs_node_legal_ip(vfs_node));
+
+    return &vfs_node->list;
+}
+
+static inline s_linked_list_t *
+vfs_node_sub_list(s_vfs_node_t *vfs_node)
+{
+    kassert(vfs_node_legal_ip(vfs_node));
+
+    return vfs_node->sub_list;
+}
+
+static inline void
+vfs_node_sub_list_set(s_vfs_node_t *vfs_node, s_linked_list_t *list)
+{
+    kassert(vfs_node_legal_ip(vfs_node));
+
+    vfs_node->sub_list = list;
+}
+
+static inline void
+vfs_node_sub_list_insert_after(s_vfs_node_t *vfs_node, s_vfs_node_t *inserted)
+{
+    s_linked_list_t *list;
+    s_linked_list_t *sub_list;
+
+    kassert(vfs_node_legal_ip(vfs_node));
+    kassert(vfs_node_legal_ip(inserted));
+    kassert(vfs_node_sub_list(vfs_node) != NULL);
+
+    list = vfs_node_list(inserted);
+    sub_list = vfs_node_sub_list(vfs_node);
+
+    linked_list_insert_after(sub_list, list);
+}
+
+void
+vfs_sub_node_add(s_vfs_node_t *vfs_node, s_vfs_node_t *added)
+{
+    if (vfs_node_illegal_ip(vfs_node)) {
+        return;
+    } else if (vfs_node_illegal_ip(vfs_node)) {
+        return;
+    } else {
+        vfs_sub_node_add_i(vfs_node, added);
+    }
+}
+
+static inline void
+vfs_sub_node_add_i(s_vfs_node_t *vfs_node, s_vfs_node_t *added)
+{
+    kassert(vfs_node_legal_ip(vfs_node));
+    kassert(vfs_node_legal_ip(added));
+
+    if (vfs_node->sub_list == NULL) {
+        vfs_node_sub_list_set(vfs_node, vfs_node_list(added));
+    } else {
+        vfs_node_sub_list_insert_after(vfs_node, added);
+    }
+}
+
+static inline s_vfs_node_t *
+vfs_list_to_node(s_linked_list_t *linked_list)
+{
+    if (linked_list_legal_p(linked_list)) {
+        return CONTAINER_OF(linked_list, s_vfs_node_t, list);
+    } else {
+        return NULL;
+    }
+}
+
+s_vfs_node_t *
+vfs_sub_node_first(s_vfs_node_t *vfs_node)
+{
+    if (vfs_node_illegal_ip(vfs_node)) {
+        return PTR_INVALID;
+    } else {
+        return vfs_sub_node_first_i(vfs_node);
+    }
+}
+
+static inline s_vfs_node_t *
+vfs_sub_node_first_i(s_vfs_node_t *vfs_node)
+{
+    s_linked_list_t *list;
+
+    kassert(vfs_node_legal_ip(vfs_node));
+
+    list = vfs_node_sub_list(vfs_node);
+
+    return vfs_list_to_node(list);
+}
+
+static inline s_vfs_node_t *
+vfs_node_next_i(s_vfs_node_t *vfs_node)
+{
+    s_linked_list_t *linked_list;
+
+    kassert(vfs_node_legal_ip(vfs_node));
+
+    linked_list = vfs_node_list(vfs_node);
+
+    return vfs_list_to_node(linked_list->next);
+}
+
+s_vfs_node_t *
+vfs_node_next(s_vfs_node_t *vfs_node)
+{
+    if (vfs_node_illegal_ip(vfs_node)) {
+        return PTR_INVALID;
+    } else {
+        return vfs_node_next_i(vfs_node);
+    }
+}
+
+static inline char *
+vfs_node_name_i(s_vfs_node_t *vfs_node)
+{
+    kassert(vfs_node_legal_ip(vfs_node));
+
+    return vfs_node->name;
+}
+
+char *
+vfs_node_name(s_vfs_node_t *vfs_node)
+{
+    if (vfs_node_illegal_ip(vfs_node)) {
+        return PTR_INVALID;
+    } else {
+        return vfs_node_name_i(vfs_node);
+    }
+}
+
+static inline bool
+vfs_node_file_ip(s_vfs_node_t *vfs_node)
+{
+    kassert(vfs_node_legal_ip(vfs_node));
+
+    if ((vfs_node->flags & FS_FILE) == FS_FILE) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool
+vfs_node_file_p(s_vfs_node_t *vfs_node)
+{
+    if (vfs_node_illegal_ip(vfs_node)) {
+        return false;
+    } else {
+        return vfs_node_file_ip(vfs_node);
+    }
+}
+
+static inline void
+vfs_node_length_set_i(s_vfs_node_t *vfs_node, uint32 length)
+{
+    kassert(vfs_node_legal_ip(vfs_node));
+
+    vfs_node->length = length;
+}
+
+void
+vfs_node_length_set(s_vfs_node_t *vfs_node, uint32 length)
+{
+    if (vfs_node_illegal_ip(vfs_node)) {
+        return;
+    } else {
+        vfs_node_length_set_i(vfs_node, length);
+    }
+}
+
+static inline void
+vfs_node_inode_set_i(s_vfs_node_t *vfs_node, uint32 inode)
+{
+    kassert(vfs_node_legal_ip(vfs_node));
+
+    vfs_node->inode = inode;
+}
+
+void
+vfs_node_inode_set(s_vfs_node_t *vfs_node, uint32 inode)
+{
+    if (vfs_node_illegal_ip(vfs_node)) {
+        return;
+    } else {
+        vfs_node_inode_set_i(vfs_node, inode);
+    }
+}

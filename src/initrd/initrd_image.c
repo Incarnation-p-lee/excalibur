@@ -12,7 +12,7 @@ initrd_header_size(void)
     return sizeof(header_array) + sizeof(uint32);
 }
 
-static inline uint32
+static inline void
 initrd_file_copy(FILE *fd, FILE *fs, s_initrd_header_t *header)
 {
     uint8 *buf;
@@ -128,7 +128,7 @@ initrd_image_make(uint32 argc, char **argv)
 }
 
 static inline bool
-initrd_image_release_p(char argc, char **argv)
+initrd_image_release_p(uint32 argc, char **argv)
 {
     assert(argv);
 

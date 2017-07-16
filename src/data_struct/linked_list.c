@@ -1,5 +1,5 @@
 static inline bool
-linked_list_legal_p(s_linked_list_t *linked_list)
+linked_list_legal_ip(s_linked_list_t *linked_list)
 {
     if (linked_list == NULL) {
         return false;
@@ -12,16 +12,22 @@ linked_list_legal_p(s_linked_list_t *linked_list)
     }
 }
 
+bool
+linked_list_legal_p(s_linked_list_t *linked_list)
+{
+    return linked_list_legal_ip(linked_list);
+}
+
 static inline bool
 linked_list_illegal_p(s_linked_list_t *linked_list)
 {
-    return !linked_list_legal_p(linked_list);
+    return !linked_list_legal_ip(linked_list);
 }
 
 static inline s_linked_list_t *
 linked_list_next_i(s_linked_list_t *linked_list)
 {
-    kassert(linked_list_legal_p(linked_list));
+    kassert(linked_list_legal_ip(linked_list));
 
     return linked_list->next;
 }
@@ -39,7 +45,7 @@ linked_list_next(s_linked_list_t *linked_list)
 static inline s_linked_list_t *
 linked_list_prev_i(s_linked_list_t *linked_list)
 {
-    kassert(linked_list_legal_p(linked_list));
+    kassert(linked_list_legal_ip(linked_list));
 
     return linked_list->prev;
 }
@@ -59,7 +65,7 @@ linked_list_insert_after_i(s_linked_list_t *node, s_linked_list_t *inserted)
 {
     s_linked_list_t *next;
 
-    kassert(linked_list_legal_p(node));
+    kassert(linked_list_legal_ip(node));
     kassert(inserted);
 
     next = linked_list_next_i(node);
@@ -92,7 +98,7 @@ linked_list_insert_before_i(s_linked_list_t *node, s_linked_list_t *inserted)
 {
     s_linked_list_t *prev;
 
-    kassert(linked_list_legal_p(node));
+    kassert(linked_list_legal_ip(node));
     kassert(inserted);
 
     prev = linked_list_prev_i(node);
@@ -126,7 +132,7 @@ linked_list_remove_i(s_linked_list_t *node)
     s_linked_list_t *next;
     s_linked_list_t *prev;
 
-    kassert(linked_list_legal_p(node));
+    kassert(linked_list_legal_ip(node));
 
     next = linked_list_next_i(node);
     prev = linked_list_prev_i(node);
@@ -155,7 +161,7 @@ linked_list_remove(s_linked_list_t *node)
 static inline bool
 linked_list_head_ip(s_linked_list_t *node)
 {
-    kassert(linked_list_legal_p(node));
+    kassert(linked_list_legal_ip(node));
 
     if (node->prev == NULL) {
         return true;
@@ -177,7 +183,7 @@ linked_list_head_p(s_linked_list_t *node)
 static inline bool
 linked_list_tail_ip(s_linked_list_t *node)
 {
-    kassert(linked_list_legal_p(node));
+    kassert(linked_list_legal_ip(node));
 
     if (node->next == NULL) {
         return true;
@@ -199,7 +205,7 @@ linked_list_tail_p(s_linked_list_t *node)
 static inline void
 linked_list_initialize_i(s_linked_list_t *node)
 {
-    kassert(linked_list_legal_p(node));
+    kassert(linked_list_legal_ip(node));
 
     node->next = node->prev = NULL;
 }

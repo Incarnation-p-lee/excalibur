@@ -1,0 +1,1 @@
+This is initrd file for test index -> 0.

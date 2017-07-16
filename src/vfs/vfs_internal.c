@@ -22,6 +22,7 @@ vfs_dir_node_create_i(char *name, f_readdir_t readdir, f_finddir_t finddir)
     vfs_node->link = NULL;
     vfs_node->impl = 0;
 
+    vfs_node->sub_list = NULL;
     linked_list_initialize(&vfs_node->list);
 
     return vfs_node;
@@ -66,6 +67,7 @@ vfs_file_node_create_i(char *name, f_read_t read, f_write_t write)
     vfs_node->link = NULL;
     vfs_node->impl = 0;
 
+    vfs_node->sub_list = NULL;
     linked_list_initialize(&vfs_node->list);
 
     return vfs_node;
@@ -158,12 +160,15 @@ vfs_readdir(s_vfs_node_t *vfs_node, uint32 index)
 }
 
 static inline void
-vfs_multiboot_module_initialize(void)
+vfs_multiboot_module_initialize(s_vfs_node_t *root)
 {
     ptr_t addr;
     char *name;
     uint32 i, limit;
+    s_vfs_node_t *vfs_node;
     s_boot_module_t *module;
+
+    kassert(vfs_node_legal_ip(root));
 
     i = 0;
     limit = multiboot_data_info_boot_modules_count();
@@ -173,19 +178,86 @@ vfs_multiboot_module_initialize(void)
         addr = multiboot_env_module_addr_start(module);
         name = string_basename(multiboot_env_module_name(module));
 
-        if (string_compare(INITRD_NAME, name) == 0) {
-            fs_initrd_initialize(addr);
+        if (string_compare(FS_INITRD, name) == 0) {
+            vfs_node = fs_initrd_initialize(addr);
+            vfs_sub_node_add(root, vfs_node);
         }
 
         i++;
     }
 }
 
+static inline s_vfs_node_t *
+vfs_root_node_initialize(void)
+{
+    s_vfs_node_t *root;
+
+    root = vfs_node_root();
+
+    root->mask = 0;
+    root->gid = 0;
+    root->length = 0;
+    root->inode = 0;
+    root->flags = FS_ROOT;
+    root->readdir = NULL;
+    root->finddir = NULL;
+    root->open = root->close = NULL;
+    root->read = root->write = NULL;
+
+    root->link = NULL;
+    root->impl = 0;
+
+    root->sub_list = NULL;
+    linked_list_initialize(&root->list);
+
+    return root;
+}
+
+static inline s_vfs_node_t *
+vfs_node_root(void)
+{
+    return &vfs_root;
+}
+
+s_vfs_node_t *
+vfs_fs_root_obtain_i(char *fs_name)
+{
+    s_vfs_node_t *node;
+    s_vfs_node_t *vfs_root;
+
+    kassert(fs_name);
+
+    vfs_root = vfs_node_root();
+    node = vfs_sub_node_first_i(vfs_root);
+
+    while (node) {
+        if (string_compare(fs_name, vfs_node_name_i(node)) == 0) {
+            return node;
+        }
+
+        node = vfs_node_next_i(node);
+    }
+
+    return PTR_INVALID;
+}
+
+s_vfs_node_t *
+vfs_fs_root_obtain(char *fs_name)
+{
+    if (fs_name == NULL) {
+        return PTR_INVALID;
+    } else {
+        return vfs_fs_root_obtain_i(fs_name);
+    }
+}
+
 void
 vfs_initialize(void)
 {
+    s_vfs_node_t *root;
 
-    vfs_multiboot_module_initialize();
+    root = vfs_root_node_initialize();
+    vfs_multiboot_module_initialize(root);
 
     printf_vga_tk("Virtual filesystem initialized.\n");
 }

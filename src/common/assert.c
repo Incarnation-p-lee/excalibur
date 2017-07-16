@@ -8,6 +8,7 @@ assert_complain(const char *msg, const char *file, const char *fun,
         printf_vga("Enter KERNEL PANIC T.T ...\n");
         asm volatile (
             "infloop:\n\t"
+            "hlt\n\t"
             "jmp infloop\n\t"
             );
     }
