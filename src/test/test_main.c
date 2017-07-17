@@ -114,9 +114,9 @@ test_vfs(void)
 void
 test_main(void)
 {
-    // test_isr();
-    // test_page();
-    // test_heap();
+    test_isr();
+    test_page();
+    test_heap();
     test_vfs();
 }
 

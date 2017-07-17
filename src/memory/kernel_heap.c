@@ -638,13 +638,6 @@ kernel_heap_hole_remove(s_kernel_heap_t *heap, s_kernel_heap_header_t *header)
 }
 
 static inline void
-print_header(s_kernel_heap_header_t *header)
-{
-    printf_vga_tk("header -> %x magic -> %x hole %d size %x\n",
-        header, header->magic, header->is_hole, header->size);
-}
-
-static inline void
 kernel_heap_free_i(s_kernel_heap_t *heap, void *val)
 {
     void *hole_addr;
@@ -664,13 +657,6 @@ kernel_heap_free_i(s_kernel_heap_t *heap, void *val)
     left_header = kernel_heap_header_left_unify(header);
     right_header = kernel_heap_footer_right_unify(footer);
 
-    // if (val == (void *)0xc0040294) {
-    if (false) {
-        print_header(header);
-        print_header(left_header);
-        print_header(right_header);
-    }
-
     if (left_header && right_header) {
         hole_addr = left_header;
         hole_size += kernel_heap_hole_size(left_header);
@@ -687,7 +673,9 @@ kernel_heap_free_i(s_kernel_heap_t *heap, void *val)
         hole_addr = header;
         hole_size += kernel_heap_hole_size(right_header);
 
+        kernel_heap_hole_remove(heap, right_header);
         kernel_heap_hole_make(hole_addr, hole_size);
+        ordered_array_insert(kernel_heap_ordered_array(heap), hole_addr);
     } else {
         hole_addr = header;
 
