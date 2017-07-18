@@ -205,10 +205,41 @@ vfs_node_flags_add(s_vfs_node_t *vfs_node, uint32 flags)
 static inline void
 vfs_node_flags_add_i(s_vfs_node_t *vfs_node, uint32 flags)
 {
+    uint32 flags_tmp;
+
     kassert(flags < FS_FLAGS_MAX);
     kassert(vfs_node_legal_ip(vfs_node));
 
-    vfs_node->flags |= flags;
+    flags_tmp = vfs_node_flags_i(vfs_node) | flags;
+
+    vfs_node_flags_set_i(vfs_node, flags_tmp);
+}
+
+static inline void
+vfs_node_flags_set_i(s_vfs_node_t *vfs_node, uint32 flags)
+{
+    kassert(vfs_node_legal_ip(vfs_node));
+    kassert(flags < FS_FLAGS_MAX);
+
+    vfs_node->flags = flags;
+}
+
+static inline uint32
+vfs_node_flags_i(s_vfs_node_t *vfs_node)
+{
+    kassert(vfs_node_legal_ip(vfs_node));
+
+    return vfs_node->flags;
+}
+
+uint32
+vfs_node_flags(s_vfs_node_t *vfs_node)
+{
+    if (vfs_node_illegal_ip(vfs_node)) {
+        return FS_FLAGS_INVALID;
+    } else {
+        return vfs_node_flags_i(vfs_node);
+    }
 }
 
 static inline s_linked_list_t *

@@ -33,6 +33,7 @@ static inline void print_buffer_uint32_hex_copy(s_pr_buf_t *pr_buf, uint32 u);
 static inline void print_format(s_pr_buf_t *pr_buf, char *format, void *param);
 static inline void print_format_vga(s_pr_buf_t *pr_buf);
 static inline void print_internal(char *format, void *param);
+void print_buffer_fs_initrd_write(void);
 void printf_vga(char *format, ...);
 void printf_vga_tk(char *format, ...);
 

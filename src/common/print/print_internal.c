@@ -456,3 +456,19 @@ print_internal(char *format, void *param)
     }
 }
 
+void
+print_buffer_fs_initrd_write(void)
+{
+    char *array;
+    uint32 length;
+    s_pr_buf_t *pr_buf;
+    s_vfs_node_t *vfs_node;
+
+    pr_buf = print_buffer();
+    array = print_buffer_array(pr_buf);
+    length = print_buffer_index(pr_buf);
+
+    vfs_node = fs_initrd_file_create(PRINT_BUF_NAME);
+    vfs_write(vfs_node, 0, length, (void *)array);
+}
+

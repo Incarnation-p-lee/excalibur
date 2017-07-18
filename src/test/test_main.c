@@ -79,7 +79,7 @@ test_vfs_file_print(s_vfs_node_t *vfs_node)
     length = vfs_node_length(vfs_node);
     buf = kmalloc(length + 1);
 
-    vfs_node->read(vfs_node, 0, length, buf);
+    vfs_read(vfs_node, 0, length, buf);
     buf[length] = CHAR_NULL;
 
     printf_vga("%s", buf);

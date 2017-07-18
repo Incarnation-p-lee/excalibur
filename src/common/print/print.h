@@ -3,6 +3,7 @@
 
 #define PRINT_BUF_SIZE             40960
 #define BACKUP_BUF_SIZE            1024
+#define PRINT_BUF_NAME             "excalibur_print_buf"
 
 typedef struct print_buffer        s_pr_buf_t;
 typedef struct print_backup_buffer s_pr_backup_buf_t;

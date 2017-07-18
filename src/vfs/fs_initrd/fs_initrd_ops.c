@@ -20,21 +20,39 @@ fs_initrd_read(s_vfs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf)
         size = file_length - offset;
     }
 
-    addr = fs_initrd_addr_start() + (ptr_t)(header->offset + offset);
+    addr = fs_initrd_addr_start();
+    addr += (ptr_t)(fs_initrd_header_offset(header) + offset);
+
     kmemory_copy(buf, (void *)addr, size);
 
     return size;
 }
 
 static inline uint32
-fs_initrd_write(s_vfs_node_t *fs_node, uint32 offset, uint32 size, uint8 *buf)
+fs_initrd_write(s_vfs_node_t *vfs_node, uint32 offset, uint32 size, uint8 *buf)
 {
+    ptr_t addr;
+    uint32 inode, length;
+    s_initrd_header_t *header;
+
     kassert(size);
     kassert(buf);
-    kassert(offset);
-    kassert(vfs_node_legal_p(fs_node));
+    kassert(vfs_node_legal_p(vfs_node));
 
-    return 0;
+    inode = vfs_node_inode(vfs_node);
+    vfs_node_inode_set(vfs_node, inode);
+    header = fs_initrd_header(inode);
+
+    addr = fs_initrd_addr_start();
+    addr += (ptr_t)(fs_initrd_header_offset(header) + offset);
+
+    kmemory_copy((void *)addr, buf, size);
+
+    length = offset + size;
+    fs_initrd_header_length_set(header, length);
+    vfs_node_length_set(vfs_node, length);
+
+    return size;
 }
 
 static inline s_vfs_node_t *
@@ -60,8 +78,7 @@ fs_initrd_finddir(s_vfs_node_t *fs_node, char *name)
 static inline s_vfs_node_t *
 fs_initrd_initialize_i(ptr_t location)
 {
-    uint32 i;
-    uint32 count;
+    uint32 i, count;
     s_vfs_node_t *root;
     s_vfs_node_t *vfs_node;
     s_initrd_header_t *header;
@@ -84,13 +101,14 @@ fs_initrd_initialize_i(ptr_t location)
             &fs_initrd_read, &fs_initrd_write);
         vfs_sub_node_add(root, vfs_node);
         vfs_node_length_set(vfs_node, fs_initrd_header_length(header));
-        vfs_node_inode_set(vfs_node, i);
+        vfs_node_inode_set(vfs_node, fs_initrd_inode_allocate());
 
         i++;
     }
 
-    printf_vga_tk("Initrd filesystem initialized.\n");
+    fs_initrd_vfs_root_node_set(root);
 
+    printf_vga_tk("Initrd filesystem initialized.\n");
     return root;
 }
 
@@ -101,6 +119,39 @@ fs_initrd_initialize(ptr_t location)
         return PTR_INVALID;
     } else {
         return fs_initrd_initialize_i(location);
+    }
+}
+
+static inline s_vfs_node_t *
+fs_initrd_file_create_i(char *name)
+{
+    uint32 inode;
+    s_vfs_node_t *vfs_node;
+    s_initrd_header_t *header;
+
+    kassert(name);
+
+    inode = fs_initrd_inode_allocate();
+    vfs_node = vfs_file_node_create(name, &fs_initrd_read, &fs_initrd_write);
+
+    vfs_node_inode_set(vfs_node, inode);
+    header = fs_initrd_header(inode);
+
+    fs_initrd_header_initialize(header, vfs_node);
+    fs_initrd_header_count_inc();
+
+    vfs_sub_node_add(fs_initrd_vfs_root_node(), vfs_node);
+
+    return vfs_node;
+}
+
+s_vfs_node_t *
+fs_initrd_file_create(char *name)
+{
+    if (name == NULL) {
+        return PTR_INVALID;
+    } else {
+        return fs_initrd_file_create_i(name);
     }
 }
 

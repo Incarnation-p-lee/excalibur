@@ -18,6 +18,8 @@ entry(uint32 magic, void *boot_header, void *boot_info)
     test_main();
 
     printf_vga_tk("Reach end of entry, will idle.\n");
+    print_buffer_fs_initrd_write();
+
     return 0x0;
 }
 

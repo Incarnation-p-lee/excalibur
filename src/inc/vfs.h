@@ -25,6 +25,7 @@ typedef s_vfs_node_t * (*f_finddir_t)(s_vfs_node_t *, char *);
 #define FS_MOUNTPOINT     0x8u /* 0x8 for bitwise-OR with FS_DIRECTORY. */
 #define FS_ROOT           0x10
 #define FS_FLAGS_MAX      0x1f
+#define FS_FLAGS_INVALID  FS_FLAGS_MAX
 
 #define FS_DIRECTORY_MASK 0x7u
 
