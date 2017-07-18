@@ -1,0 +1,7 @@
+timeout 10
+
+title	excalibur
+	root (hd0,0)
+	kernel /boot/kernel
+	module /boot/initrd
+
