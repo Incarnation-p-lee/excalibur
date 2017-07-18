@@ -1,0 +1,21 @@
+dd if=/dev/zero of=disk.img count=10080
+fdisk disk.img
+p/n/a/w
+hexdump disk.img
+fdisk -l -u disk.img
+losetup -o 32256 /dev/loop0 disk.img
+mkfs.ext2 /dev/loop0
+mount -o loop /dev/loop0 /mnt
+mkdir -p /mnt/boot/grub
+cp /boot/grub/stage1 /boot/grub/stage2 /mnt/boot/grub/
+vi /mnt/boot/grub/grub.conf
+umount /mnt
+losetup -d /dev/loop0
+grub --device-map=/dev/null
+
+   device (hd0) disk.img
+   geometry (hd0) 10 16 63
+   root (hd0,0)
+   setup (hd0)
+   quit
+ata0-master: type=disk, path="disk.img", mode=flat, cylinders=10, heads=16, spt=63
