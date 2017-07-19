@@ -1,6 +1,18 @@
 dd if=/dev/zero of=disk.img count=10080
 fdisk disk.img
-p/n/a/w
+    x     -> Extra functionality
+    c 10  -> 10 cylinders
+    h 16  -> 16 heads
+    s 63  -> 63 sectors per track
+    r     -> Return to main menu
+    n     -> Create a new partition
+    p     -> Primary
+    1     -> Partition #1
+    1     -> First cylinder
+    10    -> Last cylinder
+    a     -> Set bootable flag
+    1     -> Partition number
+    w     -> Write partition to disk
 hexdump disk.img
 fdisk -l -u disk.img
 losetup -o 32256 /dev/loop0 disk.img
@@ -18,4 +30,15 @@ grub --device-map=/dev/null
    root (hd0,0)
    setup (hd0)
    quit
-ata0-master: type=disk, path="disk.img", mode=flat, cylinders=10, heads=16, spt=63
+
+windows bochs config
+# config_interface: win32config
+# display_library: win32
+# memory: host=256, guest=256
+# romimage: file="C:\Program Files (x86)\Bochs-2.6.8/BIOS-bochs-latest"
+# vgaromimage: file="C:\Program Files (x86)\Bochs-2.6.8/VGABIOS-lgpl-latest"
+# boot: disk
+# ata0-master: type=disk, path="disk.img", mode=flat, cylinders=10, heads=16, spt=63
+# cpu: count=1, ips=1000000
+# mouse: enabled=0
+# log: disk.txt
