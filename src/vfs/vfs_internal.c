@@ -160,12 +160,38 @@ vfs_readdir(s_vfs_node_t *vfs_node, uint32 index)
 }
 
 static inline void
+vfs_descriptor_initialize(char *fs_name, ptr_t location)
+{
+    uint32 i, limit;
+    s_vfs_node_t *vfs_node;
+    s_vfs_dspr_t *vfs_dspr;
+    f_fs_initialize_t fs_initializer;
+
+    kassert(fs_name);
+    kassert(location);
+
+    i = 0;
+    limit = vfs_descriptor_array_size();
+
+    while (i < limit) {
+        vfs_dspr = vfs_descriptor_array_descriptor(i);
+
+        if (string_compare(fs_name, vfs_descriptor_name(vfs_dspr)) == 0) {
+            fs_initializer = vfs_descriptor_initializer(vfs_dspr);
+            vfs_node = fs_initializer(location);
+            vfs_descriptor_fs_root_set(vfs_dspr, vfs_node);
+        }
+
+        i++;
+    }
+}
+
+static inline void
 vfs_multiboot_module_initialize(s_vfs_node_t *root)
 {
     ptr_t addr;
     char *name;
     uint32 i, limit;
-    s_vfs_node_t *vfs_node;
     s_boot_module_t *module;
 
     kassert(vfs_node_legal_ip(root));
@@ -178,10 +204,7 @@ vfs_multiboot_module_initialize(s_vfs_node_t *root)
         addr = multiboot_env_module_addr_start(module);
         name = string_basename(multiboot_env_module_name(module));
 
-        if (string_compare(FS_INITRD, name) == 0) {
-            vfs_node = fs_initrd_initialize(addr);
-            vfs_sub_node_add(root, vfs_node);
-        }
+        vfs_descriptor_initialize(name, addr);
 
         i++;
     }
@@ -222,20 +245,22 @@ vfs_node_root(void)
 s_vfs_node_t *
 vfs_fs_root_obtain_i(char *fs_name)
 {
-    s_vfs_node_t *node;
-    s_vfs_node_t *vfs_root;
+    uint32 i, limit;
+    s_vfs_dspr_t *vfs_dspr;
 
     kassert(fs_name);
 
-    vfs_root = vfs_node_root();
-    node = vfs_sub_node_first_i(vfs_root);
+    i = 0;
+    limit = vfs_descriptor_array_size();
 
-    while (node) {
-        if (string_compare(fs_name, vfs_node_name_i(node)) == 0) {
-            return node;
+    while (i < limit) {
+        vfs_dspr = vfs_descriptor_array_descriptor(i);
+
+        if (string_compare(fs_name, vfs_descriptor_name(vfs_dspr)) == 0) {
+            return vfs_descriptor_fs_root(vfs_dspr);
         }
 
-        node = vfs_node_next_i(node);
+        i++;
     }
 
     return PTR_INVALID;

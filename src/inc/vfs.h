@@ -1,7 +1,8 @@
 #ifndef HAVE_DEFINED_FILESYSTEM_H
 #define HAVE_DEFINED_FILESYSTEM_H
 
-typedef struct vfs_node s_vfs_node_t;
+typedef struct vfs_node       s_vfs_node_t;
+typedef struct vfs_descriptor s_vfs_dspr_t;
 
 typedef uint32 (*f_read_t)(s_vfs_node_t *, uint32, uint32, uint8 *);
 typedef uint32 (*f_write_t)(s_vfs_node_t *, uint32, uint32, uint8 *);
@@ -9,6 +10,7 @@ typedef void (*f_open_t)(s_vfs_node_t *);
 typedef void (*f_close_t)(s_vfs_node_t *);
 typedef s_vfs_node_t * (*f_readdir_t)(s_vfs_node_t *, uint32);
 typedef s_vfs_node_t * (*f_finddir_t)(s_vfs_node_t *, char *);
+typedef s_vfs_node_t * (*f_fs_initialize_t)(ptr_t);
 
 #define FS_NAME_MAX       128
 
@@ -61,6 +63,12 @@ struct vfs_node {
         s_vfs_node_t *link;
         s_vfs_node_t *mount;
     };
+};
+
+struct vfs_descriptor {
+    const char        *name;
+    s_vfs_node_t      *fs_root;
+    f_fs_initialize_t initializer;
 };
 
 #endif

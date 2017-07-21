@@ -79,7 +79,7 @@ static inline s_vfs_node_t *
 fs_initrd_initialize_i(ptr_t location)
 {
     uint32 i, count;
-    s_vfs_node_t *root;
+    s_vfs_node_t *vfs_root;
     s_vfs_node_t *vfs_node;
     s_initrd_header_t *header;
 
@@ -89,9 +89,9 @@ fs_initrd_initialize_i(ptr_t location)
     fs_initrd_header_set(location + sizeof(count));
     fs_initrd_addr_start_set(location);
 
-    root = vfs_dir_node_create(FS_INITRD, &fs_initrd_readdir,
+    vfs_root = vfs_dir_node_create(FS_INITRD, &fs_initrd_readdir,
         &fs_initrd_finddir);
-    vfs_node_flags_add(root, FS_ROOT);
+    vfs_node_flags_add(vfs_root, FS_ROOT);
 
     i = 0;
 
@@ -99,17 +99,17 @@ fs_initrd_initialize_i(ptr_t location)
         header = fs_initrd_header(i);
         vfs_node = vfs_file_node_create(fs_initrd_header_name(header),
             &fs_initrd_read, &fs_initrd_write);
-        vfs_sub_node_add(root, vfs_node);
+        vfs_sub_node_add(vfs_root, vfs_node);
         vfs_node_length_set(vfs_node, fs_initrd_header_length(header));
         vfs_node_inode_set(vfs_node, fs_initrd_inode_allocate());
 
         i++;
     }
 
-    fs_initrd_vfs_root_node_set(root);
+    fs_initrd_vfs_root_node_set(vfs_root);
 
     printf_vga_tk("Initrd filesystem initialized.\n");
-    return root;
+    return vfs_root;
 }
 
 s_vfs_node_t *
