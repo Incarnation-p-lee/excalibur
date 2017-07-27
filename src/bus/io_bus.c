@@ -10,6 +10,25 @@ io_bus_write_byte(uint16 port, uint8 val)
      */
 }
 
+// To-do refactor write_byte -> byte_write.
+void
+io_bus_write_word(uint16 port, uint16 val)
+{
+    asm volatile (
+        "outw %1, %0\n\t"
+        :
+        :"dN"(port), "a"(val));
+}
+
+void
+io_bus_write_dword(uint16 port, uint32 val)
+{
+    asm volatile (
+        "outl %1, %0\n\t"
+        :
+        :"dN"(port), "a"(val));
+}
+
 uint8
 io_bus_read_byte(uint16 port)
 {
@@ -36,3 +55,15 @@ io_bus_read_word(uint16 port)
     return retval;
 }
 
+uint32
+io_bus_read_dword(uint16 port)
+{
+    uint32 retval;
+
+    asm volatile (
+        "inl %1, %0\n\t"
+        :"=a"(retval)
+        :"dN"(port));
+
+    return retval;
+}

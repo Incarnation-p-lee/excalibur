@@ -54,6 +54,13 @@ enum interrupt_nmbr { /* for ISR (interrupt service runtine */
     IRQ_5_PS,
     IRQ_6_PS,
     IRQ_7_PS,
+    IRQ_8_PS,
+    IRQ_9_PS,
+    IRQ_10_PS,
+    IRQ_11_PS,
+    IRQ_12_PS,
+    IRQ_13_PS,
+    IRQ_14_PS,
 };
 
 struct pro_context {

@@ -14,8 +14,9 @@ entry(uint32 magic, void *boot_header, void *boot_info)
     page_initialize();
     kernel_heap_initialize();
     vfs_initialize();
+    ata_device_detect();
 
-    test_main();
+    // test_main();
 
     printf_vga_tk("Reach end of entry, will idle.\n");
     print_buffer_fs_initrd_write();

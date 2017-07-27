@@ -67,7 +67,7 @@ sub generate_submodule_header_file {
     my $decl_header_file = shift @_;
     my @sorted = sort @_;
 
-    if (0 != $#sorted) {
+    if ($#sorted != -1) {
         $macro = $decl_header_file;
         $macro =~ s:\w+.h$::;
         $macro =~ s/[\/.]/_/g;
