@@ -68,40 +68,42 @@
 typedef enum ata_device_type   e_ata_device_type_t;
 typedef struct ata_device_info s_ata_device_info_t;
 
-#define ATA_PORT_START       0x1f0
-#define ATA_DATA_PORT        (ATA_PORT_START + 0x0)
-#define ATA_FEATURE_PORT     (ATA_PORT_START + 0x1)
-#define ATA_SECTOR_CNT_PORT  (ATA_PORT_START + 0x2)
-#define ATA_SECTOR_NUM_PORT  (ATA_PORT_START + 0x3)
-#define ATA_CYL_LOW_PORT     (ATA_PORT_START + 0x4)
-#define ATA_CYL_HIGH_PORT    (ATA_PORT_START + 0x5)
-#define ATA_HEAD_PORT        (ATA_PORT_START + 0x6)
-#define ATA_CMD_PORT         (ATA_PORT_START + 0x7)
+#define ATA_0_PORT_START      0x1f0
+#define ATA_0_DATA_PORT       (ATA_0_PORT_START + 0x0)
+#define ATA_0_FEATURE_PORT    (ATA_0_PORT_START + 0x1)
+#define ATA_0_SECTOR_CNT_PORT (ATA_0_PORT_START + 0x2)
+#define ATA_0_SECTOR_NUM_PORT (ATA_0_PORT_START + 0x3)
+#define ATA_0_CYL_LOW_PORT    (ATA_0_PORT_START + 0x4)
+#define ATA_0_CYL_HIGH_PORT   (ATA_0_PORT_START + 0x5)
+#define ATA_0_HEAD_PORT       (ATA_0_PORT_START + 0x6)
+#define ATA_0_CMD_PORT        (ATA_0_PORT_START + 0x7)
 
-#define ATA_ERROR_PORT       ATA_FEATURE_PORT
-#define ATA_LBA_LO_PORT      ATA_SECTOR_CNT_PORT
-#define ATA_LBA_MID_PORT     ATA_CYL_LOW_PORT
-#define ATA_LBA_HIGH_PORT    ATA_CYL_HIGH_PORT
-#define ATA_DRIVE_PORT       ATA_HEAD_PORT
-#define ATA_STATUS_PORT      ATA_CMD_PORT
+#define ATA_0_ERROR_PORT      ATA_0_FEATURE_PORT
+#define ATA_0_LBA_LO_PORT     ATA_0_SECTOR_CNT_PORT
+#define ATA_0_LBA_MID_PORT    ATA_0_CYL_LOW_PORT
+#define ATA_0_LBA_HIGH_PORT   ATA_0_CYL_HIGH_PORT
+#define ATA_0_DRIVE_PORT      ATA_0_HEAD_PORT
+#define ATA_0_STATUS_PORT     ATA_0_CMD_PORT
+#define ATA_0_DEV_CR_PORT     0x3f6 /* primary device control register port */
+#define ATA_1_DEV_CR_PORT     0x376 /* secondary device control register port */
 
-#define ATA_PRI_DEV_CR_PORT  0x3f6 /* primary device control register port */
-#define ATA_SEC_DEV_CR_PORT  0x376 /* secondary device control register port */
-#define ATA_PRI_DRIVE        0xA
-#define ATA_SEC_DRIVE        0xB
-#define ATA_HEAD_0           0x0
-#define ATA_PRI_DRIVE_HEAD_0 ((ATA_PRI_DRIVE << 4) | ATA_HEAD_0)
-#define ATA_SEC_DRIVE_HEAD_0 ((ATA_SEC_DRIVE << 4) | ATA_HEAD_0)
+#define ATA_DRIVE_0           0xA
+#define ATA_DRIVE_1           0xB
+#define ATA_HEAD_0            0x0
+#define ATA_DRIVE_0_HEAD_0    ((ATA_DRIVE_0 << 4) | ATA_HEAD_0)
+#define ATA_DRIVE_1_HEAD_0    ((ATA_DRIVE_1 << 4) | ATA_HEAD_0)
 
-#define ATA_SEC_CR_NULL      BIT_CLEAR
-#define ATA_DEV_CR_NLEN      (BIT_SET << 1) /* set to stop device sending int */
-#define ATA_DEV_CR_SRST      (BIT_SET << 2) /* set to software reset on bus */
-#define ATA_DEV_CR_HOB       (BIT_SET << 7) /* set to read back high order */
+#define ATA_DEV_CR_NULL       BIT_CLEAR
+#define ATA_DEV_CR_NLEN       (BIT_SET << 1) /* set to stop device send int */
+#define ATA_DEV_CR_SRST       (BIT_SET << 2) /* set to software reset on bus */
+#define ATA_DEV_CR_HOB        (BIT_SET << 7) /* set to read back high order */
 
-#define ATA_STATUS_BUSY      (BIT_SET << 7)
-#define ATA_STATUS_DRDY      (BIT_SET << 6) /* device is ready */
-#define ATA_STATUS_DRQ       (BIT_SET << 3) /* data request, to transfer data */
-#define ATA_STATUS_ERROR     (BIT_SET << 0) /* an error occurred of last cmd */
+#define ATA_STATUS_BUSY       (BIT_SET << 7)
+#define ATA_STATUS_DRDY       (BIT_SET << 6) /* device is ready */
+#define ATA_STATUS_DRQ        (BIT_SET << 3) /* data request to transfer data */
+#define ATA_STATUS_ERROR      (BIT_SET << 0) /* an error occurred of last cmd */
+
+#define ATA_STATUS_INVALID   0xff
 
 enum ata_device_type {
     ATA_DEV_UNKNOWN  = 0xffff,

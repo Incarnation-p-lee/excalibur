@@ -3,5 +3,6 @@
 #include "ata_declaration.h"
 
 #include "ata_util.c"
+#include "ata_print.c"
 #include "ata_device.c"
 
