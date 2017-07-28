@@ -14,10 +14,41 @@ ata_device_info_type_set(s_ata_device_info_t *dev_info, uint32 type)
     dev_info->type = type;
 }
 
-static inline s_ata_device_info_t *
-ata_device_info(void)
+static inline void
+ata_device_info_port_set_i(s_ata_device_info_t *dev_info, uint16 port_start)
 {
-    return &ata_dev_info;
+    kassert(dev_info);
+
+    dev_info->data_port = port_start++;
+    dev_info->error_port = port_start++;
+    dev_info->sector_count_port = port_start++;
+    dev_info->sector_number_port = port_start++;
+    dev_info->cylinder_low_port = port_start++;
+    dev_info->cylinder_high_port = port_start++;
+    dev_info->drive_head_port = port_start++;
+    dev_info->status_port = port_start++;
+}
+
+static inline void
+ata_device_info_port_set(s_ata_device_info_t *dev_info, uint32 device)
+{
+    kassert(dev_info);
+
+    switch (device) {
+        case ATA_0_DEVICE_MASTER:
+            ata_device_info_port_set(dev_info, ATA_0_PORT_MASTER);
+            break;
+        default:
+            break;
+    }
+}
+
+static inline s_ata_device_info_t *
+ata_device_info(uint32 i)
+{
+    kassert(i < ATA_DEVICE_LIMIT);
+
+    return &dev_info_array[i];
 }
 
 static inline bool

@@ -32,4 +32,3 @@ ata_device_info_print(s_ata_device_info_t *dev_info)
     }
 }
 
-

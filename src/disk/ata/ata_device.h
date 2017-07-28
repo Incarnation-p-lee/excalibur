@@ -2,6 +2,7 @@
 #define HAVE_DEFINED_ATA_DEVICE_H
 
 /*
+ *     ATA channel 0 master device I/O port layout.
  * +-------+------------+------------------------------------------------+
  * | Port  | Read/Write | Comments                                       |
  * +-------+------------+------------------------------------------------+
@@ -66,17 +67,29 @@
  */
 
 typedef enum ata_device_type   e_ata_device_type_t;
+typedef enum ata_device_id     e_ata_device_id_t;
 typedef struct ata_device_info s_ata_device_info_t;
 
-#define ATA_0_PORT_START      0x1f0
-#define ATA_0_DATA_PORT       (ATA_0_PORT_START + 0x0)
-#define ATA_0_FEATURE_PORT    (ATA_0_PORT_START + 0x1)
-#define ATA_0_SECTOR_CNT_PORT (ATA_0_PORT_START + 0x2)
-#define ATA_0_SECTOR_NUM_PORT (ATA_0_PORT_START + 0x3)
-#define ATA_0_CYL_LOW_PORT    (ATA_0_PORT_START + 0x4)
-#define ATA_0_CYL_HIGH_PORT   (ATA_0_PORT_START + 0x5)
-#define ATA_0_HEAD_PORT       (ATA_0_PORT_START + 0x6)
-#define ATA_0_CMD_PORT        (ATA_0_PORT_START + 0x7)
+/*
+ *    CURRENT disk controller chips support 2 ATA buses per-chip. There is a
+ * standardized set of I/O port to control the disk bues. The first two buses
+ * are called the primary an secondary ATA bus. And almost always controlled by
+ * IO port 0x1f0 ~ 0x1f7 and 0x170 ~ 0x177. With the associated Device control
+ * IO port 0x3f6 and 0x376.
+ *    THERE is one wire dedicated to select which drive on each bus is active.
+ * Master and slave devices.
+ */
+
+/* ata channel 0 master device port */
+#define ATA_0_PORT_MASTER     0x1f0
+#define ATA_0_DATA_PORT       (ATA_0_PORT_MASTER + 0x0)
+#define ATA_0_FEATURE_PORT    (ATA_0_PORT_MASTER + 0x1)
+#define ATA_0_SECTOR_CNT_PORT (ATA_0_PORT_MASTER + 0x2)
+#define ATA_0_SECTOR_NUM_PORT (ATA_0_PORT_MASTER + 0x3)
+#define ATA_0_CYL_LOW_PORT    (ATA_0_PORT_MASTER + 0x4)
+#define ATA_0_CYL_HIGH_PORT   (ATA_0_PORT_MASTER + 0x5)
+#define ATA_0_HEAD_PORT       (ATA_0_PORT_MASTER + 0x6)
+#define ATA_0_CMD_PORT        (ATA_0_PORT_MASTER + 0x7)
 
 #define ATA_0_ERROR_PORT      ATA_0_FEATURE_PORT
 #define ATA_0_LBA_LO_PORT     ATA_0_SECTOR_CNT_PORT
@@ -103,7 +116,18 @@ typedef struct ata_device_info s_ata_device_info_t;
 #define ATA_STATUS_DRQ        (BIT_SET << 3) /* data request to transfer data */
 #define ATA_STATUS_ERROR      (BIT_SET << 0) /* an error occurred of last cmd */
 
-#define ATA_STATUS_INVALID   0xff
+#define ATA_STATUS_INVALID    0xff
+#define ATA_PHYS_SECTOR_SIZE  512
+
+/*
+ *     ATA read CHS mode has max head 16, max cylinder 65536, with sector is
+ * usually always 1-63, and sector 0 reserved, max 255 sector/track.
+ *     If 63 sector/track, max disk is up to 31.5GB
+ *     If 255 sector/track, max disk is up to 127.5GB
+ */
+#define ATA_CYLINDER_MAX      65536
+#define ATA_HEADER_MAX        16
+#define ATA_TRACK_SECTOR_MAX  255
 
 enum ata_device_type {
     ATA_DEV_UNKNOWN  = 0xffff,
@@ -113,12 +137,27 @@ enum ata_device_type {
     ATA_DEV_SATA     = 0xc33c,
 };
 
-struct ata_device_info {
-    uint32 type;
+enum ata_device_id {
+    ATA_0_DEVICE_MASTER = 0x0,
+    ATA_0_DEVICE_SLAVE  = 0x1,
+    ATA_DEVICE_LIMIT,
 };
 
-static s_ata_device_info_t ata_dev_info = {
-    ATA_DEV_UNKNOWN,
+struct ata_device_info {
+    uint32 type;
+
+    uint16 data_port;
+    uint16 error_port;
+    uint16 sector_count_port;
+    uint16 sector_number_port;
+    uint16 cylinder_low_port;
+    uint16 cylinder_high_port;
+    uint16 drive_head_port;
+    uint16 status_port;
+};
+
+static s_ata_device_info_t dev_info_array[] = {
+    [ATA_0_DEVICE_MASTER] = {ATA_DEV_UNKNOWN, 0,},
 };
 
 #endif

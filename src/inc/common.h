@@ -10,6 +10,7 @@
 
 #include "vfs.h"
 #include "initrd.h"
+#include "disk.h"
 #include "kernel_heap.h"
 #include "multiboot.h"
 
