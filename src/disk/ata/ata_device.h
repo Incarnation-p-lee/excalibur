@@ -2,7 +2,7 @@
 #define HAVE_DEFINED_ATA_DEVICE_H
 
 /*
- *     ATA channel 0 master device I/O port layout.
+ *     ATA device I/O port layout sample
  * +-------+------------+------------------------------------------------+
  * | Port  | Read/Write | Comments                                       |
  * +-------+------------+------------------------------------------------+
@@ -10,13 +10,21 @@
  * +-------+------------+------------------------------------------------+
  * | 0x1f1 | R          | Error register.                                |
  * +-------+------------+------------------------------------------------+
+ * |       |            | feature register.                              |
+ * +-------+------------+------------------------------------------------+
  * | 0x1f2 | R/W        | Sector count, how many sector to read/write.   |
  * +-------+------------+------------------------------------------------+
  * | 0x1f3 | R/W        | Sector number, actually sector wanted.         |
  * +-------+------------+------------------------------------------------+
+ * |       |            | LBA_low. Logical block address.                |
+ * +-------+------------+------------------------------------------------+
  * | 0x1f4 | R/W        | Cylinder low.                                  |
  * +-------+------------+------------------------------------------------+
+ * |       |            | LBA_mid.                                       |
+ * +-------+------------+------------------------------------------------+
  * | 0x1f5 | R/W        | Cylinder high.                                 |
+ * +-------+------------+------------------------------------------------+
+ * |       |            | LBA_high.                                      |
  * +-------+------------+------------------------------------------------+
  * | 0x1f6 | R/W        | Drive/Head.                                    |
  * +-------+------------+------------------------------------------------+
@@ -66,9 +74,10 @@
  * +-------+------------+------------------------------------------------+
  */
 
-typedef enum ata_device_type   e_ata_device_type_t;
-typedef enum ata_device_id     e_ata_device_id_t;
-typedef struct ata_device_info s_ata_device_info_t;
+typedef enum ata_device_type      e_ata_dev_type_t;
+typedef enum ata_device_id        e_ata_dev_id_t;
+typedef struct ata_device_info    s_ata_dev_info_t;
+typedef struct ata_device_io_port s_ata_dev_io_port_t;
 
 /*
  *    CURRENT disk controller chips support 2 ATA buses per-chip. There is a
@@ -77,34 +86,30 @@ typedef struct ata_device_info s_ata_device_info_t;
  * IO port 0x1f0 ~ 0x1f7 and 0x170 ~ 0x177. With the associated Device control
  * IO port 0x3f6 and 0x376.
  *    THERE is one wire dedicated to select which drive on each bus is active.
- * Master and slave devices.
+ * Master and slave devices. So one ATA chip has 2 buses, and there can be
+ * 2 device connect to one ATA bus, but only one is active at the same time.
  */
 
-/* ata channel 0 master device port */
-#define ATA_0_PORT_MASTER     0x1f0
-#define ATA_0_DATA_PORT       (ATA_0_PORT_MASTER + 0x0)
-#define ATA_0_FEATURE_PORT    (ATA_0_PORT_MASTER + 0x1)
-#define ATA_0_SECTOR_CNT_PORT (ATA_0_PORT_MASTER + 0x2)
-#define ATA_0_SECTOR_NUM_PORT (ATA_0_PORT_MASTER + 0x3)
-#define ATA_0_CYL_LOW_PORT    (ATA_0_PORT_MASTER + 0x4)
-#define ATA_0_CYL_HIGH_PORT   (ATA_0_PORT_MASTER + 0x5)
-#define ATA_0_HEAD_PORT       (ATA_0_PORT_MASTER + 0x6)
-#define ATA_0_CMD_PORT        (ATA_0_PORT_MASTER + 0x7)
+/* ata channel 0 (primary bus) device port */
+#define ATA_0_IO_PORT         0x1f0
+#define ATA_0_P_DATA          (ATA_0_IO_PORT + 0x0)
+#define ATA_0_P_FEATURE       (ATA_0_IO_PORT + 0x1)
+#define ATA_0_P_ERROR         (ATA_0_IO_PORT + 0x1)
+#define ATA_0_P_SECTOR_CNT    (ATA_0_IO_PORT + 0x2)
+#define ATA_0_P_SECTOR_NUM    (ATA_0_IO_PORT + 0x3)
+#define ATA_0_P_LBA_LOW       (ATA_0_IO_PORT + 0x3)
+#define ATA_0_P_CYL_LOW       (ATA_0_IO_PORT + 0x4)
+#define ATA_0_P_LBA_MID       (ATA_0_IO_PORT + 0x4)
+#define ATA_0_P_CYL_HIGH      (ATA_0_IO_PORT + 0x5)
+#define ATA_0_P_LBA_HIGH      (ATA_0_IO_PORT + 0x5)
+#define ATA_0_P_HEAD          (ATA_0_IO_PORT + 0x6)
+#define ATA_0_P_DRIVE         (ATA_0_IO_PORT + 0x6)
+#define ATA_0_P_CMD           (ATA_0_IO_PORT + 0x7)
+#define ATA_0_P_STATUS        (ATA_0_IO_PORT + 0x7)
+#define ATA_0_P_DEV_CR        0x3f6
 
-#define ATA_0_ERROR_PORT      ATA_0_FEATURE_PORT
-#define ATA_0_LBA_LO_PORT     ATA_0_SECTOR_CNT_PORT
-#define ATA_0_LBA_MID_PORT    ATA_0_CYL_LOW_PORT
-#define ATA_0_LBA_HIGH_PORT   ATA_0_CYL_HIGH_PORT
-#define ATA_0_DRIVE_PORT      ATA_0_HEAD_PORT
-#define ATA_0_STATUS_PORT     ATA_0_CMD_PORT
-#define ATA_0_DEV_CR_PORT     0x3f6 /* primary device control register port */
-#define ATA_1_DEV_CR_PORT     0x376 /* secondary device control register port */
-
-#define ATA_DRIVE_0           0xA
-#define ATA_DRIVE_1           0xB
-#define ATA_HEAD_0            0x0
-#define ATA_DRIVE_0_HEAD_0    ((ATA_DRIVE_0 << 4) | ATA_HEAD_0)
-#define ATA_DRIVE_1_HEAD_0    ((ATA_DRIVE_1 << 4) | ATA_HEAD_0)
+#define ATA_DRIVE_0           (0xA << 4)
+#define ATA_DRIVE_1           (0xB << 4)
 
 #define ATA_DEV_CR_NULL       BIT_CLEAR
 #define ATA_DEV_CR_NLEN       (BIT_SET << 1) /* set to stop device send int */
@@ -138,26 +143,57 @@ enum ata_device_type {
 };
 
 enum ata_device_id {
-    ATA_0_DEVICE_MASTER = 0x0,
-    ATA_0_DEVICE_SLAVE  = 0x1,
+    ATA_0_DEVICE_0 = 0x0, /* primary bus with first disk */
+    ATA_0_DEVICE_1 = 0x1,
     ATA_DEVICE_LIMIT,
 };
 
-struct ata_device_info {
-    uint32 type;
-
+struct ata_device_io_port {
     uint16 data_port;
     uint16 error_port;
     uint16 sector_count_port;
-    uint16 sector_number_port;
-    uint16 cylinder_low_port;
-    uint16 cylinder_high_port;
+    union {
+        uint16 sector_number_port;
+        uint16 lba_low;
+    };
+    union {
+        uint16 cylinder_low_port;
+        uint16 lba_mid;
+    };
+    union {
+        uint16 cylinder_high_port;
+        uint16 lba_high;
+    };
     uint16 drive_head_port;
-    uint16 status_port;
+    union {
+        uint16 cmd_port;
+        uint16 status_port;
+    };
+    uint16 control_port;
 };
 
-static s_ata_device_info_t dev_info_array[] = {
-    [ATA_0_DEVICE_MASTER] = {ATA_DEV_UNKNOWN, 0,},
+struct ata_device_info {
+    uint32              type;
+    s_ata_dev_io_port_t io_port;
+    uint16              drive_id;
+};
+
+static s_ata_dev_info_t dev_info_array[] = {
+    [ATA_0_DEVICE_0] = {
+        ATA_DEV_UNKNOWN,
+        {
+            ATA_0_P_DATA,
+            ATA_0_P_FEATURE,
+            ATA_0_P_SECTOR_CNT,
+            {ATA_0_P_LBA_LOW,},
+            {ATA_0_P_LBA_MID,},
+            {ATA_0_P_LBA_HIGH,},
+            ATA_0_P_HEAD,
+            {ATA_0_P_CMD,},
+            ATA_0_P_DEV_CR,
+        },
+        ATA_DRIVE_0,
+    },
 };
 
 #endif

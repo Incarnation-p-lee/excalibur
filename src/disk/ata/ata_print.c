@@ -21,14 +21,25 @@ ata_device_info_type_print(uint32 type)
 }
 
 static inline void
-ata_device_info_print(s_ata_device_info_t *dev_info)
+ata_device_info_print(void)
 {
-    kassert(dev_info);
+    uint32 i;
+    uint32 limit;
+    s_ata_dev_info_t *dev_info;
 
-    if (dev_info->type != ATA_DEV_UNKNOWN) {
-        printf_vga_tk("Detected ATA device:");
-        ata_device_info_type_print(ata_device_info_type(dev_info));
-        printf_vga(".\n");
+    i = 0;
+    limit = ata_device_info_limit();
+
+    while (i < limit) {
+        dev_info = ata_device_info(i);
+
+        if (ata_device_info_type(dev_info) != ATA_DEV_UNKNOWN) {
+            printf_vga_tk("Detected ATA device %d:", i);
+            ata_device_info_type_print(ata_device_info_type(dev_info));
+            printf_vga(".\n");
+        }
+
+        i++;
     }
 }
 
