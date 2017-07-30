@@ -194,6 +194,21 @@ static s_ata_dev_info_t dev_info_array[] = {
         },
         ATA_DRIVE_0,
     },
+    [ATA_0_DEVICE_1] = {
+        ATA_DEV_UNKNOWN,
+        {
+            ATA_0_P_DATA,
+            ATA_0_P_FEATURE,
+            ATA_0_P_SECTOR_CNT,
+            {ATA_0_P_LBA_LOW,},
+            {ATA_0_P_LBA_MID,},
+            {ATA_0_P_LBA_HIGH,},
+            ATA_0_P_HEAD,
+            {ATA_0_P_CMD,},
+            ATA_0_P_DEV_CR,
+        },
+        ATA_DRIVE_1,
+    },
 };
 
 #endif
