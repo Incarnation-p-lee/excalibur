@@ -33,7 +33,7 @@
 #define CARRIAGE_RET    0xD
 #define BLANK           0x20
 
-extern void io_bus_write_byte(uint16 port, uint8 val);
+extern void io_bus_byte_write(uint16 port, uint8 val);
 
 static uint16 cursor_x = 0;
 static uint16 cursor_y = 0;

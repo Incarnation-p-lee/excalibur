@@ -39,9 +39,9 @@ irq_0_timer_initialize(uint32 freq)
     low = (uint8)(divisor & 0xFF);
     high = (uint8)((divisor >> 8) & 0xFF);
 
-    io_bus_write_byte(IRQ_0_TIMER_CMD, IRQ_0_TIMER_REPEAT);
-    io_bus_write_byte(IRQ_0_TIMER_DATA, low);
-    io_bus_write_byte(IRQ_0_TIMER_DATA, high);
+    io_bus_byte_write(IRQ_0_TIMER_CMD, IRQ_0_TIMER_REPEAT);
+    io_bus_byte_write(IRQ_0_TIMER_DATA, low);
+    io_bus_byte_write(IRQ_0_TIMER_DATA, high);
 
     printf_vga_tk("IRQ timer initialized.\n");
 }

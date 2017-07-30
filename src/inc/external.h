@@ -2,6 +2,8 @@
 #define HAVE_DEFINED_EXTERNAL_H
 
 extern bool assert_complain(const char *msg, const char *file, const char *fun, uint32 line, bool exp);
+extern bool disk_buffer_illegal_p(s_disk_buf_t *disk_buf);
+extern bool disk_buffer_legal_p(s_disk_buf_t *disk_buf);
 extern bool linked_list_head_p(s_linked_list_t *node);
 extern bool linked_list_legal_p(s_linked_list_t *linked_list);
 extern bool linked_list_tail_p(s_linked_list_t *node);
@@ -38,7 +40,7 @@ extern s_vfs_node_t * vfs_sub_node_first(s_vfs_node_t *vfs_node);
 extern sint32 ordered_array_standard_compare(const void *a, const void *b);
 extern sint32 string_compare(char *a, char *b);
 extern uint16 io_bus_read_word(uint16 port);
-extern uint32 io_bus_read_dword(uint16 port);
+extern uint32 io_bus_dword_read(uint16 port);
 extern uint32 irq_0_timer_tick(void);
 extern uint32 multiboot_data_info_boot_modules_count(void);
 extern uint32 ordered_array_limit(s_ordered_array_t *ordered_array);
@@ -53,15 +55,17 @@ extern uint32 vfs_open(s_vfs_node_t *vfs_node);
 extern uint32 vfs_read(s_vfs_node_t *vfs_node, uint32 offset, uint32 size, uint8 *buf);
 extern uint32 vfs_write(s_vfs_node_t *vfs_node, uint32 offset, uint32 size, uint8 *buf);
 extern uint64 time_stamp_counter(void);
-extern uint8 io_bus_read_byte(uint16 port);
+extern uint8 io_bus_byte_read(uint16 port);
 extern void * kmalloc(uint32 request_size);
 extern void * ordered_array_place(s_ordered_array_t *ordered_array, void *addr, uint32 size, ordered_compare_t compare);
 extern void * ordered_array_value(s_ordered_array_t *ordered_array, uint32 i);
 extern void ata_device_detect(void);
+extern void ata_device_sector_read(s_disk_buf_t *disk_buf, uint32 device_id, uint32 lba);
+extern void disk_buffer_dword_append(s_disk_buf_t *disk_buf, uint32 val);
 extern void gdt_initialize(void);
 extern void idt_initialize(void);
-extern void io_bus_write_byte(uint16 port, uint8 val);
-extern void io_bus_write_dword(uint16 port, uint32 val);
+extern void io_bus_byte_write(uint16 port, uint8 val);
+extern void io_bus_dword_write(uint16 port, uint32 val);
 extern void io_bus_write_word(uint16 port, uint16 val);
 extern void irq_0_timer_handler(s_pro_context_t *context);
 extern void irq_0_timer_initialize(uint32 freq);

@@ -28,7 +28,7 @@
  * +-------+------------+------------------------------------------------+
  * | 0x1f6 | R/W        | Drive/Head.                                    |
  * +-------+------------+------------------------------------------------+
- * |       |            | bit 7 - 5, 0b101                               |
+ * |       |            | bit 7 - 5, 0b101 chs, 0b111 lba.               |
  * +-------+------------+------------------------------------------------+
  * |       |            | bit 4    , 0 -> drive 0, 1 -> drive 1          |
  * +-------+------------+------------------------------------------------+
@@ -108,9 +108,6 @@ typedef struct ata_device_io_port s_ata_dev_io_port_t;
 #define ATA_0_P_STATUS        (ATA_0_IO_PORT + 0x7)
 #define ATA_0_P_DEV_CR        0x3f6
 
-#define ATA_DRIVE_0           (0xA << 4)
-#define ATA_DRIVE_1           (0xB << 4)
-
 #define ATA_DEV_CR_NULL       BIT_CLEAR
 #define ATA_DEV_CR_NLEN       (BIT_SET << 1) /* set to stop device send int */
 #define ATA_DEV_CR_SRST       (BIT_SET << 2) /* set to software reset on bus */
@@ -118,11 +115,24 @@ typedef struct ata_device_io_port s_ata_dev_io_port_t;
 
 #define ATA_STATUS_BUSY       (BIT_SET << 7)
 #define ATA_STATUS_DRDY       (BIT_SET << 6) /* device is ready */
+#define ATA_STATUS_DSC        (BIT_SET << 4) /* the drive head are settled */
 #define ATA_STATUS_DRQ        (BIT_SET << 3) /* data request to transfer data */
 #define ATA_STATUS_ERROR      (BIT_SET << 0) /* an error occurred of last cmd */
 
-#define ATA_STATUS_INVALID    0xff
 #define ATA_PHYS_SECTOR_SIZE  512
+
+#define ATA_DRIVE_0           (0x0 << 4)
+#define ATA_DRIVE_1           (0x1 << 4)
+#define ATA_DRIVE_MASK        (0xA << 4)
+#define ATA_CHS_MASK          (BIT_CLEAR << 6)
+#define ATA_LBA_MASK          (BIT_SET << 6)
+#define ATA_LBA_MODE          (ATA_DRIVE_MASK | ATA_LBA_MASK)
+#define ATA_CHS_MODE          (ATA_DRIVE_MASK | ATA_CHS_MASK)
+
+#define ATA_LBA_HEAD(l)       (l >> 24)
+#define ATA_LBA_LOW(l)        ((l >> 0) & 0xff)
+#define ATA_LBA_MID(l)        ((l >> 8) & 0xff)
+#define ATA_LBA_HIGH(l)       ((l >> 16) & 0xff)
 
 /*
  *     ATA read CHS mode has max head 16, max cylinder 65536, with sector is
@@ -133,6 +143,9 @@ typedef struct ata_device_io_port s_ata_dev_io_port_t;
 #define ATA_CYLINDER_MAX      65536
 #define ATA_HEADER_MAX        16
 #define ATA_TRACK_SECTOR_MAX  255
+
+#define ATA_CMD_READ_RETRY    0x20
+#define ATA_SECTOR_SIZE       512
 
 enum ata_device_type {
     ATA_DEV_UNKNOWN  = 0xffff,

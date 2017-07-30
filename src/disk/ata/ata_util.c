@@ -95,12 +95,12 @@ ata_device_status_readable_p(uint8 status)
 }
 
 static inline bool
-ata_device_status_valid_p(uint8 status)
+ata_device_status_seek_complete_p(uint8 status)
 {
-    if (status == ATA_STATUS_INVALID) {
-        return false;
-    } else {
+    if ((status & ATA_STATUS_DSC) != 0) {
         return true;
+    } else {
+        return false;
     }
 }
 
@@ -142,6 +142,38 @@ ata_device_info_io_cylinder_high_port(s_ata_dev_io_port_t *io_port)
     kassert(ata_device_info_io_port_legal_p(io_port));
 
     return io_port->cylinder_high_port;
+}
+
+static inline uint16
+ata_device_info_io_lba_low_port(s_ata_dev_io_port_t *io_port)
+{
+    kassert(ata_device_info_io_port_legal_p(io_port));
+
+    return io_port->lba_low;
+}
+
+static inline uint16
+ata_device_info_io_cmd_port(s_ata_dev_io_port_t *io_port)
+{
+    kassert(ata_device_info_io_port_legal_p(io_port));
+
+    return io_port->cmd_port;
+}
+
+static inline uint16
+ata_device_info_io_data_port(s_ata_dev_io_port_t *io_port)
+{
+    kassert(ata_device_info_io_port_legal_p(io_port));
+
+    return io_port->data_port;
+}
+
+static inline uint16
+ata_device_info_io_sector_count_port(s_ata_dev_io_port_t *io_port)
+{
+    kassert(ata_device_info_io_port_legal_p(io_port));
+
+    return io_port->sector_count_port;
 }
 
 static inline s_ata_dev_io_port_t *
@@ -218,5 +250,65 @@ ata_device_info_drive_id(s_ata_dev_info_t *dev_info)
     kassert(ata_device_info_legal_p(dev_info));
 
     return dev_info->drive_id;
+}
+
+static inline uint16
+ata_device_info_sector_count_port(s_ata_dev_info_t *dev_info)
+{
+    s_ata_dev_io_port_t *io_port;
+
+    kassert(ata_device_info_legal_p(dev_info));
+
+    io_port = ata_device_info_io_port(dev_info);
+
+    return ata_device_info_io_sector_count_port(io_port);
+}
+
+static inline uint16
+ata_device_info_lba_low_port(s_ata_dev_info_t *dev_info)
+{
+    s_ata_dev_io_port_t *io_port;
+
+    kassert(ata_device_info_legal_p(dev_info));
+
+    io_port = ata_device_info_io_port(dev_info);
+
+    return ata_device_info_io_lba_low_port(io_port);
+}
+
+static inline uint16
+ata_device_info_lba_mid_port(s_ata_dev_info_t *dev_info)
+{
+    return ata_device_info_cylinder_low_port(dev_info);
+}
+
+static inline uint16
+ata_device_info_lba_high_port(s_ata_dev_info_t *dev_info)
+{
+    return ata_device_info_cylinder_high_port(dev_info);
+}
+
+static inline uint16
+ata_device_info_cmd_port(s_ata_dev_info_t *dev_info)
+{
+    s_ata_dev_io_port_t *io_port;
+
+    kassert(ata_device_info_legal_p(dev_info));
+
+    io_port = ata_device_info_io_port(dev_info);
+
+    return ata_device_info_io_cmd_port(io_port);
+}
+
+static inline uint16
+ata_device_info_data_port(s_ata_dev_info_t *dev_info)
+{
+    s_ata_dev_io_port_t *io_port;
+
+    kassert(ata_device_info_legal_p(dev_info));
+
+    io_port = ata_device_info_io_port(dev_info);
+
+    return ata_device_info_io_data_port(io_port);
 }
 

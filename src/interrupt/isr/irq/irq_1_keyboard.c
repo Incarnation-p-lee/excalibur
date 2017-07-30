@@ -258,7 +258,7 @@ irq_1_keyboard_handler(s_pro_context_t *context)
     uint8 release;
     s_keyboard_data_t *data;
 
-    code = io_bus_read_byte(IRQ_1_KEYBOARD_DATA);
+    code = io_bus_byte_read(IRQ_1_KEYBOARD_DATA);
     data = (void *)&code;
 
     key = irq_1_keyboard_data_key(data);

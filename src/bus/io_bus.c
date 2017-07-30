@@ -1,5 +1,5 @@
 void
-io_bus_write_byte(uint16 port, uint8 val)
+io_bus_byte_write(uint16 port, uint8 val)
 {
     asm volatile (
         "outb %1, %0\n\t"
@@ -21,7 +21,7 @@ io_bus_write_word(uint16 port, uint16 val)
 }
 
 void
-io_bus_write_dword(uint16 port, uint32 val)
+io_bus_dword_write(uint16 port, uint32 val)
 {
     asm volatile (
         "outl %1, %0\n\t"
@@ -30,7 +30,7 @@ io_bus_write_dword(uint16 port, uint32 val)
 }
 
 uint8
-io_bus_read_byte(uint16 port)
+io_bus_byte_read(uint16 port)
 {
     uint8 retval;
 
@@ -56,7 +56,7 @@ io_bus_read_word(uint16 port)
 }
 
 uint32
-io_bus_read_dword(uint16 port)
+io_bus_dword_read(uint16 port)
 {
     uint32 retval;
 

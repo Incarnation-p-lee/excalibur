@@ -5,11 +5,11 @@ screen_monitor_cursor_apply(void)
 
     cursor = cursor_y * SCREEN_X + cursor_x;
 
-    io_bus_write_byte(VGA_CTRL_REG, VGA_CURSOR_HIGH);
-    io_bus_write_byte(VGA_DATA_REG, cursor >> 8);
+    io_bus_byte_write(VGA_CTRL_REG, VGA_CURSOR_HIGH);
+    io_bus_byte_write(VGA_DATA_REG, cursor >> 8);
 
-    io_bus_write_byte(VGA_CTRL_REG, VGA_CURSOR_LOW);
-    io_bus_write_byte(VGA_DATA_REG, cursor);
+    io_bus_byte_write(VGA_CTRL_REG, VGA_CURSOR_LOW);
+    io_bus_byte_write(VGA_DATA_REG, cursor);
 }
 
 static inline uint16 *
