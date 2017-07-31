@@ -143,9 +143,18 @@ typedef struct ata_device_io_port s_ata_dev_io_port_t;
 #define ATA_CYLINDER_MAX      65536
 #define ATA_HEADER_MAX        16
 #define ATA_TRACK_SECTOR_MAX  255
+#define ATA_SECTOR_SIZE       512
 
 #define ATA_CMD_READ_RETRY    0x20
-#define ATA_SECTOR_SIZE       512
+#define ATA_CMD_IDENTIFY      0xec
+
+/* ata drive identify, all count in word, uint16 */
+#define ATA_ID_SIZE           256
+#define ATA_ID_NO_DRIVE       0
+#define ATA_ID_CYL_CNT_IDX    1
+#define ATA_ID_HEAD_CNT_IDX   3
+#define ATA_ID_ST_BYTE_IDX    5 /* unformatted bytes per sector */
+#define ATA_ID_TK_ST_IDX      6 /* sector per track */
 
 enum ata_device_type {
     ATA_DEV_UNKNOWN  = 0xffff,
@@ -189,6 +198,10 @@ struct ata_device_info {
     uint32              type;
     s_ata_dev_io_port_t io_port;
     uint16              drive_id;
+    uint16              cylinder_count;
+    uint16              head_count;
+    uint16              track_sector;
+    uint16              sector_bytes;
 };
 
 static s_ata_dev_info_t dev_info_array[] = {
@@ -205,7 +218,7 @@ static s_ata_dev_info_t dev_info_array[] = {
             {ATA_0_P_CMD,},
             ATA_0_P_DEV_CR,
         },
-        ATA_DRIVE_0,
+        ATA_DRIVE_0, 0, 0, 0, 0,
     },
     [ATA_0_DEVICE_1] = {
         ATA_DEV_UNKNOWN,
@@ -220,7 +233,7 @@ static s_ata_dev_info_t dev_info_array[] = {
             {ATA_0_P_CMD,},
             ATA_0_P_DEV_CR,
         },
-        ATA_DRIVE_1,
+        ATA_DRIVE_1, 0, 0, 0, 0,
     },
 };
 

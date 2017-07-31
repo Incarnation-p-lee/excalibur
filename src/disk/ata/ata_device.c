@@ -33,6 +33,71 @@ ata_device_cylinder_read(uint16 status_port, uint16 port_low, uint16 port_high)
 }
 
 static inline void
+ata_device_drive_info_indentify(s_ata_dev_info_t *dev)
+{
+    uint32 i;
+    uint16 port;
+    uint16 val;
+    uint16 identify_buf[ATA_ID_SIZE];
+
+    kassert(ata_device_info_legal_p(dev));
+    kassert(ata_device_status_device_ready_p(ata_device_info_status_port(dev)));
+
+    port = ata_device_info_data_port(dev);
+
+    while (i < ARRAY_CNT_OF(identify_buf)) {
+        identify_buf[i++] = io_bus_read_word(port);
+    }
+
+    val = identify_buf[ATA_ID_CYL_CNT_IDX];
+    ata_device_info_cylinder_count_set(dev, val);
+
+    val = identify_buf[ATA_ID_HEAD_CNT_IDX];
+    ata_device_info_head_count_set(dev, val);
+
+    val = identify_buf[ATA_ID_ST_BYTE_IDX];
+    ata_device_info_sector_bytes_set(dev, val);
+
+    val = identify_buf[ATA_ID_TK_ST_IDX];
+    ata_device_info_track_sector_set(dev, val);
+}
+
+static inline uint16
+ata_device_drive_identify(s_ata_dev_info_t *dev_info)
+{
+    uint16 port;
+    uint8 config, status;
+
+    kassert(ata_device_info_legal_p(dev_info));
+
+    port = ata_device_info_drive_port(dev_info);
+    config = ata_device_info_drive_id(dev_info); /* active one drive in bus */
+    ata_device_drive_set(port, config | ATA_LBA_MODE);
+
+    port = ata_device_info_sector_count_port(dev_info); /* clean sector count */
+    io_bus_byte_write(port, 0);
+    port = ata_device_info_lba_low_port(dev_info); /* clean LBA port value */
+    io_bus_byte_write(port, 0);
+    port = ata_device_info_lba_mid_port(dev_info);
+    io_bus_byte_write(port, 0);
+    port = ata_device_info_lba_high_port(dev_info);
+    io_bus_byte_write(port, 0);
+
+    port = ata_device_info_cmd_port(dev_info); /* send the identify cmd */
+    io_bus_byte_write(port, ATA_CMD_IDENTIFY);
+
+    port = ata_device_info_status_port(dev_info);
+    status = io_bus_byte_read(port);
+
+    if (status != 0) { /* drive existed */
+        ata_device_loop_util_data_ready(port);
+        ata_device_drive_info_indentify(dev_info);
+    }
+
+    return status;
+}
+
+static inline void
 ata_device_type_detect_i(s_ata_dev_info_t *dev_info)
 {
     uint16 type, port;
@@ -48,10 +113,9 @@ ata_device_type_detect_i(s_ata_dev_info_t *dev_info)
     config = ata_device_info_drive_id(dev_info); /* active one drive in bus */
     ata_device_drive_set(port, config | ATA_LBA_MODE);
 
-    port = ata_device_info_status_port(dev_info);
-    status = io_bus_byte_read(port);
+    status = ata_device_drive_identify(dev_info);
 
-    if (ata_device_status_seek_complete_p(status)) {
+    if (status != ATA_ID_NO_DRIVE) {
         status_port = ata_device_info_status_port(dev_info);
         cy_low_port = ata_device_info_cylinder_low_port(dev_info);
         cy_high_port = ata_device_info_cylinder_high_port(dev_info);

@@ -312,3 +312,67 @@ ata_device_info_data_port(s_ata_dev_info_t *dev_info)
     return ata_device_info_io_data_port(io_port);
 }
 
+static inline uint16
+ata_device_info_cylinder_count(s_ata_dev_info_t *dev_info)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
+    return dev_info->cylinder_count;
+}
+
+static inline void
+ata_device_info_cylinder_count_set(s_ata_dev_info_t *dev_info, uint16 count)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
+    dev_info->cylinder_count = count;
+}
+
+static inline uint16
+ata_device_info_head_count(s_ata_dev_info_t *dev_info)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
+    return dev_info->head_count;
+}
+
+static inline void
+ata_device_info_head_count_set(s_ata_dev_info_t *dev_info, uint16 count)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
+    dev_info->head_count = count;
+}
+
+static inline uint16
+ata_device_info_track_sector(s_ata_dev_info_t *dev_info)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
+    return dev_info->track_sector;
+}
+
+static inline void
+ata_device_info_track_sector_set(s_ata_dev_info_t *dev_info, uint16 val)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
+    dev_info->track_sector = val;
+}
+
+static inline uint16
+ata_device_info_sector_bytes(s_ata_dev_info_t *dev_info)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
+    return dev_info->sector_bytes;
+}
+
+static inline void
+ata_device_info_sector_bytes_set(s_ata_dev_info_t *dev_info, uint16 val)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
+    dev_info->sector_bytes = val;
+}
+

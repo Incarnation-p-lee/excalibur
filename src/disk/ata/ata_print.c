@@ -34,8 +34,14 @@ ata_device_info_print(void)
         dev_info = ata_device_info(i);
 
         if (ata_device_info_type(dev_info) != ATA_DEV_UNKNOWN) {
-            printf_vga_tk("Detected ATA device %d:", i);
+            printf_vga_tk("Detected ATA device %d: ", i);
             ata_device_info_type_print(ata_device_info_type(dev_info));
+            printf_vga(".");
+            printf_vga(" cylinder %d, head %d, sector/track %d, sector byte %d",
+                ata_device_info_cylinder_count(dev_info),
+                ata_device_info_head_count(dev_info),
+                ata_device_info_track_sector(dev_info),
+                ata_device_info_sector_bytes(dev_info));
             printf_vga(".\n");
         }
 
