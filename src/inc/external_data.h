@@ -6,6 +6,9 @@ extern ptr_t boot;
 extern ptr_t code;
 extern ptr_t bss;
 extern ptr_t end;
+extern ptr_t stack;
+extern ptr_t stack_limit;
+
 
 #endif
 

@@ -60,7 +60,7 @@ enum interrupt_nmbr { /* for ISR (interrupt service runtine */
     IRQ_11_PS,
     IRQ_12_PS,
     IRQ_13_PS,
-    IRQ_14_PS,
+    IRQ_14_ATA_PRIMARY,  /* primary ata channel for hard disk or CD */
 };
 
 struct pro_context {

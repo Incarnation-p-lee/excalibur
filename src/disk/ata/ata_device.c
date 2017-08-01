@@ -70,9 +70,9 @@ ata_device_drive_identify(s_ata_dev_info_t *dev_info)
 
     kassert(ata_device_info_legal_p(dev_info));
 
-    port = ata_device_info_drive_port(dev_info);
-    config = ata_device_info_drive_id(dev_info); /* active one drive in bus */
-    ata_device_drive_set(port, config | ATA_LBA_MODE);
+    port = ata_device_info_drive_port(dev_info); /* active one drive in bus */
+    config = ata_device_info_drive_id(dev_info) | ATA_LBA_MODE;
+    ata_device_drive_set(port, config);
 
     port = ata_device_info_sector_count_port(dev_info); /* clean sector count */
     io_bus_byte_write(port, 0);
@@ -101,17 +101,13 @@ static inline void
 ata_device_type_detect_i(s_ata_dev_info_t *dev_info)
 {
     uint16 type, port;
-    uint8 config, status;
+    uint8 status;
     uint16 status_port, cy_low_port, cy_high_port;
 
     kassert(ata_device_info_legal_p(dev_info));
 
     port = ata_device_info_control_port(dev_info);
     ata_device_software_reset(port); /* reset ata bus */
-
-    port = ata_device_info_drive_port(dev_info);
-    config = ata_device_info_drive_id(dev_info); /* active one drive in bus */
-    ata_device_drive_set(port, config | ATA_LBA_MODE);
 
     status = ata_device_drive_identify(dev_info);
 

@@ -69,6 +69,7 @@ extern void io_bus_dword_write(uint16 port, uint32 val);
 extern void io_bus_write_word(uint16 port, uint16 val);
 extern void irq_0_timer_handler(s_pro_context_t *context);
 extern void irq_0_timer_initialize(uint32 freq);
+extern void irq_14_ata_channel_primary(s_pro_context_t *context);
 extern void irq_1_keyboard_handler(s_pro_context_t *context);
 extern void irq_7_handler(s_pro_context_t *context);
 extern void irq_handler_main(s_pro_context_t context);

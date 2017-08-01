@@ -1,14 +1,7 @@
 static inline void
 multiboot_env_stack_detect(void)
 {
-    uint32 esp;
-
-    asm volatile (
-        "mov %%esp, %0\n\t"
-        :"=r"(esp)
-        :);
-
-    printf_vga_tk("Stack base %x.\n", esp);
+    printf_vga_tk("Stack address %x -> %x.\n", &stack, &stack_limit);
 }
 
 static inline void

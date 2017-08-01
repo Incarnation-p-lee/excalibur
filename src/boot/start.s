@@ -7,7 +7,7 @@ BOOT_MEM_INFO     equ 1 << 1     ; Provide kernel with memory info
 BOOT_HEADER_MAGIC equ 0x1badb002 ; Mutiboot magic number, identify as multiboot
                                  ; Do not use BOOT_AOUT_KLUDGE, grub does not 
                                  ; pass us a symbol table.
-BOOT_STACK_SIZE   equ 4096
+BOOT_STACK_SIZE   equ 8192
 
 BOOT_HEADER_FLAGS equ BOOT_PAGE_ALIGN | BOOT_MEM_INFO
 BOOT_CHECKSUM     equ -(BOOT_HEADER_MAGIC + BOOT_HEADER_FLAGS)
@@ -15,6 +15,8 @@ BOOT_CHECKSUM     equ -(BOOT_HEADER_MAGIC + BOOT_HEADER_FLAGS)
 [BITS 32]
 
 [GLOBAL boot]                    ; Make boot accessible from C code.
+[GLOBAL stack]
+[GLOBAL stack_limit]
 [EXTERN code]                    ; Start of .text section
 [EXTERN bss]
 [EXTERN end]                     ; End of last location section
@@ -36,7 +38,8 @@ boot:
     dd   0x0                     ; Depth
 
 stack:
-    times BOOT_STACK_SIZE db 0   ; Reserved 4KB for stack
+    times BOOT_STACK_SIZE db 0   ; Reserved 8KB for stack
+stack_limit:
 
 [GLOBAL start]                   ; Kernel entry point
 [EXTERN entry]                   ; Entry point of C code
