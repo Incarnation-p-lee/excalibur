@@ -83,11 +83,23 @@ ata_device_status_device_ready_p(uint8 status)
 }
 
 static inline bool
+ata_device_status_data_requested_p(uint8 status)
+{
+    if ((status & ATA_STATUS_DRQ) != 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+static inline bool
 ata_device_status_readable_p(uint8 status)
 {
     if (ata_device_status_busy_p(status)) {
         return false;
     } else if (ata_device_status_error_p(status)) {
+        return false;
+    } else if (!ata_device_status_data_requested_p(status)) {
         return false;
     } else {
         return ata_device_status_device_ready_p(status);

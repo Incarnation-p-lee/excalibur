@@ -109,7 +109,7 @@ typedef struct ata_device_io_port s_ata_dev_io_port_t;
 #define ATA_0_P_DEV_CR        0x3f6
 
 #define ATA_DEV_CR_NULL       BIT_CLEAR
-#define ATA_DEV_CR_NLEN       (BIT_SET << 1) /* set to stop device send int */
+#define ATA_DEV_CR_NIEN       (BIT_SET << 1) /* set to stop device send int */
 #define ATA_DEV_CR_SRST       (BIT_SET << 2) /* set to software reset on bus */
 #define ATA_DEV_CR_HOB        (BIT_SET << 7) /* set to read back high order */
 

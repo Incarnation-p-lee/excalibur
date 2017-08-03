@@ -37,7 +37,7 @@ ata_device_info_print(void)
             printf_vga_tk("Detected ATA device %d: ", i);
             ata_device_info_type_print(ata_device_info_type(dev_info));
             printf_vga(".");
-            printf_vga(" cylinder %d, head %d, sector/track %d, sector byte %d",
+            printf_vga(" c %d, h %d, s/t %d, s byte %d",
                 ata_device_info_cylinder_count(dev_info),
                 ata_device_info_head_count(dev_info),
                 ata_device_info_track_sector(dev_info),

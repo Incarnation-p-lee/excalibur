@@ -6,6 +6,12 @@ ata_device_software_reset(uint16 port)
 }
 
 static inline void
+ata_device_disable_drive_irq(uint16 port)
+{
+    io_bus_byte_write(port, ATA_DEV_CR_NIEN);
+}
+
+static inline void
 ata_device_drive_set(uint16 port, uint8 val)
 {
     io_bus_byte_write(port, val);
@@ -70,21 +76,19 @@ ata_device_drive_identify(s_ata_dev_info_t *dev_info)
 
     kassert(ata_device_info_legal_p(dev_info));
 
-    port = ata_device_info_drive_port(dev_info); /* active one drive in bus */
+    /* active one drive in bus */
     config = ata_device_info_drive_id(dev_info) | ATA_LBA_MODE;
-    ata_device_drive_set(port, config);
+    ata_device_drive_set(ata_device_info_drive_port(dev_info), config);
 
-    port = ata_device_info_sector_count_port(dev_info); /* clean sector count */
-    io_bus_byte_write(port, 0);
-    port = ata_device_info_lba_low_port(dev_info); /* clean LBA port value */
-    io_bus_byte_write(port, 0);
-    port = ata_device_info_lba_mid_port(dev_info);
-    io_bus_byte_write(port, 0);
-    port = ata_device_info_lba_high_port(dev_info);
-    io_bus_byte_write(port, 0);
+    /* disable drive irq */
+    ata_device_disable_drive_irq(ata_device_info_control_port(dev_info));
 
-    port = ata_device_info_cmd_port(dev_info); /* send the identify cmd */
-    io_bus_byte_write(port, ATA_CMD_IDENTIFY);
+    io_bus_byte_write(ata_device_info_sector_count_port(dev_info), 0);
+    io_bus_byte_write(ata_device_info_lba_low_port(dev_info), 0);
+    io_bus_byte_write(ata_device_info_lba_mid_port(dev_info), 0);
+    io_bus_byte_write(ata_device_info_lba_high_port(dev_info), 0);
+
+    io_bus_byte_write(ata_device_info_cmd_port(dev_info), ATA_CMD_IDENTIFY);
 
     port = ata_device_info_status_port(dev_info);
     status = io_bus_byte_read(port);
@@ -107,7 +111,7 @@ ata_device_type_detect_i(s_ata_dev_info_t *dev_info)
     kassert(ata_device_info_legal_p(dev_info));
 
     port = ata_device_info_control_port(dev_info);
-    ata_device_software_reset(port); /* reset ata bus */
+    ata_device_software_reset(port);
 
     status = ata_device_drive_identify(dev_info);
 
@@ -140,13 +144,6 @@ ata_device_type_detect(void)
     }
 }
 
-void
-ata_device_detect(void)
-{
-    ata_device_type_detect();
-    ata_device_info_print();
-}
-
 static inline void
 ata_device_loop_util_data_ready(uint16 status_port)
 {
@@ -154,13 +151,13 @@ ata_device_loop_util_data_ready(uint16 status_port)
 
     status = io_bus_byte_read(status_port); /* waiting util data is ready */
 
-    while (!ata_device_status_device_ready_p(status)) {
+    while (!ata_device_status_readable_p(status)) {
         status = io_bus_byte_read(status_port);
     }
 }
 
 static inline void
-ata_device_sector_read_i(s_disk_buf_t *disk_buf, uint32 device_id, uint32 lba)
+ata_device_sector_read_i(s_disk_buf_t *disk_buf, uint32 device_id, uint32 a)
 {
     uint16 port;
     uint8 config;
@@ -172,27 +169,22 @@ ata_device_sector_read_i(s_disk_buf_t *disk_buf, uint32 device_id, uint32 lba)
 
     /* set the ata drive with LBA mode */
     dev_info = ata_device_info(device_id);
-    port = ata_device_info_control_port(dev_info);
-    config = ATA_LBA_HEAD(lba) | ata_device_info_drive_id(dev_info);
-    io_bus_byte_write(port, config | ATA_LBA_MODE);
+    config = ATA_LBA_MODE;
+    config = config | ATA_LBA_HEAD(a) | ata_device_info_drive_id(dev_info);
+    io_bus_byte_write(ata_device_info_control_port(dev_info), config);
 
     /* set number of sector to read */
-    port = ata_device_info_sector_count_port(dev_info);
-    io_bus_byte_write(port, 1);
+    io_bus_byte_write(ata_device_info_sector_count_port(dev_info), 1);
 
     /* set lba low, mid and high */
-    port = ata_device_info_lba_low_port(dev_info);
-    io_bus_byte_write(port, ATA_LBA_LOW(lba));
-    port = ata_device_info_lba_mid_port(dev_info);
-    io_bus_byte_write(port, ATA_LBA_MID(lba));
-    port = ata_device_info_lba_high_port(dev_info);
-    io_bus_byte_write(port, ATA_LBA_HIGH(lba));
+    io_bus_byte_write(ata_device_info_lba_low_port(dev_info), ATA_LBA_LOW(a));
+    io_bus_byte_write(ata_device_info_lba_mid_port(dev_info), ATA_LBA_MID(a));
+    io_bus_byte_write(ata_device_info_lba_high_port(dev_info), ATA_LBA_HIGH(a));
 
     /* set read command */
-    port = ata_device_info_cmd_port(dev_info);
-    io_bus_byte_write(port, ATA_CMD_READ_RETRY);
+    io_bus_byte_write(ata_device_info_cmd_port(dev_info), ATA_CMD_READ_RETRY);
 
-    ata_device_loop_util_data_ready(port);
+    ata_device_loop_util_data_ready(ata_device_info_cmd_port(dev_info));
 
     i = 0;
     port = ata_device_info_data_port(dev_info);
@@ -213,5 +205,12 @@ ata_device_sector_read(s_disk_buf_t *disk_buf, uint32 device_id, uint32 lba)
     } else {
         ata_device_sector_read_i(disk_buf, device_id, lba);
     }
+}
+
+void
+ata_device_detect(void)
+{
+    ata_device_type_detect();
+    ata_device_info_print();
 }
 
