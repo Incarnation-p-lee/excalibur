@@ -25,6 +25,7 @@
 #define PTR_INVALID               (void *)(-1)
 #define INDEX_INVALID             (-1)
 #define LIMIT_INVALID             (-1)
+#define SIZE_INVALID              (-1)
 #define ADDR_INVALID              (ptr_t)(-1)
 #define MEMORY_INVALID            0u
 #define FRAME_INVALID             ADDR_INVALID

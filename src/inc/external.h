@@ -41,6 +41,7 @@ extern sint32 ordered_array_standard_compare(const void *a, const void *b);
 extern sint32 string_compare(char *a, char *b);
 extern uint16 io_bus_read_word(uint16 port);
 extern uint32 io_bus_dword_read(uint16 port);
+extern uint32 io_bus_read(uint16 port, void *buf, uint32 size);
 extern uint32 irq_0_timer_tick(void);
 extern uint32 multiboot_data_info_boot_modules_count(void);
 extern uint32 ordered_array_limit(s_ordered_array_t *ordered_array);

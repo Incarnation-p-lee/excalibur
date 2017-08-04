@@ -18,7 +18,7 @@ ata_device_drive_set(uint16 port, uint8 val)
 }
 
 static inline uint16
-ata_device_cylinder_read(uint16 status_port, uint16 port_low, uint16 port_high)
+ata_device_cylinder_read(uint16 status_port, uint16 low_port, uint16 high_port)
 {
     uint8 status;
     uint16 cylinder;
@@ -27,12 +27,12 @@ ata_device_cylinder_read(uint16 status_port, uint16 port_low, uint16 port_high)
 
     status = io_bus_byte_read(status_port);
 
-    while (!ata_device_status_readable_p(status)) {
+    while (ata_device_status_unavailable_p(status)) {
         status = io_bus_byte_read(status_port);
     }
 
-    cylinder_low = io_bus_byte_read(port_low);
-    cylinder_high = io_bus_byte_read(port_high);
+    cylinder_low = io_bus_byte_read(low_port);
+    cylinder_high = io_bus_byte_read(high_port);
     cylinder = (cylinder_high << 8) | cylinder_low;
 
     return cylinder;
@@ -41,19 +41,15 @@ ata_device_cylinder_read(uint16 status_port, uint16 port_low, uint16 port_high)
 static inline void
 ata_device_drive_info_indentify(s_ata_dev_info_t *dev)
 {
-    uint32 i;
-    uint16 port;
     uint16 val;
+    uint16 port;
     uint16 identify_buf[ATA_ID_SIZE];
 
     kassert(ata_device_info_legal_p(dev));
     kassert(ata_device_status_device_ready_p(ata_device_info_status_port(dev)));
 
     port = ata_device_info_data_port(dev);
-
-    while (i < ARRAY_CNT_OF(identify_buf)) {
-        identify_buf[i++] = io_bus_read_word(port);
-    }
+    io_bus_read(port, identify_buf, sizeof(identify_buf));
 
     val = identify_buf[ATA_ID_CYL_CNT_IDX];
     ata_device_info_cylinder_count_set(dev, val);
@@ -71,7 +67,6 @@ ata_device_drive_info_indentify(s_ata_dev_info_t *dev)
 static inline uint16
 ata_device_drive_identify(s_ata_dev_info_t *dev_info)
 {
-    uint16 port;
     uint8 config, status;
 
     kassert(ata_device_info_legal_p(dev_info));
@@ -90,11 +85,10 @@ ata_device_drive_identify(s_ata_dev_info_t *dev_info)
 
     io_bus_byte_write(ata_device_info_cmd_port(dev_info), ATA_CMD_IDENTIFY);
 
-    port = ata_device_info_status_port(dev_info);
-    status = io_bus_byte_read(port);
+    status = io_bus_byte_read(ata_device_info_status_port(dev_info));
 
     if (status != 0) { /* drive existed */
-        ata_device_loop_util_data_ready(port);
+        ata_device_loop_util_data_ready(ata_device_info_status_port(dev_info));
         ata_device_drive_info_indentify(dev_info);
     }
 
@@ -104,14 +98,13 @@ ata_device_drive_identify(s_ata_dev_info_t *dev_info)
 static inline void
 ata_device_type_detect_i(s_ata_dev_info_t *dev_info)
 {
-    uint16 type, port;
+    uint16 type;
     uint8 status;
     uint16 status_port, cy_low_port, cy_high_port;
 
     kassert(ata_device_info_legal_p(dev_info));
 
-    port = ata_device_info_control_port(dev_info);
-    ata_device_software_reset(port);
+    ata_device_software_reset(ata_device_info_control_port(dev_info));
 
     status = ata_device_drive_identify(dev_info);
 

@@ -3,15 +3,17 @@
 
 static inline bool ata_device_info_io_port_legal_p(s_ata_dev_io_port_t *io_port);
 static inline bool ata_device_info_legal_p(s_ata_dev_info_t *dev_info);
+static inline bool ata_device_status_available_p(uint8 status);
 static inline bool ata_device_status_busy_p(uint8 status);
 static inline bool ata_device_status_data_requested_p(uint8 status);
 static inline bool ata_device_status_device_ready_p(uint8 status);
 static inline bool ata_device_status_error_p(uint8 status);
 static inline bool ata_device_status_readable_p(uint8 status);
 static inline bool ata_device_status_seek_complete_p(uint8 status);
+static inline bool ata_device_status_unavailable_p(uint8 status);
 static inline s_ata_dev_info_t * ata_device_info(uint32 i);
 static inline s_ata_dev_io_port_t * ata_device_info_io_port(s_ata_dev_info_t *dev_info);
-static inline uint16 ata_device_cylinder_read(uint16 status_port, uint16 port_low, uint16 port_high);
+static inline uint16 ata_device_cylinder_read(uint16 status_port, uint16 low_port, uint16 high_port);
 static inline uint16 ata_device_drive_identify(s_ata_dev_info_t *dev_info);
 static inline uint16 ata_device_info_cmd_port(s_ata_dev_info_t *dev_info);
 static inline uint16 ata_device_info_control_port(s_ata_dev_info_t *dev_info);

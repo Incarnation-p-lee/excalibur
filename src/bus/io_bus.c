@@ -64,3 +64,47 @@ io_bus_dword_read(uint16 port)
     return retval;
 }
 
+static inline uint32
+io_bus_read_i(uint16 port, void *buf, uint32 size)
+{
+    char *c;
+    uint32 count;
+    uint32 reminder;
+
+    kassert(buf);
+    kassert(size);
+
+    c = buf;
+    count = size / sizeof(uint32);
+    reminder = size % sizeof(uint32);
+    c += count * sizeof(uint32);
+
+    if (count) {
+        asm volatile (
+            "cld\n\t"
+            "rep\n\t"
+            "insl\n\t"
+            :
+            :"D"(buf), "d"(port), "c"(count));
+    }
+
+    while (reminder) {
+        *c++ = io_bus_byte_read(port);
+        reminder--;
+    }
+
+    return size;
+}
+
+uint32
+io_bus_read(uint16 port, void *buf, uint32 size)
+{
+    if (buf == NULL) {
+        return SIZE_INVALID;
+    } else if (size == 0) {
+        return SIZE_INVALID;
+    } else {
+        return io_bus_read_i(port, buf, size);
+    }
+}
+
