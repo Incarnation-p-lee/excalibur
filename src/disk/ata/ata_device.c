@@ -149,12 +149,12 @@ ata_device_loop_util_data_ready(uint16 status_port)
     }
 }
 
-static inline void
+static inline uint32
 ata_device_sector_read_i(s_disk_buf_t *disk_buf, uint32 device_id, uint32 a)
 {
     uint16 port;
     uint8 config;
-    uint32 i, val;
+    uint16 sector_size;
     s_ata_dev_info_t *dev_info;
 
     kassert(disk_buffer_legal_p(disk_buf));
@@ -176,27 +176,27 @@ ata_device_sector_read_i(s_disk_buf_t *disk_buf, uint32 device_id, uint32 a)
 
     /* set read command */
     io_bus_byte_write(ata_device_info_cmd_port(dev_info), ATA_CMD_READ_RETRY);
-
     ata_device_loop_util_data_ready(ata_device_info_cmd_port(dev_info));
 
-    i = 0;
-    port = ata_device_info_data_port(dev_info);
+    sector_size = ata_device_info_sector_bytes(dev_info);
+    kassert(sector_size <= disk_buffer_size(disk_buf));
 
-    while (i++ < ATA_SECTOR_SIZE / sizeof(val)) {
-        val = io_bus_dword_read(port);
-        disk_buffer_dword_append(disk_buf, val);
-    }
+    port = ata_device_info_data_port(dev_info);
+    io_bus_read(port, disk_buffer_obtain(disk_buf), sector_size);
+    disk_buffer_index_set(disk_buf, sector_size);
+
+    return sector_size;
 }
 
-void
+uint32
 ata_device_sector_read(s_disk_buf_t *disk_buf, uint32 device_id, uint32 lba)
 {
     if (disk_buffer_illegal_p(disk_buf)) {
-        return;
+        return SIZE_INVALID;
     } else if (device_id >= ATA_DEVICE_LIMIT) {
-        return;
+        return SIZE_INVALID;
     } else {
-        ata_device_sector_read_i(disk_buf, device_id, lba);
+        return ata_device_sector_read_i(disk_buf, device_id, lba);
     }
 }
 
