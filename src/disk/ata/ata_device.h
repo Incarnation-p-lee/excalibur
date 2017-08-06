@@ -196,18 +196,21 @@ struct ata_device_io_port {
 
 struct ata_device_info {
     uint32              type;
-    s_ata_dev_io_port_t io_port;
     uint16              drive_id;
     uint16              cylinder_count;
     uint16              head_count;
     uint16              track_sector;
     uint16              sector_bytes;
+    s_ata_dev_io_port_t io_port;
+    s_disk_pt_table_t   pt_table;
 };
 
 static s_ata_dev_info_t dev_info_array[] = {
     [ATA_0_DEVICE_0] = {
         ATA_DEV_UNKNOWN,
-        {
+        ATA_DRIVE_0,
+        0, 0, 0, 0,
+        { /* s_ata_dev_io_port_t */
             ATA_0_P_DATA,
             ATA_0_P_FEATURE,
             ATA_0_P_SECTOR_CNT,
@@ -218,11 +221,21 @@ static s_ata_dev_info_t dev_info_array[] = {
             {ATA_0_P_CMD,},
             ATA_0_P_DEV_CR,
         },
-        ATA_DRIVE_0, 0, 0, 0, 0,
+        { /* s_disk_pt_table_t */
+            {
+                {0, 0, {0}, 0, 0, {0}, 0, 0},
+                {0, 0, {0}, 0, 0, {0}, 0, 0},
+                {0, 0, {0}, 0, 0, {0}, 0, 0},
+                {0, 0, {0}, 0, 0, {0}, 0, 0},
+            },
+        },
     },
+
     [ATA_0_DEVICE_1] = {
         ATA_DEV_UNKNOWN,
-        {
+        ATA_DRIVE_1,
+        0, 0, 0, 0,
+        { /* s_ata_dev_io_port_t */
             ATA_0_P_DATA,
             ATA_0_P_FEATURE,
             ATA_0_P_SECTOR_CNT,
@@ -233,7 +246,14 @@ static s_ata_dev_info_t dev_info_array[] = {
             {ATA_0_P_CMD,},
             ATA_0_P_DEV_CR,
         },
-        ATA_DRIVE_1, 0, 0, 0, 0,
+        { /* s_disk_pt_table_t */
+            {
+                {0, 0, {0}, 0, 0, {0}, 0, 0},
+                {0, 0, {0}, 0, 0, {0}, 0, 0},
+                {0, 0, {0}, 0, 0, {0}, 0, 0},
+                {0, 0, {0}, 0, 0, {0}, 0, 0},
+            },
+        },
     },
 };
 

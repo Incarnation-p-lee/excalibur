@@ -242,7 +242,7 @@ vfs_node_root(void)
     return &vfs_root;
 }
 
-s_vfs_node_t *
+static inline s_vfs_node_t *
 vfs_fs_root_obtain_i(char *fs_name)
 {
     uint32 i, limit;
@@ -266,6 +266,13 @@ vfs_fs_root_obtain_i(char *fs_name)
     return PTR_INVALID;
 }
 
+static inline void
+vfs_ext2_initialize(s_vfs_node_t *root)
+{
+    printf_vga_tk("pli2 root vfs node -> %x\n", root);
+
+}
+
 s_vfs_node_t *
 vfs_fs_root_obtain(char *fs_name)
 {
@@ -282,7 +289,9 @@ vfs_initialize(void)
     s_vfs_node_t *root;
 
     root = vfs_root_node_initialize();
+
     vfs_multiboot_module_initialize(root);
+    vfs_ext2_initialize(root);
 
     printf_vga_tk("Virtual filesystem initialized.\n");
 }

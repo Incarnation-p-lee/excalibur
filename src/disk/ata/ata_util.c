@@ -22,6 +22,18 @@ ata_device_info_io_port_legal_p(s_ata_dev_io_port_t *io_port)
     }
 }
 
+static inline bool
+ata_device_info_drive_exist_p(s_ata_dev_info_t *dev_info)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
+    if (ata_device_info_type(dev_info) == ATA_DEV_UNKNOWN) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 static inline uint32
 ata_device_info_type(s_ata_dev_info_t *dev_info)
 {
@@ -31,9 +43,15 @@ ata_device_info_type(s_ata_dev_info_t *dev_info)
 }
 
 static inline uint32
-ata_device_info_limit(void)
+ata_device_info_limit_i(void)
 {
     return ARRAY_CNT_OF(dev_info_array);
+}
+
+uint32
+ata_device_info_limit(void)
+{
+    return ata_device_info_limit_i();
 }
 
 static inline void
@@ -100,6 +118,12 @@ ata_device_status_readable_p(uint8 status)
     } else {
         return ata_device_status_device_ready_p(status);
     }
+}
+
+static inline bool
+ata_device_status_unreadable_p(uint8 status)
+{
+    return !ata_device_status_readable_p(status);
 }
 
 static inline bool

@@ -15,5 +15,6 @@ uint32 disk_buffer_size(s_disk_buf_t *disk_buf);
 void * disk_buffer_obtain(s_disk_buf_t *disk_buf);
 void disk_buffer_dword_append(s_disk_buf_t *disk_buf, uint32 val);
 void disk_buffer_index_set(s_disk_buf_t *disk_buf, uint32 index);
+void disk_initialize(void);
 
 #endif

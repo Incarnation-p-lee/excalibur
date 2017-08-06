@@ -17,27 +17,6 @@ ata_device_drive_set(uint16 port, uint8 val)
     io_bus_byte_write(port, val);
 }
 
-static inline uint16
-ata_device_cylinder_read(uint16 status_port, uint16 low_port, uint16 high_port)
-{
-    uint8 status;
-    uint16 cylinder;
-    uint8 cylinder_low;
-    uint8 cylinder_high;
-
-    status = io_bus_byte_read(status_port);
-
-    while (ata_device_status_unavailable_p(status)) {
-        status = io_bus_byte_read(status_port);
-    }
-
-    cylinder_low = io_bus_byte_read(low_port);
-    cylinder_high = io_bus_byte_read(high_port);
-    cylinder = (cylinder_high << 8) | cylinder_low;
-
-    return cylinder;
-}
-
 static inline void
 ata_device_drive_info_indentify(s_ata_dev_info_t *dev)
 {
@@ -96,11 +75,30 @@ ata_device_drive_identify(s_ata_dev_info_t *dev_info)
 }
 
 static inline void
-ata_device_type_detect_i(s_ata_dev_info_t *dev_info)
+ata_device_info_type_detect(s_ata_dev_info_t *dev_info)
 {
     uint16 type;
-    uint8 status;
     uint16 status_port, cy_low_port, cy_high_port;
+
+    kassert(ata_device_info_legal_p(dev_info));
+
+    status_port = ata_device_info_status_port(dev_info);
+    kassert(ata_device_status_available_p(io_bus_byte_read(status_port)));
+
+    cy_low_port = ata_device_info_cylinder_low_port(dev_info);
+    cy_high_port = ata_device_info_cylinder_high_port(dev_info);
+
+    ata_device_loop_util_available(status_port);
+
+    /* the signature reused cylinder field for drive */
+    type = io_bus_byte_read(cy_low_port) | io_bus_byte_read(cy_high_port) << 8;
+    ata_device_info_type_set(dev_info, type);
+}
+
+static inline void
+ata_device_info_drive_detect(s_ata_dev_info_t *dev_info)
+{
+    uint8 status;
 
     kassert(ata_device_info_legal_p(dev_info));
 
@@ -108,19 +106,16 @@ ata_device_type_detect_i(s_ata_dev_info_t *dev_info)
 
     status = ata_device_drive_identify(dev_info);
 
-    if (status != ATA_ID_NO_DRIVE) {
-        status_port = ata_device_info_status_port(dev_info);
-        cy_low_port = ata_device_info_cylinder_low_port(dev_info);
-        cy_high_port = ata_device_info_cylinder_high_port(dev_info);
-
-        /* the signature reused cylinder field for drive */
-        type = ata_device_cylinder_read(status_port, cy_low_port, cy_high_port);
-        ata_device_info_type_set(dev_info, type);
+    if (status == ATA_ID_NO_DRIVE) {
+        return;
+    } else {
+        ata_device_info_type_detect(dev_info);
+        ata_device_info_mbr_detect(dev_info);
     }
 }
 
 static inline void
-ata_device_type_detect(void)
+ata_device_info_detect(void)
 {
     uint32 i;
     uint32 limit;
@@ -131,10 +126,12 @@ ata_device_type_detect(void)
 
     while (i < limit) {
         dev_info = ata_device_info(i);
-        ata_device_type_detect_i(dev_info);
+        ata_device_info_drive_detect(dev_info);
 
         i++;
     }
+
+    ata_device_info_print();
 }
 
 static inline void
@@ -144,9 +141,28 @@ ata_device_loop_util_data_ready(uint16 status_port)
 
     status = io_bus_byte_read(status_port); /* waiting util data is ready */
 
-    while (!ata_device_status_readable_p(status)) {
+    while (ata_device_status_unreadable_p(status)) {
         status = io_bus_byte_read(status_port);
     }
+}
+
+static inline void
+ata_device_loop_util_available(uint16 status_port)
+{
+    uint8 status;
+
+    status = io_bus_byte_read(status_port); /* waiting util data is ready */
+
+    while (ata_device_status_unavailable_p(status)) {
+        status = io_bus_byte_read(status_port);
+    }
+}
+
+static inline void
+ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
 }
 
 static inline uint32
@@ -201,9 +217,8 @@ ata_device_sector_read(s_disk_buf_t *disk_buf, uint32 device_id, uint32 lba)
 }
 
 void
-ata_device_detect(void)
+ata_device_initialize(void)
 {
-    ata_device_type_detect();
-    ata_device_info_print();
+    ata_device_info_detect();
 }
 

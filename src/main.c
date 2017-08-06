@@ -10,11 +10,11 @@ entry(uint32 magic, void *boot_header, void *boot_info)
 
     gdt_initialize();
     idt_initialize();
-    irq_0_timer_initialize(1000);
+    timer_initialize(1000);
     page_initialize();
     kernel_heap_initialize();
+    disk_initialize();
     vfs_initialize();
-    ata_device_detect();
 
     // test_main();
 
