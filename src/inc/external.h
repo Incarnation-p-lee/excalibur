@@ -59,7 +59,7 @@ extern uint32 vfs_read(s_vfs_node_t *vfs_node, uint32 offset, uint32 size, uint8
 extern uint32 vfs_write(s_vfs_node_t *vfs_node, uint32 offset, uint32 size, uint8 *buf);
 extern uint64 time_stamp_counter(void);
 extern uint8 io_bus_byte_read(uint16 port);
-extern void * disk_buffer_obtain(s_disk_buf_t *disk_buf);
+extern void * disk_buffer_obtain_buffer(s_disk_buf_t *disk_buf);
 extern void * kmalloc(uint32 request_size);
 extern void * ordered_array_place(s_ordered_array_t *ordered_array, void *addr, uint32 size, ordered_compare_t compare);
 extern void * ordered_array_value(s_ordered_array_t *ordered_array, uint32 i);

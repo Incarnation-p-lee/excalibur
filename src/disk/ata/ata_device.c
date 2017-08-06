@@ -198,7 +198,7 @@ ata_device_sector_read_i(s_disk_buf_t *disk_buf, uint32 device_id, uint32 a)
     kassert(sector_size <= disk_buffer_size(disk_buf));
 
     port = ata_device_info_data_port(dev_info);
-    io_bus_read(port, disk_buffer_obtain(disk_buf), sector_size);
+    io_bus_read(port, disk_buffer_obtain_buffer(disk_buf), sector_size);
     disk_buffer_index_set(disk_buf, sector_size);
 
     return sector_size;

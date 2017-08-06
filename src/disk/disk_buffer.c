@@ -106,7 +106,7 @@ disk_buffer_dword_append(s_disk_buf_t *disk_buf, uint32 val)
 }
 
 static inline void *
-disk_buffer_obtain_i(s_disk_buf_t *disk_buf)
+disk_buffer_obtain_buffer_i(s_disk_buf_t *disk_buf)
 {
     kassert(disk_buffer_legal_ip(disk_buf));
 
@@ -114,12 +114,12 @@ disk_buffer_obtain_i(s_disk_buf_t *disk_buf)
 }
 
 void *
-disk_buffer_obtain(s_disk_buf_t *disk_buf)
+disk_buffer_obtain_buffer(s_disk_buf_t *disk_buf)
 {
     if (disk_buffer_illegal_ip(disk_buf)) {
         return PTR_INVALID;
     } else {
-        return disk_buffer_obtain_i(disk_buf);
+        return disk_buffer_obtain_buffer_i(disk_buf);
     }
 }
 
