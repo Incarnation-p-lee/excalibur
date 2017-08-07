@@ -160,15 +160,17 @@ sub structure_interface_generate {
 
     while (@members) {
         my $type = shift @members;
-        my $name = shift @members;
+        my $name_raw = shift @members;
+        my $name = $1 if $name_raw =~ /\*{0,3}(\w+)/;
+        my $pointer = $1 if $name_raw =~ /(\*{0,3})\w+/;
+        $pointer = " $pointer" if $pointer ne "";
 
-        $name = $1 if $name =~ /\*{0,3}(\w+)/;
         $tmp = "$s_name" . "_$name";
         $f_set = "$tmp" . "_set_i";
         $f_get = "$tmp" . "_i";
         $f_get = "$f_get" . "p" if $type eq "bool";
 
-        printf $file_opend "static inline $type\n";
+        printf $file_opend "static inline $type" . "$pointer\n";
         printf $file_opend "$f_get" . "($s_alias *$s_name)\n";
         printf $file_opend "{\n";
         printf $file_opend "    assert($s_name" . "_legal_ip($s_name));\n\n";
@@ -176,7 +178,7 @@ sub structure_interface_generate {
         printf $file_opend "}\n\n";
 
         printf $file_opend "static inline void\n";
-        printf $file_opend "$f_set" . "($s_alias *$s_name, $type $name)\n";
+        printf $file_opend "$f_set" . "($s_alias *$s_name, $type $name_raw)\n";
         printf $file_opend "{\n";
         printf $file_opend "    assert($s_name" . "_legal_ip($s_name));\n\n";
         printf $file_opend "    $s_name" . "->$name = $name;\n";
@@ -186,7 +188,7 @@ sub structure_interface_generate {
         $ef_get = $tmp;
         $ef_get = "$tmp" . "_p" if $type eq "bool";
 
-        printf $file_opend "$type\n";
+        printf $file_opend "$type" . "$pointer\n";
         printf $file_opend "$ef_get" . "($s_alias *$s_name)\n";
         printf $file_opend "{\n";
         printf $file_opend "    if ($s_name" . "_illegal_ip($s_name)) {\n";
@@ -197,7 +199,7 @@ sub structure_interface_generate {
         printf $file_opend "}\n\n";
 
         printf $file_opend "void\n";
-        printf $file_opend "$ef_set" . "($s_alias *$s_name, $type $name)\n";
+        printf $file_opend "$ef_set" . "($s_alias *$s_name, $type $name_raw)\n";
         printf $file_opend "{\n";
         printf $file_opend "    if ($s_name" . "_illegal_ip($s_name)) {\n";
         printf $file_opend "        return;\n";

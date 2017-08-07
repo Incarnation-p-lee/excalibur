@@ -41,7 +41,7 @@ struct disk_partition_table {
 };
 
 struct disk_buffer {
-    uint8  *buffer;
+    uint8  *array;
     uint32 index;
     uint32 size;
 };

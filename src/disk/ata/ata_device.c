@@ -158,11 +158,19 @@ ata_device_loop_util_available(uint16 status_port)
     }
 }
 
+/*
+ * As LBA start sector with 1, we only can access MBR with CHS mode.
+ */
 static inline void
 ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info)
 {
+    uint8 config;
+
     kassert(ata_device_info_legal_p(dev_info));
 
+    config = ATA_CHS_MODE;
+    config = config | ata_device_info_drive_id(dev_info);
+    io_bus_byte_write(ata_device_info_control_port(dev_info), config);
 }
 
 static inline uint32
@@ -198,7 +206,7 @@ ata_device_sector_read_i(s_disk_buf_t *disk_buf, uint32 device_id, uint32 a)
     kassert(sector_size <= disk_buffer_size(disk_buf));
 
     port = ata_device_info_data_port(dev_info);
-    io_bus_read(port, disk_buffer_obtain_buffer(disk_buf), sector_size);
+    io_bus_read(port, disk_buffer_array(disk_buf), sector_size);
     disk_buffer_index_set(disk_buf, sector_size);
 
     return sector_size;
