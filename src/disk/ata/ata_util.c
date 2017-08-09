@@ -327,6 +327,12 @@ ata_device_info_lba_low_port(s_ata_dev_info_t *dev_info)
 }
 
 static inline uint16
+ata_device_info_sector_nmbr_port(s_ata_dev_info_t *dev_info)
+{
+    return ata_device_info_lba_low_port(dev_info);
+}
+
+static inline uint16
 ata_device_info_lba_mid_port(s_ata_dev_info_t *dev_info)
 {
     return ata_device_info_cylinder_low_port(dev_info);
@@ -424,5 +430,13 @@ ata_device_info_sector_bytes_set(s_ata_dev_info_t *dev_info, uint16 val)
     kassert(ata_device_info_legal_p(dev_info));
 
     dev_info->sector_bytes = val;
+}
+
+static inline s_disk_pt_table_t *
+ata_device_info_pt_table(s_ata_dev_info_t *dev_info)
+{
+    kassert(ata_device_info_legal_p(dev_info));
+
+    return &dev_info->pt_table;
 }
 

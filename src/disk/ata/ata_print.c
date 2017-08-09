@@ -21,31 +21,22 @@ ata_device_info_type_print(uint32 type)
 }
 
 static inline void
-ata_device_info_print(void)
+ata_device_info_drive_print(s_ata_dev_info_t *dev_info, uint32 i)
 {
-    uint32 i;
-    uint32 limit;
-    s_ata_dev_info_t *dev_info;
+    kassert(ata_device_info_legal_p(dev_info));
 
-    i = 0;
-    limit = ata_device_info_limit();
+    if (ata_device_info_drive_exist_p(dev_info)) {
+        printf_vga_tk("Detected ATA device %d: ", i);
+        ata_device_info_type_print(ata_device_info_type(dev_info));
+        printf_vga(".");
+        printf_vga(" c %d, h %d, s/t %d, s byte %d",
+            ata_device_info_cylinder_count(dev_info),
+            ata_device_info_head_count(dev_info),
+            ata_device_info_track_sector(dev_info),
+            ata_device_info_sector_bytes(dev_info));
+        printf_vga(".\n");
 
-    while (i < limit) {
-        dev_info = ata_device_info(i);
-
-        if (ata_device_info_type(dev_info) != ATA_DEV_UNKNOWN) {
-            printf_vga_tk("Detected ATA device %d: ", i);
-            ata_device_info_type_print(ata_device_info_type(dev_info));
-            printf_vga(".");
-            printf_vga(" c %d, h %d, s/t %d, s byte %d",
-                ata_device_info_cylinder_count(dev_info),
-                ata_device_info_head_count(dev_info),
-                ata_device_info_track_sector(dev_info),
-                ata_device_info_sector_bytes(dev_info));
-            printf_vga(".\n");
-        }
-
-        i++;
+        disk_partition_table_print(ata_device_info_pt_table(dev_info));
     }
 }
 

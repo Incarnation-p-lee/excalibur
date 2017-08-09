@@ -3,11 +3,11 @@ disk_buffer_legal_ip(s_disk_buf_t *disk_buffer)
 {
     if (disk_buffer == NULL) {
         return false;
-   } else if (disk_buffer->array) {
+    } else if (disk_buffer->array == NULL) {
         return false;
-   } else if (disk_buffer->index > disk_buffer->size) {
+    } else if (disk_buffer->index > disk_buffer->size) {
         return false;
-   } else if (disk_buffer->size == 0) {
+    } else if (disk_buffer->size == 0) {
         return false;
     } else {
         return true;

@@ -117,7 +117,7 @@ sub structure_legal_generate {
         my $type = shift @members;
         my $name = shift @members;
         
-        printf $file_opend "   } else if ($name) {\n";
+        printf $file_opend "    } else if ($name) {\n";
         printf $file_opend "        return false;\n";
     }
 

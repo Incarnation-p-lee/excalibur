@@ -71,3 +71,39 @@ disk_buffer_destroy(s_disk_buf_t **disk_buf)
     }
 }
 
+static inline uint32
+disk_buffer_copy_i(void *d, s_disk_buf_t *disk_buf, uint32 offset, uint32 size)
+{
+    void *array;
+
+    kassert(d);
+    kassert(size);
+    kassert(disk_buffer_legal_ip(disk_buf));
+    kassert(offset < disk_buffer_limit_i(disk_buf));
+    kassert(offset + size < disk_buffer_limit_i(disk_buf));
+
+    array = disk_buffer_array_i(disk_buf);
+
+    kmemory_copy(d, array + offset, size);
+
+    return size;
+}
+
+uint32
+disk_buffer_copy(void *d, s_disk_buf_t *disk_buf, uint32 offset, uint32 size)
+{
+    if (d == NULL) {
+        return SIZE_INVALID;
+    } else if (disk_buffer_illegal_ip(disk_buf)) {
+        return SIZE_INVALID;
+    } else if (offset >= disk_buffer_limit_i(disk_buf)) {
+        return SIZE_INVALID;
+    } else if (size == 0) {
+        return SIZE_INVALID;
+    } else if (offset + size >= disk_buffer_limit_i(disk_buf)) {
+        return SIZE_INVALID;
+    } else {
+        return disk_buffer_copy_i(d, disk_buf, offset, size);
+    }
+}
+

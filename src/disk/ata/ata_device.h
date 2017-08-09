@@ -75,7 +75,6 @@
  */
 
 typedef enum ata_device_type      e_ata_dev_type_t;
-typedef enum ata_device_id        e_ata_dev_id_t;
 typedef struct ata_device_info    s_ata_dev_info_t;
 typedef struct ata_device_io_port s_ata_dev_io_port_t;
 
@@ -133,6 +132,8 @@ typedef struct ata_device_io_port s_ata_dev_io_port_t;
 #define ATA_LBA_LOW(l)        ((l >> 0) & 0xff)
 #define ATA_LBA_MID(l)        ((l >> 8) & 0xff)
 #define ATA_LBA_HIGH(l)       ((l >> 16) & 0xff)
+#define ATA_CYL_LOW(c)        ATA_LBA_LOW(c)
+#define ATA_CYL_HIGH(c)       ATA_LBA_MID(c)
 
 /*
  *     ATA read CHS mode has max head 16, max cylinder 65536, with sector is
@@ -162,12 +163,6 @@ enum ata_device_type {
     ATA_DEV_SATAPI   = 0x9669,
     ATA_DEV_PATA     = 0x0,
     ATA_DEV_SATA     = 0xc33c,
-};
-
-enum ata_device_id {
-    ATA_0_DEVICE_0 = 0x0, /* primary bus with first disk */
-    ATA_0_DEVICE_1 = 0x1,
-    ATA_DEVICE_LIMIT,
 };
 
 struct ata_device_io_port {
