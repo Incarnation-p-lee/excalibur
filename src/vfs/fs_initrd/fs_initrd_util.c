@@ -168,8 +168,22 @@ fs_initrd_vfs_root_node_set(s_vfs_node_t *node)
 }
 
 static inline s_vfs_node_t *
-fs_initrd_vfs_root_node(void)
+fs_initrd_vfs_node_root_i(void)
 {
     return initrd_root;
+}
+
+s_vfs_node_t *
+fs_initrd_vfs_node_root(void)
+{
+    s_vfs_node_t *vfs_root;
+
+    vfs_root = fs_initrd_vfs_node_root_i();
+
+    if (vfs_root == NULL) {
+        return PTR_INVALID;
+    } else {
+        return vfs_root;
+    }
 }
 

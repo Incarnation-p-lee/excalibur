@@ -76,20 +76,21 @@ fs_initrd_finddir(s_vfs_node_t *fs_node, char *name)
 }
 
 static inline s_vfs_node_t *
-fs_initrd_initialize_i(ptr_t location)
+fs_initrd_initialize_i(char *root_path, ptr_t location)
 {
     uint32 i, count;
     s_vfs_node_t *vfs_root;
     s_vfs_node_t *vfs_node;
     s_initrd_header_t *header;
 
+    kassert(root_path);
     kassert(location);
 
     count = fs_initrd_header_count(location);
     fs_initrd_header_set(location + sizeof(count));
     fs_initrd_addr_start_set(location);
 
-    vfs_root = vfs_dir_node_create(FS_INITRD, &fs_initrd_readdir,
+    vfs_root = vfs_dir_node_create(root_path, &fs_initrd_readdir,
         &fs_initrd_finddir);
     vfs_node_flags_add(vfs_root, FS_ROOT);
 
@@ -99,7 +100,7 @@ fs_initrd_initialize_i(ptr_t location)
         header = fs_initrd_header(i);
         vfs_node = vfs_file_node_create(fs_initrd_header_name(header),
             &fs_initrd_read, &fs_initrd_write);
-        vfs_sub_node_add(vfs_root, vfs_node);
+        vfs_sub_list_add(vfs_root, vfs_node);
         vfs_node_length_set(vfs_node, fs_initrd_header_length(header));
         vfs_node_inode_set(vfs_node, fs_initrd_inode_allocate());
 
@@ -113,12 +114,14 @@ fs_initrd_initialize_i(ptr_t location)
 }
 
 s_vfs_node_t *
-fs_initrd_initialize(ptr_t location)
+fs_initrd_initialize(char *root_path, ptr_t location)
 {
     if (location == 0) {
         return PTR_INVALID;
+    } else if (root_path == NULL) {
+        return PTR_INVALID;
     } else {
-        return fs_initrd_initialize_i(location);
+        return fs_initrd_initialize_i(root_path, location);
     }
 }
 
@@ -140,7 +143,7 @@ fs_initrd_file_create_i(char *name)
     fs_initrd_header_initialize(header, vfs_node);
     fs_initrd_header_count_inc();
 
-    vfs_sub_node_add(fs_initrd_vfs_root_node(), vfs_node);
+    vfs_sub_list_add(fs_initrd_vfs_node_root_i(), vfs_node);
 
     return vfs_node;
 }

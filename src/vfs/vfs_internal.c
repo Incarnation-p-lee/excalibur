@@ -160,54 +160,22 @@ vfs_readdir(s_vfs_node_t *vfs_node, uint32 index)
 }
 
 static inline void
-vfs_descriptor_initialize(char *fs_name, ptr_t location)
-{
-    uint32 i, limit;
-    s_vfs_node_t *vfs_node;
-    s_vfs_dspr_t *vfs_dspr;
-    f_fs_initialize_t fs_initializer;
-
-    kassert(fs_name);
-    kassert(location);
-
-    i = 0;
-    limit = vfs_descriptor_array_size();
-
-    while (i < limit) {
-        vfs_dspr = vfs_descriptor_array_descriptor(i);
-
-        if (string_compare(fs_name, vfs_descriptor_name(vfs_dspr)) == 0) {
-            fs_initializer = vfs_descriptor_initializer(vfs_dspr);
-            vfs_node = fs_initializer(location);
-            vfs_descriptor_fs_root_set(vfs_dspr, vfs_node);
-        }
-
-        i++;
-    }
-}
-
-static inline void
-vfs_multiboot_module_initialize(s_vfs_node_t *root)
+vfs_initrd_initialize(s_vfs_node_t *root)
 {
     ptr_t addr;
-    char *name;
-    uint32 i, limit;
+    s_vfs_node_t *vfs_node;
     s_boot_module_t *module;
 
     kassert(vfs_node_legal_ip(root));
 
-    i = 0;
-    limit = multiboot_data_info_boot_modules_count();
+    module = multiboot_data_info_boot_module(0);
+    addr = multiboot_env_module_addr_start(module);
 
-    while (i < limit) {
-        module = multiboot_data_info_boot_module(i);
-        addr = multiboot_env_module_addr_start(module);
-        name = string_basename(multiboot_env_module_name(module));
+    vfs_node = fs_initrd_initialize(FS_INITRD_ROOT, addr);
+    vfs_sub_list_add_i(root, vfs_node);
 
-        vfs_descriptor_initialize(name, addr);
-
-        i++;
-    }
+    printf_vga_tk("Initrd fs initialized, %s -> %s.\n",
+        multiboot_env_module_name(module), FS_INITRD_ROOT);
 }
 
 static inline s_vfs_node_t *
@@ -242,45 +210,11 @@ vfs_node_root(void)
     return &vfs_root;
 }
 
-static inline s_vfs_node_t *
-vfs_fs_root_obtain_i(char *fs_name)
-{
-    uint32 i, limit;
-    s_vfs_dspr_t *vfs_dspr;
-
-    kassert(fs_name);
-
-    i = 0;
-    limit = vfs_descriptor_array_size();
-
-    while (i < limit) {
-        vfs_dspr = vfs_descriptor_array_descriptor(i);
-
-        if (string_compare(fs_name, vfs_descriptor_name(vfs_dspr)) == 0) {
-            return vfs_descriptor_fs_root(vfs_dspr);
-        }
-
-        i++;
-    }
-
-    return PTR_INVALID;
-}
-
 static inline void
 vfs_ext2_initialize(s_vfs_node_t *root)
 {
     printf_vga_tk("pli2 root vfs node -> %x\n", root);
 
-}
-
-s_vfs_node_t *
-vfs_fs_root_obtain(char *fs_name)
-{
-    if (fs_name == NULL) {
-        return PTR_INVALID;
-    } else {
-        return vfs_fs_root_obtain_i(fs_name);
-    }
 }
 
 void
@@ -290,7 +224,7 @@ vfs_initialize(void)
 
     root = vfs_root_node_initialize();
 
-    vfs_multiboot_module_initialize(root);
+    vfs_initrd_initialize(root);
     vfs_ext2_initialize(root);
 
     printf_vga_tk("Virtual filesystem initialized.\n");

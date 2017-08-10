@@ -89,6 +89,7 @@ typedef struct fs_ext2_superblock             s_ext2_spbk_t;
 typedef struct fs_ext2_inode                  s_ext2_inode_t;
 typedef struct fs_ext2_extended_superblock    s_ext2_ext_spbk_t;
 typedef struct fs_ext2_block_group_descriptor s_ext2_bgd_t;
+typedef struct fs_ext2_dir                    s_ext2_dir_t;
 
 /*
  *     Physical layout of the ext2 file system
@@ -109,7 +110,7 @@ typedef struct fs_ext2_block_group_descriptor s_ext2_bgd_t;
 /*
  *     SUPERBLOCK contains all information about the layout of the filesystem.
  * The superblock is always located at byte 1024 from the begining of the volume
- * and is exactly 1204 bytes in length.
+ * and is exactly 1024 bytes in length.
  *
  */
 struct fs_ext2_superblock {
@@ -145,7 +146,6 @@ struct fs_ext2_superblock {
 /*
  * only available if major version >= 1.
  */
-
 struct fs_ext2_extended_superblock {
     uint32 first_non_reserved_inode; /* fixed to 11 if major < 1 */
     uint16 inode_bytes;              /* fixed to 128 if major < 1 */
@@ -231,7 +231,7 @@ struct fs_ext2_inode {
  *     DIRECTORY entries are not allowed to span multiple blocks.
  */
 
-struct fs_ext2_dir_entry {
+struct fs_ext2_dir {
     s_ext2_inode_t *inode;
     uint16         size;
     uint8          name_length_least; /* least-significant 8 bits */

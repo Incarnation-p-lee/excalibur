@@ -88,17 +88,15 @@ test_vfs_file_print(s_vfs_node_t *vfs_node)
 }
 
 static inline void
-test_vfs(void)
+test_vfs_initrd(void)
 {
     s_vfs_node_t *root;
     s_vfs_node_t *node;
 
-    printf_vga_tk("Test vfs:\n");
+    root = fs_initrd_vfs_node_root();
+    printf_vga_tk("    Obtain %s.\n", vfs_node_name(root));
 
-    root = vfs_fs_root_obtain(FS_INITRD);
-    printf_vga_tk("    Obtain %s.\n", FS_INITRD);
-
-    node = vfs_sub_node_first(root);
+    node = vfs_sub_list_first(root);
 
     while (node) {
         if (vfs_node_file_p(node)) {
@@ -107,6 +105,14 @@ test_vfs(void)
 
         node = vfs_node_next(node);
     }
+}
+
+static inline void
+test_vfs(void)
+{
+    printf_vga_tk("Test vfs:\n");
+
+    test_vfs_initrd();
 
     printf_vga_tk("Test vfs ................ OK.\n");
 }

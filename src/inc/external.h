@@ -37,13 +37,13 @@ extern s_linked_list_t * linked_list_prev(s_linked_list_t *linked_list);
 extern s_linked_list_t * linked_list_remove(s_linked_list_t *node);
 extern s_ordered_array_t * ordered_array_create(uint32 size, ordered_compare_t compare);
 extern s_vfs_node_t * fs_initrd_file_create(char *name);
-extern s_vfs_node_t * fs_initrd_initialize(ptr_t location);
+extern s_vfs_node_t * fs_initrd_initialize(char *root_path, ptr_t location);
+extern s_vfs_node_t * fs_initrd_vfs_node_root(void);
 extern s_vfs_node_t * vfs_dir_node_create(char *name, f_readdir_t readdir, f_finddir_t finddir);
 extern s_vfs_node_t * vfs_file_node_create(char *name, f_read_t read, f_write_t write);
-extern s_vfs_node_t * vfs_fs_root_obtain(char *fs_name);
 extern s_vfs_node_t * vfs_node_next(s_vfs_node_t *vfs_node);
 extern s_vfs_node_t * vfs_readdir(s_vfs_node_t *vfs_node, uint32 index);
-extern s_vfs_node_t * vfs_sub_node_first(s_vfs_node_t *vfs_node);
+extern s_vfs_node_t * vfs_sub_list_first(s_vfs_node_t *vfs_node);
 extern sint32 ordered_array_standard_compare(const void *a, const void *b);
 extern sint32 string_compare(char *a, char *b);
 extern uint16 disk_partition_cylinder_end(s_disk_pt_t *disk_pt);
@@ -140,7 +140,7 @@ extern void vfs_initialize(void);
 extern void vfs_node_flags_add(s_vfs_node_t *vfs_node, uint32 flags);
 extern void vfs_node_inode_set(s_vfs_node_t *vfs_node, uint32 inode);
 extern void vfs_node_length_set(s_vfs_node_t *vfs_node, uint32 length);
-extern void vfs_sub_node_add(s_vfs_node_t *vfs_node, s_vfs_node_t *added);
+extern void vfs_sub_list_add(s_vfs_node_t *vfs_node, s_vfs_node_t *added);
 
 #endif
 

@@ -33,6 +33,10 @@ typedef s_vfs_node_t * (*f_fs_initialize_t)(ptr_t);
 
 /* supported fs name */
 #define FS_INITRD         "initrd"
+#define FS_EXT2           "ext2"
+
+#define FS_INITRD_ROOT    "/initrd/"
+#define FS_EXT2_ROOT      "/"
 
 /*
  *     Mountpoint are UNIX way of accessing different filesystem. The filesystem
@@ -63,12 +67,6 @@ struct vfs_node {
         s_vfs_node_t *link;
         s_vfs_node_t *mount;
     };
-};
-
-struct vfs_descriptor {
-    const char        *name;
-    s_vfs_node_t      *fs_root;
-    f_fs_initialize_t initializer;
 };
 
 #endif

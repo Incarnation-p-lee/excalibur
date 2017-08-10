@@ -29,20 +29,6 @@ vfs_node_illegal_p(s_vfs_node_t *vfs_node)
 }
 
 static inline bool
-vfs_descriptor_legal_p(s_vfs_dspr_t *vfs_dspr)
-{
-    if (vfs_dspr == NULL) {
-        return false;
-    } else if (vfs_dspr->name == NULL) {
-        return false;
-    } else if (vfs_dspr->initializer == NULL) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-static inline bool
 vfs_node_readable_p(s_vfs_node_t *vfs_node)
 {
     kassert(vfs_node_legal_ip(vfs_node));
@@ -297,19 +283,19 @@ vfs_node_sub_list_insert_after(s_vfs_node_t *vfs_node, s_vfs_node_t *inserted)
 }
 
 void
-vfs_sub_node_add(s_vfs_node_t *vfs_node, s_vfs_node_t *added)
+vfs_sub_list_add(s_vfs_node_t *vfs_node, s_vfs_node_t *added)
 {
     if (vfs_node_illegal_ip(vfs_node)) {
         return;
     } else if (vfs_node_illegal_ip(vfs_node)) {
         return;
     } else {
-        vfs_sub_node_add_i(vfs_node, added);
+        vfs_sub_list_add_i(vfs_node, added);
     }
 }
 
 static inline void
-vfs_sub_node_add_i(s_vfs_node_t *vfs_node, s_vfs_node_t *added)
+vfs_sub_list_add_i(s_vfs_node_t *vfs_node, s_vfs_node_t *added)
 {
     kassert(vfs_node_legal_ip(vfs_node));
     kassert(vfs_node_legal_ip(added));
@@ -332,17 +318,17 @@ vfs_list_to_node(s_linked_list_t *linked_list)
 }
 
 s_vfs_node_t *
-vfs_sub_node_first(s_vfs_node_t *vfs_node)
+vfs_sub_list_first(s_vfs_node_t *vfs_node)
 {
     if (vfs_node_illegal_ip(vfs_node)) {
         return PTR_INVALID;
     } else {
-        return vfs_sub_node_first_i(vfs_node);
+        return vfs_sub_list_first_i(vfs_node);
     }
 }
 
 static inline s_vfs_node_t *
-vfs_sub_node_first_i(s_vfs_node_t *vfs_node)
+vfs_sub_list_first_i(s_vfs_node_t *vfs_node)
 {
     s_linked_list_t *list;
 
@@ -449,52 +435,5 @@ vfs_node_inode_set(s_vfs_node_t *vfs_node, uint32 inode)
     } else {
         vfs_node_inode_set_i(vfs_node, inode);
     }
-}
-
-static inline s_vfs_dspr_t *
-vfs_descriptor_array_descriptor(uint32 i)
-{
-    kassert(i < ARRAY_CNT_OF(vfs_descriptor_array));
-
-    return &vfs_descriptor_array[i];
-}
-
-static inline char *
-vfs_descriptor_name(s_vfs_dspr_t *vfs_dspr)
-{
-    kassert(vfs_descriptor_legal_p(vfs_dspr));
-
-    return (void *)vfs_dspr->name;
-}
-
-static inline f_fs_initialize_t
-vfs_descriptor_initializer(s_vfs_dspr_t *vfs_dspr)
-{
-    kassert(vfs_descriptor_legal_p(vfs_dspr));
-
-    return vfs_dspr->initializer;
-}
-
-static inline s_vfs_node_t *
-vfs_descriptor_fs_root(s_vfs_dspr_t *vfs_dspr)
-{
-    kassert(vfs_descriptor_legal_p(vfs_dspr));
-
-    return vfs_dspr->fs_root;
-}
-
-static inline void
-vfs_descriptor_fs_root_set(s_vfs_dspr_t *vfs_dspr, s_vfs_node_t *vfs_node)
-{
-    kassert(vfs_descriptor_legal_p(vfs_dspr));
-    kassert(vfs_node_legal_ip(vfs_node));
-
-    vfs_dspr->fs_root = vfs_node;
-}
-
-static inline uint32
-vfs_descriptor_array_size(void)
-{
-    return ARRAY_CNT_OF(vfs_descriptor_array);
 }
 
