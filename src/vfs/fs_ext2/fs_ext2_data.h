@@ -1,0 +1,5 @@
+#ifndef HAVE_DEFINED_FS_EXT2_DATA_H
+#define HAVE_DEFINED_FS_EXT2_DATA_H
+
+#endif
+

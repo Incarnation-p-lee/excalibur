@@ -4,7 +4,11 @@
 typedef struct disk_partition       s_disk_pt_t;
 typedef struct disk_partition_table s_disk_pt_table_t;
 typedef struct disk_buffer          s_disk_buf_t;
-typedef enum   disk_device_id       e_disk_dev_id_t;
+typedef enum   disk_id              e_disk_id_t;
+typedef struct disk_descriptor      s_disk_dspt_t;
+
+typedef uint32 (*f_disk_read_t)(s_disk_buf_t *, e_disk_id_t id, \
+                                    uint32 lba, uint32 bytes);
 
 /* disk partition offset of MBR */
 #define DISK_PT_OFFSET              DISK_PT_0_OFFSET
@@ -50,10 +54,16 @@ struct disk_buffer {
     uint32 size;
 };
 
-enum disk_device_id {
-    ATA_0_DEVICE_0 = 0x0, /* primary bus with first disk */
-    ATA_0_DEVICE_1 = 0x1,
+enum disk_id {
+    ATA_DEVICE_START = 0x0,
+    ATA_0_DEVICE_0   = 0x0, /* primary bus with first disk */
+    ATA_0_DEVICE_1   = 0x1,
     ATA_DEVICE_LIMIT,
+};
+
+struct disk_descriptor {
+    e_disk_id_t   id;
+    f_disk_read_t read;
 };
 
 #endif

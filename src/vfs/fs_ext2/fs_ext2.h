@@ -85,11 +85,22 @@
 #define EXT2_VOLUME_PATH_SIZE      64u
 #define EXT2_DIRECT_BLOCK_SIZE     12u
 
+#define EXT2_SBLOCK_BYTES          1024u
+#define EXT2_SBLOCK_OFFSET(m)      (uint32)(&((s_ext2_spbk_t *)0)->m)
+#define EXT2_SBLOCK_USED_BYTES     EXT2_SBLOCK_OFFSET(unused)
+#define EXT2_SBLOCK_UNUSED_BYTES   (EXT2_SBLOCK_BYTES - EXT2_SBLOCK_USED_BYTES)
+
+#define EXT2_BGD_BYTES             32u
+#define EXT2_BGD_OFFSET(m)         (uint32)(&((s_ext2_bgd_t *)0)->m)
+#define EXT2_BGD_USED_BYTES        EXT2_BGD_OFFSET(unused)
+#define EXT2_BGD_UNUSED_BYTES      (EXT2_BGD_BYTES - EXT2_BGD_USED_BYTES)
+
 typedef struct fs_ext2_superblock             s_ext2_spbk_t;
 typedef struct fs_ext2_inode                  s_ext2_inode_t;
 typedef struct fs_ext2_extended_superblock    s_ext2_ext_spbk_t;
 typedef struct fs_ext2_block_group_descriptor s_ext2_bgd_t;
 typedef struct fs_ext2_dir                    s_ext2_dir_t;
+typedef struct fs_ext2_block_group_info       s_ext2_bg_info_t;
 
 /*
  *     Physical layout of the ext2 file system
@@ -141,6 +152,7 @@ struct fs_ext2_superblock {
     uint16 group_id_for_reserved;
 
     s_ext2_ext_spbk_t extended_super_block;
+    uint8  unused[EXT2_SBLOCK_UNUSED_BYTES];
 } __attribute__((packed));
 
 /*
@@ -178,6 +190,7 @@ struct fs_ext2_block_group_descriptor {
     uint16 unalloc_block_count;
     uint16 unalloc_inode_count;
     uint16 dir_count;
+    uint8  unused[EXT2_BGD_UNUSED_BYTES];
 } __attribute__((packed));
 
 /*
@@ -222,6 +235,11 @@ struct fs_ext2_inode {
     uint32 fragment_block_addr;
     uint32 os_sp_val_2;
 } __attribute__((packed));
+
+struct fs_ext2_block_group_info {
+    s_ext2_spbk_t superblock;
+    s_ext2_bgd_t  block_group_dspt;
+};
 
 /*
  *     DIRECTORY are inodes, which contains some number of "entries" as their

@@ -157,6 +157,8 @@ typedef struct ata_device_io_port s_ata_dev_io_port_t;
 #define ATA_ID_ST_BYTE_IDX    5 /* unformatted bytes per sector */
 #define ATA_ID_TK_ST_IDX      6 /* sector per track */
 
+#define ATA_DEVICE_OFFSET(a)  ((a) - ATA_DEVICE_START)
+
 enum ata_device_type {
     ATA_DEV_UNKNOWN  = 0xffff,
     ATA_DEV_PATAPI   = 0xeb14,
@@ -201,7 +203,7 @@ struct ata_device_info {
 };
 
 static s_ata_dev_info_t dev_info_array[] = {
-    [ATA_0_DEVICE_0] = {
+    [ATA_DEVICE_OFFSET(ATA_0_DEVICE_0)] = {
         ATA_DEV_UNKNOWN,
         ATA_DRIVE_0,
         0, 0, 0, 0,
@@ -226,7 +228,7 @@ static s_ata_dev_info_t dev_info_array[] = {
         },
     },
 
-    [ATA_0_DEVICE_1] = {
+    [ATA_DEVICE_OFFSET(ATA_0_DEVICE_1)] = {
         ATA_DEV_UNKNOWN,
         ATA_DRIVE_1,
         0, 0, 0, 0,
