@@ -34,6 +34,12 @@ ata_device_info_drive_exist_p(s_ata_dev_info_t *dev_info)
     }
 }
 
+static inline bool
+ata_device_info_drive_no_exist_p(s_ata_dev_info_t *dev_info)
+{
+    return !ata_device_info_drive_exist_p(dev_info);
+}
+
 static inline uint32
 ata_device_info_type(s_ata_dev_info_t *dev_info)
 {

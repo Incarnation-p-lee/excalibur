@@ -188,6 +188,7 @@ ata_device_chs_sector_read_i(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info,
     kassert(count);
     kassert(head < ATA_HEADER_MAX);
     kassert(sector < ATA_TRACK_SECTOR_MAX);
+    kassert(ata_device_info_drive_exist_p(dev_info));
 
     sector_size = ata_device_info_sector_bytes(dev_info) * count;
     kassert(sector_size <= disk_buffer_size(disk_buf));
@@ -230,6 +231,7 @@ ata_device_lba_sector_read_i(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info,
     kassert(count);
     kassert(disk_buffer_legal_p(disk_buf));
     kassert(ata_device_info_legal_p(dev_info));
+    kassert(ata_device_info_drive_exist_p(dev_info));
 
     sector_size = ata_device_info_sector_bytes(dev_info) * count;
     kassert(sector_size <= disk_buffer_size(disk_buf));
@@ -281,7 +283,7 @@ uint32
 ata_device_lba_byte_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
     uint32 lba, uint32 count)
 {
-    uint32 s_count;
+    uint32 sector_count;
     s_ata_dev_info_t *dev_info;
 
     if (disk_buffer_illegal_p(disk_buf)) {
@@ -290,12 +292,16 @@ ata_device_lba_byte_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
         return SIZE_INVALID;
     } else if (count == 0) {
         return SIZE_INVALID;
-    } else {
-        dev_info = ata_device_information(device_id);
-        s_count = count / ata_device_info_sector_bytes(dev_info) + 1;
-
-        return ata_device_lba_sector_read_i(disk_buf, dev_info, lba, s_count);
     }
+
+    dev_info = ata_device_information(device_id);
+
+    if (ata_device_info_drive_no_exist_p(dev_info)) {
+        return SIZE_INVALID;
+    }
+
+    sector_count = count / ata_device_info_sector_bytes(dev_info) + 1;
+    return ata_device_lba_sector_read_i(disk_buf, dev_info, lba, sector_count);
 }
 
 uint32
@@ -314,8 +320,13 @@ ata_device_chs_sector_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
         return SIZE_INVALID;
     } else if (count == 0) {
         return SIZE_INVALID;
+    }
+
+    dev_info = ata_device_information(device_id);
+
+    if (ata_device_info_drive_no_exist_p(dev_info)) {
+        return SIZE_INVALID;
     } else {
-        dev_info = ata_device_information(device_id);
         return ata_device_chs_sector_read_i(disk_buf, dev_info, c, h, s, count);
     }
 }
