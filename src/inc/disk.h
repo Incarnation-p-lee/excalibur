@@ -55,15 +55,22 @@ struct disk_buffer {
 };
 
 enum disk_id {
+    DEVICE_START     = 0x0,
     ATA_DEVICE_START = 0x0,
     ATA_0_DEVICE_0   = 0x0, /* primary bus with first disk */
     ATA_0_DEVICE_1   = 0x1,
     ATA_DEVICE_LIMIT,
+    DEVICE_LIMIT     = ATA_DEVICE_LIMIT,
+    DEVICE_INVALID,
 };
 
 struct disk_descriptor {
-    e_disk_id_t   id;
-    f_disk_read_t read;
+    e_disk_id_t       id;
+    bool              is_active;
+    uint32            sector_bytes;
+    f_disk_read_t     read;
+    const char        *mount; /* only one bootable partition will be mounted */
+    s_disk_pt_table_t pt_table;
 };
 
 #endif

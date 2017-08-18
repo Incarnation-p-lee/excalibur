@@ -96,14 +96,16 @@ ata_device_info_type_detect(s_ata_dev_info_t *dev_info)
 }
 
 static inline void
-ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info)
+ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info, e_disk_id_t device_id)
 {
     s_disk_buf_t *disk_buf;
     s_disk_pt_table_t *pt_table;
 
     kassert(ata_device_info_legal_p(dev_info));
+    kassert(device_id < ata_device_info_limit_i());
+    kassert(device_id >= ata_device_info_start_i());
 
-    pt_table = ata_device_info_pt_table(dev_info);
+    pt_table = disk_descriptor_pt_table(device_id);
     disk_buf = disk_buffer_create(ata_device_info_sector_bytes(dev_info));
 
     ata_device_lba_sector_read_i(disk_buf, dev_info, 0, 1);
@@ -113,22 +115,29 @@ ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info)
 }
 
 static inline void
-ata_device_info_drive_detect(s_ata_dev_info_t *dev_info)
+ata_device_info_drive_detect(s_ata_dev_info_t *dev_info, e_disk_id_t device_id)
 {
     uint8 status;
+    uint32 sector_bytes;
 
     kassert(ata_device_info_legal_p(dev_info));
+    kassert(device_id < ata_device_info_limit_i());
+    kassert(device_id >= ata_device_info_start_i());
 
     ata_device_software_reset(ata_device_info_control_port(dev_info));
 
     status = ata_device_drive_identify(dev_info);
 
     if (status == ATA_ID_NO_DRIVE) {
-        return;
+        disk_descriptor_is_active_set(device_id, /* is_active = */false);
     } else {
         ata_device_info_type_detect(dev_info);
-        ata_device_info_mbr_detect(dev_info);
+        ata_device_info_mbr_detect(dev_info, device_id);
+        disk_descriptor_is_active_set(device_id, /* is_active = */true);
     }
+
+    sector_bytes = ata_device_info_sector_bytes(dev_info);
+    disk_descriptor_sector_bytes_set(device_id, sector_bytes);
 }
 
 static inline void
@@ -143,7 +152,7 @@ ata_device_info_detect(void)
 
     while (i < limit) {
         dev_info = ata_device_information(i);
-        ata_device_info_drive_detect(dev_info);
+        ata_device_info_drive_detect(dev_info, i);
         ata_device_info_drive_print(dev_info, i);
 
         i++;
@@ -273,8 +282,13 @@ ata_device_lba_sector_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
         return SIZE_INVALID;
     } else if (count == 0) {
         return SIZE_INVALID;
+    }
+
+    dev_info = ata_device_information(device_id);
+
+    if (ata_device_info_drive_no_exist_p(dev_info)) {
+        return SIZE_INVALID;
     } else {
-        dev_info = ata_device_information(device_id);
         return ata_device_lba_sector_read_i(disk_buf, dev_info, lba, count);
     }
 }
@@ -335,5 +349,23 @@ void
 ata_device_initialize(void)
 {
     ata_device_info_detect();
+}
+
+uint16
+ata_device_sector_bytes(e_disk_id_t device_id)
+{
+    s_ata_dev_info_t *dev_info;
+
+    if (device_id >= ATA_DEVICE_LIMIT) {
+        return SIZE_INVALID;
+    }
+
+    dev_info = ata_device_information(device_id);
+
+    if (ata_device_info_drive_no_exist_p(dev_info)) {
+        return SIZE_INVALID;
+    } else {
+        return ata_device_info_sector_bytes(dev_info);
+    }
 }
 

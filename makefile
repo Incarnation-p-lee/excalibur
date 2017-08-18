@@ -59,6 +59,7 @@ include src/screen/makefile.mk
 include src/test/makefile.mk
 include src/vfs/makefile.mk
 include src/vfs/fs_initrd/makefile.mk
+include src/vfs/fs_ext2/makefile.mk
 
 -include $(dep)
 

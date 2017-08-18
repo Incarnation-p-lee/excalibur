@@ -13,6 +13,8 @@ typedef s_vfs_node_t * (*f_finddir_t)(s_vfs_node_t *, char *);
 typedef s_vfs_node_t * (*f_fs_initialize_t)(ptr_t);
 
 #define FS_NAME_MAX       128
+#define FS_TABLE_NAME_MAX 32
+#define FS_MOUNT_NAME_MAX 32
 
 /*
  * Only FS_ROOT indicate the only one root node for all different fs.
@@ -31,12 +33,9 @@ typedef s_vfs_node_t * (*f_fs_initialize_t)(ptr_t);
 
 #define FS_DIRECTORY_MASK 0x7u
 
-/* supported fs name */
-#define FS_INITRD         "initrd"
-#define FS_EXT2           "ext2"
-
 #define FS_INITRD_ROOT    "/initrd/"
 #define FS_EXT2_ROOT      "/"
+#define FS_EXT2_HOME      "/home/"
 
 /*
  *     Mountpoint are UNIX way of accessing different filesystem. The filesystem

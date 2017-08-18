@@ -450,11 +450,3 @@ ata_device_info_sector_bytes_set(s_ata_dev_info_t *dev_info, uint16 val)
     dev_info->sector_bytes = val;
 }
 
-static inline s_disk_pt_table_t *
-ata_device_info_pt_table(s_ata_dev_info_t *dev_info)
-{
-    kassert(ata_device_info_legal_p(dev_info));
-
-    return &dev_info->pt_table;
-}
-

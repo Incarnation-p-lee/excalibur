@@ -210,13 +210,6 @@ vfs_node_root(void)
     return &vfs_root;
 }
 
-static inline void
-vfs_ext2_initialize(s_vfs_node_t *root)
-{
-    printf_vga_tk("pli2 root vfs node -> %x\n", root);
-
-}
-
 void
 vfs_initialize(void)
 {
@@ -224,8 +217,8 @@ vfs_initialize(void)
 
     root = vfs_root_node_initialize();
 
-    vfs_initrd_initialize(root);
-    vfs_ext2_initialize(root);
+    vfs_initrd_initialize(root); // Fix-Me: Move to fs_initrd
+    fs_ext2_initialize(root);
 
     printf_vga_tk("Virtual filesystem initialized.\n");
 }

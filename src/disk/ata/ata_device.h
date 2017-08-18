@@ -199,7 +199,6 @@ struct ata_device_info {
     uint16              track_sector;
     uint16              sector_bytes;
     s_ata_dev_io_port_t io_port;
-    s_disk_pt_table_t   pt_table;
 };
 
 static s_ata_dev_info_t dev_info_array[] = {
@@ -218,14 +217,6 @@ static s_ata_dev_info_t dev_info_array[] = {
             {ATA_0_P_CMD,},
             ATA_0_P_DEV_CR,
         },
-        { /* s_disk_pt_table_t */
-            {
-                {0, 0, {0}, 0, 0, {0}, 0, 0},
-                {0, 0, {0}, 0, 0, {0}, 0, 0},
-                {0, 0, {0}, 0, 0, {0}, 0, 0},
-                {0, 0, {0}, 0, 0, {0}, 0, 0},
-            },
-        },
     },
 
     [ATA_DEVICE_OFFSET(ATA_0_DEVICE_1)] = {
@@ -242,14 +233,6 @@ static s_ata_dev_info_t dev_info_array[] = {
             ATA_0_P_HEAD,
             {ATA_0_P_CMD,},
             ATA_0_P_DEV_CR,
-        },
-        { /* s_disk_pt_table_t */
-            {
-                {0, 0, {0}, 0, 0, {0}, 0, 0},
-                {0, 0, {0}, 0, 0, {0}, 0, 0},
-                {0, 0, {0}, 0, 0, {0}, 0, 0},
-                {0, 0, {0}, 0, 0, {0}, 0, 0},
-            },
         },
     },
 };

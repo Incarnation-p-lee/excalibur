@@ -2,6 +2,7 @@
 #define SRC_DISK_ATA_DECLARATION_H
 
 static inline bool ata_device_info_drive_exist_p(s_ata_dev_info_t *dev_info);
+static inline bool ata_device_info_drive_no_exist_p(s_ata_dev_info_t *dev_info);
 static inline bool ata_device_info_io_port_legal_p(s_ata_dev_io_port_t *io_port);
 static inline bool ata_device_info_legal_p(s_ata_dev_info_t *dev_info);
 static inline bool ata_device_status_available_p(uint8 status);
@@ -15,7 +16,6 @@ static inline bool ata_device_status_unavailable_p(uint8 status);
 static inline bool ata_device_status_unreadable_p(uint8 status);
 static inline s_ata_dev_info_t * ata_device_information(e_disk_id_t device_id);
 static inline s_ata_dev_io_port_t * ata_device_info_io_port(s_ata_dev_info_t *dev_info);
-static inline s_disk_pt_table_t * ata_device_info_pt_table(s_ata_dev_info_t *dev_info);
 static inline uint16 ata_device_drive_identify(s_ata_dev_info_t *dev_info);
 static inline uint16 ata_device_info_cmd_port(s_ata_dev_info_t *dev_info);
 static inline uint16 ata_device_info_control_port(s_ata_dev_info_t *dev_info);
@@ -53,10 +53,10 @@ static inline void ata_device_drive_info_indentify(s_ata_dev_info_t *dev);
 static inline void ata_device_drive_set(uint16 port, uint8 val);
 static inline void ata_device_info_cylinder_count_set(s_ata_dev_info_t *dev_info, uint16 count);
 static inline void ata_device_info_detect(void);
-static inline void ata_device_info_drive_detect(s_ata_dev_info_t *dev_info);
-static inline void ata_device_info_drive_print(s_ata_dev_info_t *dev_info, uint32 i);
+static inline void ata_device_info_drive_detect(s_ata_dev_info_t *dev_info, e_disk_id_t device_id);
+static inline void ata_device_info_drive_print(s_ata_dev_info_t *dev_info, e_disk_id_t device_id);
 static inline void ata_device_info_head_count_set(s_ata_dev_info_t *dev_info, uint16 count);
-static inline void ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info);
+static inline void ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info, e_disk_id_t device_id);
 static inline void ata_device_info_sector_bytes_set(s_ata_dev_info_t *dev_info, uint16 val);
 static inline void ata_device_info_track_sector_set(s_ata_dev_info_t *dev_info, uint16 val);
 static inline void ata_device_info_type_detect(s_ata_dev_info_t *dev_info);
@@ -65,6 +65,7 @@ static inline void ata_device_info_type_set(s_ata_dev_info_t *dev_info, uint32 t
 static inline void ata_device_loop_util_available(uint16 status_port);
 static inline void ata_device_loop_util_data_ready(uint16 status_port);
 static inline void ata_device_software_reset(uint16 port);
+uint16 ata_device_sector_bytes(e_disk_id_t device_id);
 uint32 ata_device_chs_sector_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id, uint16 c, uint8 h, uint8 s, uint32 count);
 uint32 ata_device_info_limit(void);
 uint32 ata_device_info_start(void);

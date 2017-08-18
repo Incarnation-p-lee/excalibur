@@ -94,6 +94,8 @@
 #define EXT2_BGD_OFFSET(m)         (uint32)(&((s_ext2_bgd_t *)0)->m)
 #define EXT2_BGD_USED_BYTES        EXT2_BGD_OFFSET(unused)
 #define EXT2_BGD_UNUSED_BYTES      (EXT2_BGD_BYTES - EXT2_BGD_USED_BYTES)
+#define EXT2_DESCCRIPTOR_MAX       64u
+#define EXT2_BLOCK_GROUP_MAX       128u
 
 typedef struct fs_ext2_superblock             s_ext2_spbk_t;
 typedef struct fs_ext2_inode                  s_ext2_inode_t;
@@ -101,6 +103,8 @@ typedef struct fs_ext2_extended_superblock    s_ext2_ext_spbk_t;
 typedef struct fs_ext2_block_group_descriptor s_ext2_bgd_t;
 typedef struct fs_ext2_dir                    s_ext2_dir_t;
 typedef struct fs_ext2_block_group_info       s_ext2_bg_info_t;
+typedef struct fs_ext2_descriptor             s_ext2_dspr_t;
+typedef struct fs_ext2_descriptor_table       s_ext2_dspr_table_t;
 
 /*
  *     Physical layout of the ext2 file system
@@ -241,6 +245,20 @@ struct fs_ext2_block_group_info {
     s_ext2_bgd_t  block_group_dspt;
 };
 
+struct fs_ext2_descriptor {
+    e_disk_id_t      device_id;
+    s_disk_pt_t      *disk_pt;
+    uint32           index;
+    uint32           size;
+    s_ext2_bg_info_t **bg_info_array;
+};
+
+struct fs_ext2_descriptor_table {
+    uint32        index;
+    uint32        size;
+    s_ext2_dspr_t *dspr_array;
+};
+
 /*
  *     DIRECTORY are inodes, which contains some number of "entries" as their
  * contents. These entries are nothing more than a name/inode pair. A directory
@@ -248,7 +266,6 @@ struct fs_ext2_block_group_info {
  *     THE root directory is inode 2.
  *     DIRECTORY entries are not allowed to span multiple blocks.
  */
-
 struct fs_ext2_dir {
     s_ext2_inode_t *inode;
     uint16         size;

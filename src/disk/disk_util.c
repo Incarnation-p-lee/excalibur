@@ -483,3 +483,177 @@ disk_partition_unused_p(s_disk_pt_t *disk_pt)
     return !disk_partition_used_p(disk_pt);
 }
 
+static inline uint32
+disk_descriptor_limit_i(void)
+{
+    return ARRAY_CNT_OF(disk_descripotr);
+}
+
+uint32
+disk_descriptor_limit(void)
+{
+    return disk_descriptor_limit_i();
+}
+
+static inline s_disk_dspt_t *
+disk_descriptor_entry(e_disk_id_t device_id)
+{
+    kassert(device_id < disk_descriptor_limit_i());
+
+    return &disk_descripotr[device_id];
+}
+
+static inline bool
+disk_descriptor_legal_ip(s_disk_dspt_t *disk_dspt)
+{
+    if (disk_dspt == NULL) {
+        return false;
+    } else if (disk_dspt->id >= disk_descriptor_limit_i()) {
+        return false;
+    } else if (disk_dspt->read == NULL) {
+        return false;
+    } else if (disk_dspt->mount == NULL) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+static inline bool
+disk_descriptor_illegal_ip(s_disk_dspt_t *disk_dspt)
+{
+    return !disk_descriptor_legal_ip(disk_dspt);
+}
+
+static inline bool
+disk_descriptor_is_active_ip(e_disk_id_t device_id)
+{
+    s_disk_dspt_t *disk_dspt;
+
+    kassert(device_id < disk_descriptor_limit_i());
+
+    disk_dspt = disk_descriptor_entry(device_id);
+
+    return disk_dspt->is_active;
+}
+
+static inline void
+disk_descriptor_is_active_set_i(e_disk_id_t device_id, bool is_active)
+{
+    s_disk_dspt_t *disk_dspt;
+
+    kassert(device_id < disk_descriptor_limit_i());
+
+    disk_dspt = disk_descriptor_entry(device_id);
+
+    disk_dspt->is_active = is_active;
+}
+
+bool
+disk_descriptor_is_active_p(e_disk_id_t device_id)
+{
+    if (device_id >= disk_descriptor_limit_i()) {
+        return false;
+    } else {
+        return disk_descriptor_is_active_ip(device_id);
+    }
+}
+
+void
+disk_descriptor_is_active_set(e_disk_id_t device_id, bool is_active)
+{
+    if (device_id >= disk_descriptor_limit_i()) {
+        return;
+    } else {
+        disk_descriptor_is_active_set_i(device_id, is_active);
+    }
+}
+
+static inline f_disk_read_t
+disk_descriptor_read_i(e_disk_id_t device_id)
+{
+    s_disk_dspt_t *disk_dspt;
+
+    kassert(device_id < disk_descriptor_limit_i());
+
+    disk_dspt = disk_descriptor_entry(device_id);
+
+    return disk_dspt->read;
+}
+
+f_disk_read_t
+disk_descriptor_read(e_disk_id_t device_id)
+{
+    if (device_id >= disk_descriptor_limit_i()) {
+        return PTR_INVALID;
+    } else {
+        return disk_descriptor_read_i(device_id);
+    }
+}
+
+static inline void
+disk_descriptor_sector_bytes_set_i(e_disk_id_t device_id, uint32 sector_bytes)
+{
+    s_disk_dspt_t *disk_dspt;
+
+    kassert(device_id < disk_descriptor_limit_i());
+
+    disk_dspt = disk_descriptor_entry(device_id);
+
+    disk_dspt->sector_bytes = sector_bytes;
+}
+
+void
+disk_descriptor_sector_bytes_set(e_disk_id_t device_id, uint32 bytes)
+{
+    if (device_id >= disk_descriptor_limit_i()) {
+        return;
+    } else {
+        return disk_descriptor_sector_bytes_set_i(device_id, bytes);
+    }
+}
+
+static inline uint32
+disk_descriptor_sector_bytes_i(e_disk_id_t device_id)
+{
+    s_disk_dspt_t *disk_dspt;
+
+    kassert(device_id < disk_descriptor_limit_i());
+
+    disk_dspt = disk_descriptor_entry(device_id);
+
+    return disk_dspt->sector_bytes;
+}
+
+uint32
+disk_descriptor_device_sector_bytes(e_disk_id_t device_id)
+{
+    if (device_id >= disk_descriptor_limit_i()) {
+        return SIZE_INVALID;
+    } else {
+        return disk_descriptor_sector_bytes_i(device_id);
+    }
+}
+
+static inline s_disk_pt_table_t *
+disk_descriptor_pt_table_i(e_disk_id_t device_id)
+{
+    s_disk_dspt_t *disk_dspt;
+
+    kassert(device_id < disk_descriptor_limit_i());
+
+    disk_dspt = disk_descriptor_entry(device_id);
+
+    return &disk_dspt->pt_table;
+}
+
+s_disk_pt_table_t *
+disk_descriptor_pt_table(e_disk_id_t device_id)
+{
+    if (device_id >= disk_descriptor_limit_i()) {
+        return PTR_INVALID;
+    } else {
+        return disk_descriptor_pt_table_i(device_id);
+    }
+}
+
