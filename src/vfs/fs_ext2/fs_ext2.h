@@ -85,15 +85,9 @@
 #define EXT2_VOLUME_PATH_SIZE      64u
 #define EXT2_DIRECT_BLOCK_SIZE     12u
 
+#define EXT2_SIGNATURE             0xef53u
 #define EXT2_SBLOCK_BYTES          1024u
-#define EXT2_SBLOCK_OFFSET(m)      (uint32)(&((s_ext2_spbk_t *)0)->m)
-#define EXT2_SBLOCK_USED_BYTES     EXT2_SBLOCK_OFFSET(unused)
-#define EXT2_SBLOCK_UNUSED_BYTES   (EXT2_SBLOCK_BYTES - EXT2_SBLOCK_USED_BYTES)
-
 #define EXT2_BGD_BYTES             32u
-#define EXT2_BGD_OFFSET(m)         (uint32)(&((s_ext2_bgd_t *)0)->m)
-#define EXT2_BGD_USED_BYTES        EXT2_BGD_OFFSET(unused)
-#define EXT2_BGD_UNUSED_BYTES      (EXT2_BGD_BYTES - EXT2_BGD_USED_BYTES)
 #define EXT2_DESCCRIPTOR_MAX       64u
 #define EXT2_BLOCK_GROUP_MAX       128u
 
@@ -102,7 +96,7 @@ typedef struct fs_ext2_inode                  s_ext2_inode_t;
 typedef struct fs_ext2_extended_superblock    s_ext2_ext_spbk_t;
 typedef struct fs_ext2_block_group_descriptor s_ext2_bgd_t;
 typedef struct fs_ext2_dir                    s_ext2_dir_t;
-typedef struct fs_ext2_block_group_info       s_ext2_bg_info_t;
+typedef struct fs_ext2_block_group            s_ext2_block_group_t;
 typedef struct fs_ext2_descriptor             s_ext2_dspr_t;
 typedef struct fs_ext2_descriptor_table       s_ext2_dspr_table_t;
 
@@ -121,43 +115,6 @@ typedef struct fs_ext2_descriptor_table       s_ext2_dspr_table_t;
  * +-------+------------+--------+--------+-------+--------+
  *
  */
-
-/*
- *     SUPERBLOCK contains all information about the layout of the filesystem.
- * The superblock is always located at byte 1024 from the begining of the volume
- * and is exactly 1024 bytes in length.
- *
- */
-struct fs_ext2_superblock {
-    uint32 inode_count;
-    uint32 block_count;
-    uint32 root_block_count;
-    uint32 unalloc_block_count;
-    uint32 unalloc_inode_count;
-    uint32 superblock_count;
-    uint32 block_size;           /* log2(block_size) */
-    uint32 fragment_size;        /* log2(fragment_size) */
-    uint32 group_block_count;
-    uint32 group_fragment_count;
-    uint32 group_inode_count;
-    uint32 last_mount_time;      /* POSIX time */
-    uint32 last_write_time;
-    uint16 mount_times;          /* mount times before last fsck */
-    uint16 max_mount_times;      /* max mount times befor fsck */
-    uint16 signature;
-    uint16 state;
-    uint16 error_ops;            /* what to do when error detected */
-    uint16 minor_portion;
-    uint32 last_fsck_time;
-    uint32 fsck_interval;
-    uint32 os_id;
-    uint32 major_portion;
-    uint16 user_id_for_reserved;
-    uint16 group_id_for_reserved;
-
-    s_ext2_ext_spbk_t extended_super_block;
-    uint8  unused[EXT2_SBLOCK_UNUSED_BYTES];
-} __attribute__((packed));
 
 /*
  * only available if major version >= 1.
@@ -183,6 +140,42 @@ struct fs_ext2_extended_superblock {
 } __attribute__((packed));
 
 /*
+ *     SUPERBLOCK contains all information about the layout of the filesystem.
+ * The superblock is always located at byte 1024 from the begining of the volume
+ * and is exactly 1024 bytes in length.
+ *
+ */
+struct fs_ext2_superblock {
+    uint32 inode_count;
+    uint32 block_count;
+    uint32 root_block_count;
+    uint32 unalloc_block_count;
+    uint32 unalloc_inode_count;
+    uint32 superblock_count;
+    uint32 block_size;           /* log2(block_size) - 10 */
+    uint32 fragment_size;        /* log2(fragment_size) - 10 */
+    uint32 group_block_count;
+    uint32 group_fragment_count;
+    uint32 group_inode_count;
+    uint32 last_mount_time;      /* POSIX time */
+    uint32 last_write_time;
+    uint16 mount_times;          /* mount times before last fsck */
+    uint16 max_mount_times;      /* max mount times befor fsck */
+    uint16 signature;
+    uint16 state;
+    uint16 error_ops;            /* what to do when error detected */
+    uint16 minor_portion;
+    uint32 last_fsck_time;
+    uint32 fsck_interval;
+    uint32 os_id;
+    uint32 major_portion;
+    uint16 user_id_for_reserved;
+    uint16 group_id_for_reserved;
+
+    s_ext2_ext_spbk_t extended_super_block;
+} __attribute__((packed));
+
+/*
  *     BLOCK graoup descriptor table contains a descriptor for each block group
  * within file system. The table is located in the block immediately following
  * the superblock. Blocks are numbered staring at 0.
@@ -194,7 +187,6 @@ struct fs_ext2_block_group_descriptor {
     uint16 unalloc_block_count;
     uint16 unalloc_inode_count;
     uint16 dir_count;
-    uint8  unused[EXT2_BGD_UNUSED_BYTES];
 } __attribute__((packed));
 
 /*
@@ -240,23 +232,23 @@ struct fs_ext2_inode {
     uint32 os_sp_val_2;
 } __attribute__((packed));
 
-struct fs_ext2_block_group_info {
+struct fs_ext2_block_group {
     s_ext2_spbk_t superblock;
     s_ext2_bgd_t  block_group_dspt;
 };
 
 struct fs_ext2_descriptor {
-    e_disk_id_t      device_id;
-    s_disk_pt_t      *disk_pt;
-    uint32           index;
-    uint32           size;
-    s_ext2_bg_info_t **bg_info_array;
+    e_disk_id_t          device_id;
+    s_disk_pt_t          *disk_pt;
+    uint32               index;
+    uint32               size;
+    s_ext2_block_group_t **block_group_array;
 };
 
 struct fs_ext2_descriptor_table {
     uint32        index;
     uint32        size;
-    s_ext2_dspr_t *dspr_array;
+    s_ext2_dspr_t **dspr_array;
 };
 
 /*

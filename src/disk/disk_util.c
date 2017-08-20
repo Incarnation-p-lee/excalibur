@@ -466,9 +466,9 @@ disk_partition_table_entry(s_disk_pt_table_t *disk_pt_table, uint32 i)
 }
 
 static inline bool
-disk_partition_used_p(s_disk_pt_t *disk_pt)
+disk_partition_used_ip(s_disk_pt_t *disk_pt)
 {
-    kassert(disk_pt);
+    kassert(disk_partition_legal_ip(disk_pt));
 
     if (disk_pt->system_id == 0) {
        return false;
@@ -478,9 +478,19 @@ disk_partition_used_p(s_disk_pt_t *disk_pt)
 }
 
 static inline bool
-disk_partition_unused_p(s_disk_pt_t *disk_pt)
+disk_partition_unused_ip(s_disk_pt_t *disk_pt)
 {
-    return !disk_partition_used_p(disk_pt);
+    return !disk_partition_used_ip(disk_pt);
+}
+
+bool
+disk_partition_used_p(s_disk_pt_t *disk_pt)
+{
+    if (disk_partition_illegal_ip(disk_pt)) {
+        return false;
+    } else {
+        return disk_partition_used_ip(disk_pt);
+    }
 }
 
 static inline uint32
@@ -626,7 +636,7 @@ disk_descriptor_sector_bytes_i(e_disk_id_t device_id)
 }
 
 uint32
-disk_descriptor_device_sector_bytes(e_disk_id_t device_id)
+disk_descriptor_sector_bytes(e_disk_id_t device_id)
 {
     if (device_id >= disk_descriptor_limit_i()) {
         return SIZE_INVALID;
