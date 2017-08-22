@@ -146,33 +146,38 @@ struct fs_ext2_extended_superblock {
  *
  */
 struct fs_ext2_superblock {
-    uint32 inode_count;
-    uint32 block_count;
-    uint32 root_block_count;
-    uint32 unalloc_block_count;
-    uint32 unalloc_inode_count;
-    uint32 superblock_count;
-    uint32 block_size;           /* log2(block_size) - 10 */
-    uint32 fragment_size;        /* log2(fragment_size) - 10 */
-    uint32 group_block_count;
-    uint32 group_fragment_count;
-    uint32 group_inode_count;
-    uint32 last_mount_time;      /* POSIX time */
-    uint32 last_write_time;
-    uint16 mount_times;          /* mount times before last fsck */
-    uint16 max_mount_times;      /* max mount times befor fsck */
-    uint16 signature;
-    uint16 state;
-    uint16 error_ops;            /* what to do when error detected */
-    uint16 minor_portion;
-    uint32 last_fsck_time;
-    uint32 fsck_interval;
-    uint32 os_id;
-    uint32 major_portion;
-    uint16 user_id_for_reserved;
-    uint16 group_id_for_reserved;
+    union {
+        struct {
+            uint32 total_inode_count;
+            uint32 total_block_count;
+            uint32 root_block_count;
+            uint32 unalloc_block_count;
+            uint32 unalloc_inode_count;
+            uint32 superblock_count;
+            uint32 block_size;           /* log2(block_size) - 10 */
+            uint32 fragment_size;        /* log2(fragment_size) - 10 */
+            uint32 group_block_count;
+            uint32 group_fragment_count;
+            uint32 group_inode_count;
+            uint32 last_mount_time;      /* POSIX time */
+            uint32 last_write_time;
+            uint16 mount_times;          /* mount times before last fsck */
+            uint16 max_mount_times;      /* max mount times befor fsck */
+            uint16 signature;
+            uint16 state;
+            uint16 error_ops;            /* what to do when error detected */
+            uint16 minor_version;
+            uint32 last_fsck_time;
+            uint32 fsck_interval;
+            uint32 os_id;
+            uint32 major_version;
+            uint16 user_id_for_reserved;
+            uint16 group_id_for_reserved;
 
-    s_ext2_ext_spbk_t extended_super_block;
+            s_ext2_ext_spbk_t extended_super_block;
+        };
+        uint8 padding[EXT2_SBLOCK_BYTES];
+    };
 } __attribute__((packed));
 
 /*

@@ -174,7 +174,7 @@ vfs_initrd_initialize(s_vfs_node_t *root)
     vfs_node = fs_initrd_initialize(FS_INITRD_ROOT, addr);
     vfs_sub_list_add_i(root, vfs_node);
 
-    printf_vga_tk("Initrd fs initialized, %s -> %s.\n",
+    printf_vga_tk("Initrd filesystem initialized, %s -> %s.\n",
         multiboot_env_module_name(module), FS_INITRD_ROOT);
 }
 

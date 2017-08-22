@@ -5,3 +5,5 @@
 
 #include "fs_ext2_ops.c"
 #include "fs_ext2_util.c"
+#include "fs_ext2_print.c"
+

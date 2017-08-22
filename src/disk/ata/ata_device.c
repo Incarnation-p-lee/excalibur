@@ -1,8 +1,13 @@
 static inline void
-ata_device_software_reset(uint16 port)
+ata_device_software_reset(uint16 control_port, uint16 status_port)
 {
-    io_bus_byte_write(port, ATA_DEV_CR_SRST);
-    io_bus_byte_write(port, ATA_DEV_CR_NULL);
+    kassert(control_port);
+    kassert(status_port);
+
+    io_bus_byte_write(control_port, ATA_DEV_CR_SRST);
+    io_bus_byte_write(control_port, ATA_DEV_CR_NULL);
+
+    ata_device_loop_util_available(status_port);
 }
 
 static inline void
@@ -15,6 +20,19 @@ static inline void
 ata_device_drive_set(uint16 port, uint8 val)
 {
     io_bus_byte_write(port, val);
+}
+
+static inline void
+ata_device_info_drive_active(s_ata_dev_info_t *dev_info)
+{
+    uint8 config;
+
+    kassert(ata_device_info_legal_p(dev_info));
+
+    config = ata_device_info_drive_id(dev_info) | ATA_LBA_MODE;
+
+    ata_device_drive_set(ata_device_info_drive_port(dev_info), config);
+    // ata_device_loop_util_available(ata_device_info_status_port(dev_info));
 }
 
 static inline void
@@ -46,24 +64,21 @@ ata_device_drive_info_indentify(s_ata_dev_info_t *dev)
 static inline uint16
 ata_device_drive_identify(s_ata_dev_info_t *dev_info)
 {
-    uint8 config, status;
+    uint8 status;
 
     kassert(ata_device_info_legal_p(dev_info));
 
-    /* active one drive in bus */
-    config = ata_device_info_drive_id(dev_info) | ATA_LBA_MODE;
-    ata_device_drive_set(ata_device_info_drive_port(dev_info), config);
-
-    /* disable drive irq */
+    /* active the target drive in bus */
+    ata_device_info_drive_active(dev_info);
     ata_device_disable_drive_irq(ata_device_info_control_port(dev_info));
 
     io_bus_byte_write(ata_device_info_sector_count_port(dev_info), 0);
     io_bus_byte_write(ata_device_info_lba_low_port(dev_info), 0);
     io_bus_byte_write(ata_device_info_lba_mid_port(dev_info), 0);
     io_bus_byte_write(ata_device_info_lba_high_port(dev_info), 0);
-
     io_bus_byte_write(ata_device_info_cmd_port(dev_info), ATA_CMD_IDENTIFY);
 
+    ata_device_loop_util_data_ready(ata_device_info_status_port(dev_info));
     status = io_bus_byte_read(ata_device_info_status_port(dev_info));
 
     if (status != 0) { /* drive existed */
@@ -110,6 +125,7 @@ ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info, e_disk_id_t device_id)
 
     ata_device_lba_sector_read_i(disk_buf, dev_info, 0, 1);
     disk_buffer_copy(pt_table, disk_buf, DISK_PT_OFFSET, DISK_PT_TABLE_BYTES);
+    ata_device_lba_sector_read_i(disk_buf, dev_info, 0, 1);
 
     disk_buffer_destroy(&disk_buf);
 }
@@ -119,13 +135,16 @@ ata_device_info_drive_detect(s_ata_dev_info_t *dev_info, e_disk_id_t device_id)
 {
     uint8 status;
     uint32 sector_bytes;
+    uint16 status_port, control_port;
 
     kassert(ata_device_info_legal_p(dev_info));
     kassert(device_id < ata_device_info_limit_i());
     kassert(device_id >= ata_device_info_start_i());
 
-    ata_device_software_reset(ata_device_info_control_port(dev_info));
+    status_port = ata_device_info_status_port(dev_info);
+    control_port = ata_device_info_control_port(dev_info);
 
+    ata_device_software_reset(control_port, status_port);
     status = ata_device_drive_identify(dev_info);
 
     if (status == ATA_ID_NO_DRIVE) {
@@ -165,10 +184,13 @@ ata_device_loop_util_data_ready(uint16 status_port)
     uint8 status;
 
     status = io_bus_byte_read(status_port); /* waiting util data is ready */
+    printf_vga_tk("pli28 status %x, port %x\n", status, status_port);
 
     while (ata_device_status_unreadable_p(status)) {
         status = io_bus_byte_read(status_port);
     }
+
+    printf_vga_tk("pli28 status data ready %x\n", status);
 }
 
 static inline void
@@ -202,11 +224,14 @@ ata_device_chs_sector_read_i(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info,
     sector_size = ata_device_info_sector_bytes(dev_info) * count;
     kassert(sector_size <= disk_buffer_size(disk_buf));
 
+    /* active the target drive in bus */
+    ata_device_info_drive_active(dev_info);
+    ata_device_disable_drive_irq(ata_device_info_control_port(dev_info));
+
     /* set head, CHS mode */
     config = ATA_CHS_MODE;
     config |= head | ata_device_info_drive_id(dev_info);
     io_bus_byte_write(ata_device_info_control_port(dev_info), config);
-    ata_device_disable_drive_irq(ata_device_info_control_port(dev_info));
 
     /* set count and number (actually sector wanted) to read */
     io_bus_byte_write(ata_device_info_sector_count_port(dev_info), count);
@@ -237,6 +262,8 @@ ata_device_lba_sector_read_i(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info,
     uint8 config;
     uint32 sector_size;
 
+    printf_vga_tk("pli28 lba %d, sector_count %d\n", a, count);
+
     kassert(count);
     kassert(disk_buffer_legal_p(disk_buf));
     kassert(ata_device_info_legal_p(dev_info));
@@ -244,6 +271,9 @@ ata_device_lba_sector_read_i(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info,
 
     sector_size = ata_device_info_sector_bytes(dev_info) * count;
     kassert(sector_size <= disk_buffer_size(disk_buf));
+
+    /* active the target drive in bus */
+    ata_device_info_drive_active(dev_info);
 
     /* set the ata drive with LBA mode */
     config = ATA_LBA_MODE;
@@ -315,6 +345,7 @@ ata_device_lba_byte_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
     }
 
     sector_count = count / ata_device_info_sector_bytes(dev_info) + 1;
+
     return ata_device_lba_sector_read_i(disk_buf, dev_info, lba, sector_count);
 }
 

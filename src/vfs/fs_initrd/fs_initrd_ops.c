@@ -109,7 +109,6 @@ fs_initrd_initialize_i(char *root_path, ptr_t location)
 
     fs_initrd_vfs_root_node_set(vfs_root);
 
-    printf_vga_tk("Initrd filesystem initialized.\n");
     return vfs_root;
 }
 

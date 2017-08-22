@@ -104,6 +104,12 @@ fs_ext2_descriptor_table_index(s_ext2_dspr_table_t *dspr_table)
     return dspr_table->index;
 }
 
+static inline uint32
+fs_ext2_descriptor_table_limit(s_ext2_dspr_table_t *dspr_table)
+{
+    return fs_ext2_descriptor_table_index(dspr_table);
+}
+
 static inline void
 fs_ext2_descriptor_table_index_set(s_ext2_dspr_table_t *dspr_table,
     uint32 index)
@@ -197,7 +203,7 @@ fs_ext2_block_group_is_ext2_p(s_ext2_block_group_t *block_group)
 }
 
 static inline uint32
-fs_ext2_superblock_block_count(s_ext2_spbk_t *spbk)
+fs_ext2_superblock_group_block_count(s_ext2_spbk_t *spbk)
 {
     kassert(spbk);
 
@@ -213,7 +219,7 @@ fs_ext2_block_group_block_count(s_ext2_block_group_t *block_group)
 
     spbk = fs_ext2_block_group_superblock(block_group);
 
-    return fs_ext2_superblock_block_count(spbk);
+    return fs_ext2_superblock_group_block_count(spbk);
 }
 
 static inline uint32
@@ -234,6 +240,46 @@ fs_ext2_block_group_block_size(s_ext2_block_group_t *block_group)
     spbk = fs_ext2_block_group_superblock(block_group);
 
     return fs_ext2_superblock_block_size(spbk);
+}
+
+static inline uint32
+fs_ext2_superblock_total_block_count(s_ext2_spbk_t *spbk)
+{
+    kassert(spbk);
+
+    return spbk->total_block_count;
+}
+
+static inline uint32
+fs_ext2_block_group_total_block_count(s_ext2_block_group_t *block_group)
+{
+    s_ext2_spbk_t *spbk;
+
+    kassert(block_group);
+
+    spbk = fs_ext2_block_group_superblock(block_group);
+
+    return fs_ext2_superblock_total_block_count(spbk);
+}
+
+static inline uint32
+fs_ext2_superblock_major_version(s_ext2_spbk_t *spbk)
+{
+    kassert(spbk);
+
+    return spbk->major_version;
+}
+
+static inline uint32
+fs_ext2_block_group_major_version(s_ext2_block_group_t *block_group)
+{
+    s_ext2_spbk_t *spbk;
+
+    kassert(block_group);
+
+    spbk = fs_ext2_block_group_superblock(block_group);
+
+    return fs_ext2_superblock_major_version(spbk);
 }
 
 static inline uint32
@@ -262,6 +308,19 @@ fs_ext2_descriptor_block_group_array(s_ext2_dspr_t *dspr)
     return dspr->block_group_array;
 }
 
+static inline s_ext2_block_group_t *
+fs_ext2_descriptor_block_group_entry(s_ext2_dspr_t *dspr, uint32 i)
+{
+    s_ext2_block_group_t **block_group_array;
+
+    kassert(fs_ext2_descriptor_legal_p(dspr));
+    kassert(i < fs_ext2_descriptor_limit(dspr));
+
+    block_group_array = fs_ext2_descriptor_block_group_array(dspr);
+
+    return block_group_array[i];
+}
+
 static inline uint32
 fs_ext2_descriptor_index(s_ext2_dspr_t *dspr)
 {
@@ -270,11 +329,30 @@ fs_ext2_descriptor_index(s_ext2_dspr_t *dspr)
     return dspr->index;
 }
 
+static inline uint32
+fs_ext2_descriptor_limit(s_ext2_dspr_t *dspr)
+{
+    return fs_ext2_descriptor_index(dspr);
+}
+
 static inline void
 fs_ext2_descriptor_index_set(s_ext2_dspr_t *dspr, uint32 index)
 {
     kassert(fs_ext2_descriptor_legal_p(dspr));
 
     dspr->index = index;
+}
+
+static inline s_ext2_dspr_t *
+fs_ext2_descriptor_table_entry(s_ext2_dspr_table_t *dspr_table, uint32 i)
+{
+    s_ext2_dspr_t **dspr_array;
+
+    kassert(fs_ext2_descriptor_table_legal_p(dspr_table));
+    kassert(i < fs_ext2_descriptor_table_limit(dspr_table));
+
+    dspr_array = fs_ext2_descriptor_table_dspr_array(dspr_table);
+
+    return dspr_array[i];
 }
 
