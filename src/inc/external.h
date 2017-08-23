@@ -41,7 +41,6 @@ extern s_linked_list_t * linked_list_prev(s_linked_list_t *linked_list);
 extern s_linked_list_t * linked_list_remove(s_linked_list_t *node);
 extern s_ordered_array_t * ordered_array_create(uint32 size, ordered_compare_t compare);
 extern s_vfs_node_t * fs_initrd_file_create(char *name);
-extern s_vfs_node_t * fs_initrd_initialize(char *root_path, ptr_t location);
 extern s_vfs_node_t * fs_initrd_vfs_node_root(void);
 extern s_vfs_node_t * vfs_dir_node_create(char *name, f_readdir_t readdir, f_finddir_t finddir);
 extern s_vfs_node_t * vfs_file_node_create(char *name, f_read_t read, f_write_t write);
@@ -113,6 +112,7 @@ extern void disk_partition_sector_start_set(s_disk_pt_t *disk_pt, uint16 sector_
 extern void disk_partition_system_id_set(s_disk_pt_t *disk_pt, uint8 system_id);
 extern void disk_partition_table_print(s_disk_pt_table_t *pt_table);
 extern void fs_ext2_initialize(s_vfs_node_t *root);
+extern void fs_initrd_initialize(s_vfs_node_t *root);
 extern void gdt_initialize(void);
 extern void idt_initialize(void);
 extern void io_bus_byte_write(uint16 port, uint8 val);

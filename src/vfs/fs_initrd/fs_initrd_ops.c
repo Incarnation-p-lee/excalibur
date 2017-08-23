@@ -76,7 +76,7 @@ fs_initrd_finddir(s_vfs_node_t *fs_node, char *name)
 }
 
 static inline s_vfs_node_t *
-fs_initrd_initialize_i(char *root_path, ptr_t location)
+fs_initrd_module_initialize(char *root_path, ptr_t location)
 {
     uint32 i, count;
     s_vfs_node_t *vfs_root;
@@ -112,18 +112,6 @@ fs_initrd_initialize_i(char *root_path, ptr_t location)
     return vfs_root;
 }
 
-s_vfs_node_t *
-fs_initrd_initialize(char *root_path, ptr_t location)
-{
-    if (location == 0) {
-        return PTR_INVALID;
-    } else if (root_path == NULL) {
-        return PTR_INVALID;
-    } else {
-        return fs_initrd_initialize_i(root_path, location);
-    }
-}
-
 static inline s_vfs_node_t *
 fs_initrd_file_create_i(char *name)
 {
@@ -154,6 +142,35 @@ fs_initrd_file_create(char *name)
         return PTR_INVALID;
     } else {
         return fs_initrd_file_create_i(name);
+    }
+}
+
+static inline void
+fs_initrd_initialize_i(s_vfs_node_t *root)
+{
+    ptr_t addr;
+    s_vfs_node_t *vfs_node;
+    s_boot_module_t *module;
+
+    kassert(vfs_node_legal_p(root));
+
+    module = multiboot_data_info_boot_module(0);
+    addr = multiboot_env_module_addr_start(module);
+
+    vfs_node = fs_initrd_module_initialize(FS_INITRD_ROOT, addr);
+    vfs_sub_list_add(root, vfs_node);
+
+    printf_vga_tk("Initrd filesystem initialized, %s -> %s.\n",
+        multiboot_env_module_name(module), FS_INITRD_ROOT);
+}
+
+void
+fs_initrd_initialize(s_vfs_node_t *root)
+{
+    if (vfs_node_illegal_p(root)) {
+        return;
+    } else {
+        fs_initrd_initialize_i(root);
     }
 }
 

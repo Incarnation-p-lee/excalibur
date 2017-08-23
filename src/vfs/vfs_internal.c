@@ -159,25 +159,6 @@ vfs_readdir(s_vfs_node_t *vfs_node, uint32 index)
     }
 }
 
-static inline void
-vfs_initrd_initialize(s_vfs_node_t *root)
-{
-    ptr_t addr;
-    s_vfs_node_t *vfs_node;
-    s_boot_module_t *module;
-
-    kassert(vfs_node_legal_ip(root));
-
-    module = multiboot_data_info_boot_module(0);
-    addr = multiboot_env_module_addr_start(module);
-
-    vfs_node = fs_initrd_initialize(FS_INITRD_ROOT, addr);
-    vfs_sub_list_add_i(root, vfs_node);
-
-    printf_vga_tk("Initrd filesystem initialized, %s -> %s.\n",
-        multiboot_env_module_name(module), FS_INITRD_ROOT);
-}
-
 static inline s_vfs_node_t *
 vfs_root_node_initialize(void)
 {
@@ -217,7 +198,7 @@ vfs_initialize(void)
 
     root = vfs_root_node_initialize();
 
-    vfs_initrd_initialize(root); // Fix-Me: Move to fs_initrd
+    fs_initrd_initialize(root);
     fs_ext2_initialize(root);
 
     printf_vga_tk("Virtual filesystem initialized.\n");

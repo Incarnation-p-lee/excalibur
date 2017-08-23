@@ -40,7 +40,6 @@ static inline s_vfs_node_t * vfs_sub_list_first_i(s_vfs_node_t *vfs_node);
 static inline uint32 vfs_node_flags_i(s_vfs_node_t *vfs_node);
 static inline uint32 vfs_node_inode_i(s_vfs_node_t *vfs_node);
 static inline uint32 vfs_node_length_i(s_vfs_node_t *vfs_node);
-static inline void vfs_initrd_initialize(s_vfs_node_t *root);
 static inline void vfs_node_flags_add_i(s_vfs_node_t *vfs_node, uint32 flags);
 static inline void vfs_node_flags_set_i(s_vfs_node_t *vfs_node, uint32 flags);
 static inline void vfs_node_inode_set_i(s_vfs_node_t *vfs_node, uint32 inode);
