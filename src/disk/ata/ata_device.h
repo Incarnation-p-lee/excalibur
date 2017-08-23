@@ -128,7 +128,7 @@ typedef struct ata_device_io_port s_ata_dev_io_port_t;
 #define ATA_LBA_MODE          (ATA_DRIVE_MASK | ATA_LBA_MASK)
 #define ATA_CHS_MODE          (ATA_DRIVE_MASK | ATA_CHS_MASK)
 
-#define ATA_LBA_HEAD(l)       (l >> 24)
+#define ATA_LBA_HEAD(l)       (l >> 24 & 0xf)
 #define ATA_LBA_LOW(l)        ((l >> 0) & 0xff)
 #define ATA_LBA_MID(l)        ((l >> 8) & 0xff)
 #define ATA_LBA_HIGH(l)       ((l >> 16) & 0xff)

@@ -69,7 +69,7 @@ struct disk_descriptor {
     bool              is_active;
     uint32            sector_bytes;
     f_disk_read_t     read;
-    const char        *mount; /* only one bootable partition will be mounted */
+    char              mount[FS_NAME_MAX];
     s_disk_pt_table_t pt_table;
 };
 

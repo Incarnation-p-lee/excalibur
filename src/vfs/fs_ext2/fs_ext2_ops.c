@@ -62,7 +62,7 @@ static inline s_ext2_block_group_t *
 fs_ext2_block_group_create(s_ext2_dspr_t *dspr, s_disk_buf_t *disk_buf,
     uint32 secotr_offset)
 {
-    // f_disk_read_t read;
+    f_disk_read_t read;
     e_disk_id_t device_id;
     s_ext2_block_group_t *block_group;
 
@@ -71,13 +71,13 @@ fs_ext2_block_group_create(s_ext2_dspr_t *dspr, s_disk_buf_t *disk_buf,
     kassert(fs_ext2_descriptor_legal_p(dspr));
 
     device_id = fs_ext2_descriptor_device_id(dspr);
-    // read = disk_descriptor_read(device_id);
+    read = disk_descriptor_read(device_id);
 
     block_group = kmalloc(sizeof(*block_group));
 
-    // read(disk_buf, device_id, secotr_offset, sizeof(*block_group));
+    read(disk_buf, device_id, secotr_offset, sizeof(*block_group));
     // read(disk_buf, device_id, 0, 511);
-    ata_device_lba_sector_read(disk_buf, device_id, 0, 1);
+    // ata_device_lba_sector_read(disk_buf, device_id, 0, 1);
     disk_buffer_copy(block_group, disk_buf, 0, sizeof(*block_group));
 
     return block_group;
