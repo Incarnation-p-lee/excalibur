@@ -87,6 +87,7 @@
 
 #define EXT2_SIGNATURE             0xef53u
 #define EXT2_SBLOCK_BYTES          1024u
+#define EXT2_SBLOCK_OFFSET         1024u
 #define EXT2_BGD_BYTES             32u
 #define EXT2_DESCCRIPTOR_MAX       64u
 #define EXT2_BLOCK_GROUP_MAX       128u

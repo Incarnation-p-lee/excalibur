@@ -1,22 +1,36 @@
 static inline void
-fs_ext2_block_group_print(s_ext2_block_group_t *block_group, uint32 i)
+fs_ext2_block_group_print(s_ext2_block_group_t *group, uint32 i)
 {
-    kassert(block_group);
+    uint32 group_count;
+    uint32 block_count;
+    uint32 block_unallocated;
+    uint32 total_block_count;
 
-    printf_vga_tk("Block-group %d\n", i);
-    printf_vga_tk("    Total block count %d\n",
-        fs_ext2_block_group_total_block_count(block_group));
-    printf_vga_tk("    Group block count  %d\n",
-        fs_ext2_block_group_block_count(block_group));
-    printf_vga_tk("    Major version: %d\n",
-        fs_ext2_block_group_major_version(block_group));
+    kassert(group);
+
+    block_count = fs_ext2_block_group_block_count(group);
+    total_block_count = fs_ext2_block_group_total_block_count(group);
+    block_unallocated = fs_ext2_block_group_unallocated_block_count(group);
+
+    group_count = total_block_count / block_count;
+
+    if (total_block_count % block_count != 0) {
+        group_count++;
+    }
+
+    printf_vga_tk("Reading block group %d done.\n", i);
+    printf_vga_tk("    Total block count %d\n", total_block_count);
+    printf_vga_tk("    Block count %d\n", block_count);
+    printf_vga_tk("    Unallocated block count %d\n", block_unallocated);
+    printf_vga_tk("    Group count %d\n", group_count);
 }
+
 
 static inline void
 fs_ext2_descriptor_print(s_ext2_dspr_t *dspr)
 {
     uint32 i, limit;
-    s_ext2_block_group_t *block_group;
+    s_ext2_block_group_t *group;
 
     kassert(fs_ext2_descriptor_legal_p(dspr));
 
@@ -24,8 +38,11 @@ fs_ext2_descriptor_print(s_ext2_dspr_t *dspr)
     limit = fs_ext2_descriptor_limit(dspr);
 
     while (i < limit) {
-        block_group = fs_ext2_descriptor_block_group_entry(dspr, i);
-        fs_ext2_block_group_print(block_group, i);
+        group = fs_ext2_descriptor_block_group_entry(dspr, i);
+
+        if (group != NULL) {
+            fs_ext2_block_group_print(group, i);
+        }
 
         i++;
     }

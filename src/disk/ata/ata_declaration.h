@@ -48,6 +48,7 @@ static inline uint32 ata_device_info_limit_i(void);
 static inline uint32 ata_device_info_start_i(void);
 static inline uint32 ata_device_info_type(s_ata_dev_info_t *dev_info);
 static inline uint32 ata_device_lba_sector_read_i(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info, uint32 a, uint32 count);
+static inline uint32 ata_device_read_by_sector(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info, uint32 sector_count);
 static inline void ata_device_disable_drive_irq(uint16 port);
 static inline void ata_device_drive_set(uint16 port, uint8 val);
 static inline void ata_device_info_cylinder_count_set(s_ata_dev_info_t *dev_info, uint16 count);

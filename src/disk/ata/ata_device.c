@@ -184,10 +184,45 @@ ata_device_loop_util_available(uint16 status_port)
 }
 
 static inline uint32
+ata_device_read_by_sector(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info,
+    uint32 sector_count)
+{
+    uint16 port;
+    uint32 i, limit;
+    void *buffer_array;
+    uint32 sector_bytes, read_bytes;
+
+    kassert(sector_count);
+    kassert(disk_buffer_legal_p(disk_buf));
+    kassert(ata_device_info_legal_p(dev_info));
+    kassert(ata_device_info_drive_exist_p(dev_info));
+
+    sector_bytes = ata_device_info_sector_bytes(dev_info);
+    port = ata_device_info_data_port(dev_info);
+
+    i = 0;
+    limit = sector_count;
+    buffer_array = disk_buffer_array(disk_buf);
+
+    while (i < limit) {
+        ata_device_loop_util_data_ready(ata_device_info_cmd_port(dev_info));
+        io_bus_read(port, buffer_array, sector_bytes);
+
+        buffer_array += sector_bytes;
+        i++;
+    }
+
+    read_bytes = sector_bytes * sector_count;
+    disk_buffer_index_set(disk_buf, read_bytes);
+    kassert(read_bytes <= disk_buffer_size(disk_buf));
+
+    return read_bytes;
+}
+
+static inline uint32
 ata_device_chs_sector_read_i(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info,
     uint16 cylinder, uint8 head, uint8 sector, uint32 count)
 {
-    uint16 port;
     uint8 config;
     uint32 sector_size;
     uint8 cyl_low, cyl_high;
@@ -219,33 +254,23 @@ ata_device_chs_sector_read_i(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info,
 
     /* set read command */
     io_bus_byte_write(ata_device_info_cmd_port(dev_info), ATA_CMD_READ_RETRY);
-    ata_device_loop_util_data_ready(ata_device_info_cmd_port(dev_info));
 
-    port = ata_device_info_data_port(dev_info);
-    io_bus_read(port, disk_buffer_array(disk_buf), sector_size);
-    disk_buffer_index_set(disk_buf, sector_size);
-
-    return sector_size;
+    return ata_device_read_by_sector(disk_buf, dev_info, count);
 }
 
 static inline uint32
 ata_device_lba_sector_read_i(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info,
     uint32 a, uint32 count)
 {
-    uint16 port;
     uint8 config;
-    uint32 sector_size;
 
     kassert(count);
     kassert(disk_buffer_legal_p(disk_buf));
     kassert(ata_device_info_legal_p(dev_info));
     kassert(ata_device_info_drive_exist_p(dev_info));
 
-    sector_size = ata_device_info_sector_bytes(dev_info) * count;
-    kassert(sector_size <= disk_buffer_size(disk_buf));
-
     /* set the ata drive with LBA mode */
-    config = ATA_LBA_MODE | ATA_LBA_HIGH(a);
+    config = ATA_LBA_MODE | ATA_LBA_HEAD(a);
     ata_device_info_drive_active(dev_info, config);
     ata_device_disable_drive_irq(ata_device_info_control_port(dev_info));
 
@@ -259,13 +284,8 @@ ata_device_lba_sector_read_i(s_disk_buf_t *disk_buf, s_ata_dev_info_t *dev_info,
 
     /* set read command */
     io_bus_byte_write(ata_device_info_cmd_port(dev_info), ATA_CMD_READ_RETRY);
-    ata_device_loop_util_data_ready(ata_device_info_cmd_port(dev_info));
 
-    port = ata_device_info_data_port(dev_info);
-    io_bus_read(port, disk_buffer_array(disk_buf), sector_size);
-    disk_buffer_index_set(disk_buf, sector_size);
-
-    return sector_size;
+    return ata_device_read_by_sector(disk_buf, dev_info, count);
 }
 
 uint32
@@ -313,7 +333,6 @@ ata_device_lba_byte_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
     }
 
     sector_count = count / ata_device_info_sector_bytes(dev_info) + 1;
-
     return ata_device_lba_sector_read_i(disk_buf, dev_info, lba, sector_count);
 }
 
