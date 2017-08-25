@@ -10,6 +10,7 @@ extern bool disk_partition_illegal_p(s_disk_pt_t *disk_pt);
 extern bool disk_partition_legal_p(s_disk_pt_t *disk_pt);
 extern bool disk_partition_table_illegal_p(s_disk_pt_table_t *disk_pt_table);
 extern bool disk_partition_table_legal_p(s_disk_pt_table_t *disk_pt_table);
+extern bool disk_partition_unused_p(s_disk_pt_t *disk_pt);
 extern bool disk_partition_used_p(s_disk_pt_t *disk_pt);
 extern bool linked_list_head_p(s_linked_list_t *node);
 extern bool linked_list_legal_p(s_linked_list_t *linked_list);

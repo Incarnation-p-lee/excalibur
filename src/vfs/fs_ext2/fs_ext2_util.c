@@ -171,7 +171,7 @@ fs_ext2_superblock_signature(s_ext2_spbk_t *spbk)
 }
 
 static inline bool
-fs_ext2_superblock_is_ext2_p(s_ext2_spbk_t *spbk)
+fs_ext2_superblock_valid_p(s_ext2_spbk_t *spbk)
 {
     kassert(spbk);
 
@@ -191,7 +191,7 @@ fs_ext2_block_group_superblock(s_ext2_block_group_t *group)
 }
 
 static inline bool
-fs_ext2_block_group_is_ext2_p(s_ext2_block_group_t *group)
+fs_ext2_block_group_valid_p(s_ext2_block_group_t *group)
 {
     s_ext2_spbk_t *spbk;
 
@@ -199,7 +199,13 @@ fs_ext2_block_group_is_ext2_p(s_ext2_block_group_t *group)
 
     spbk = fs_ext2_block_group_superblock(group);
 
-    return fs_ext2_superblock_is_ext2_p(spbk);
+    return fs_ext2_superblock_valid_p(spbk);
+}
+
+static inline bool
+fs_ext2_block_group_invalid_p(s_ext2_block_group_t *group)
+{
+    return !fs_ext2_block_group_valid_p(group);
 }
 
 static inline uint32
@@ -304,13 +310,15 @@ fs_ext2_block_group_major_version(s_ext2_block_group_t *group)
 
 static inline uint32
 fs_ext2_block_group_sector_count(s_ext2_block_group_t *group,
-    uint32 sector_bytes)
+    e_disk_id_t device_id)
 {
+    uint32 sector_bytes;
     uint32 sector_count;
     uint32 block_size, block_count;
 
     kassert(group);
 
+    sector_bytes = disk_descriptor_sector_bytes(device_id);
     block_size = fs_ext2_block_group_block_size(group);
     block_count = fs_ext2_block_group_block_count(group);
     sector_count = block_size * block_count / sector_bytes;

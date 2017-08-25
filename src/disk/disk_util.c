@@ -493,6 +493,16 @@ disk_partition_used_p(s_disk_pt_t *disk_pt)
     }
 }
 
+bool
+disk_partition_unused_p(s_disk_pt_t *disk_pt)
+{
+    if (disk_partition_illegal_ip(disk_pt)) {
+        return false;
+    } else {
+        return disk_partition_unused_ip(disk_pt);
+    }
+}
+
 static inline uint32
 disk_descriptor_limit_i(void)
 {

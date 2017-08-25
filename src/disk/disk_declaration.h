@@ -9,6 +9,7 @@ bool disk_partition_illegal_p(s_disk_pt_t *disk_pt);
 bool disk_partition_legal_p(s_disk_pt_t *disk_pt);
 bool disk_partition_table_illegal_p(s_disk_pt_table_t *disk_pt_table);
 bool disk_partition_table_legal_p(s_disk_pt_table_t *disk_pt_table);
+bool disk_partition_unused_p(s_disk_pt_t *disk_pt);
 bool disk_partition_used_p(s_disk_pt_t *disk_pt);
 f_disk_read_t disk_descriptor_read(e_disk_id_t device_id);
 s_disk_buf_t * disk_buffer_create(uint32 size);
