@@ -34,8 +34,7 @@ typedef s_vfs_node_t * (*f_fs_initialize_t)(ptr_t);
 #define FS_DIRECTORY_MASK 0x7u
 
 #define FS_INITRD_ROOT    "/initrd/"
-#define FS_EXT2_ROOT      "/"
-#define FS_EXT2_HOME      "/home/"
+#define FS_DIR_ROOT       "/"
 
 /*
  *     Mountpoint are UNIX way of accessing different filesystem. The filesystem

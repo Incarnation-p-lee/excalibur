@@ -91,13 +91,15 @@
 #define EXT2_BGD_BYTES             32u
 #define EXT2_DESCCRIPTOR_MAX       64u
 #define EXT2_BLOCK_GROUP_MAX       128u
+#define EXT2_ROOT_DIR_INODE        2u
 
 typedef struct fs_ext2_superblock             s_ext2_spbk_t;
 typedef struct fs_ext2_inode                  s_ext2_inode_t;
 typedef struct fs_ext2_extended_superblock    s_ext2_ext_spbk_t;
 typedef struct fs_ext2_block_group_descriptor s_ext2_bgd_t;
 typedef struct fs_ext2_dir                    s_ext2_dir_t;
-typedef struct fs_ext2_block_group            s_ext2_block_group_t;
+typedef struct fs_ext2_block_group_info       s_ext2_bg_info_t;
+typedef struct fs_ext2_block_group_data       s_ext2_bg_data_t;
 typedef struct fs_ext2_descriptor             s_ext2_dspr_t;
 typedef struct fs_ext2_descriptor_table       s_ext2_dspr_table_t;
 
@@ -238,17 +240,22 @@ struct fs_ext2_inode {
     uint32 os_sp_val_2;
 } __attribute__((packed));
 
-struct fs_ext2_block_group {
+struct fs_ext2_block_group_info {
     s_ext2_spbk_t superblock;
     s_ext2_bgd_t  block_group_dspt;
 };
 
+struct fs_ext2_block_group_data {
+    uint32 placeholder;
+};
+
 struct fs_ext2_descriptor {
-    e_disk_id_t          device_id;
-    s_disk_pt_t          *disk_pt;
-    uint32               index;
-    uint32               size;
-    s_ext2_block_group_t **block_group_array;
+    e_disk_id_t      device_id;
+    s_disk_pt_t      *disk_pt;
+    s_ext2_bg_info_t *bg_info;
+    uint32           index;
+    uint32           size;
+    s_ext2_bg_data_t **bg_data_array;
 };
 
 struct fs_ext2_descriptor_table {
