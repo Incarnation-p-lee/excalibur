@@ -36,6 +36,9 @@
 #define BIT_WIDTH(t)              (sizeof(t) * 8)
 #define U32_BIT_GET(x, idx)       ((uint32)(x) >> (idx) & 0x1)
 #define U32_BITS_GET(x, s, len)   (((uint32)(x) >> (s)) & ((0x1 << (len)) - 1))
+#define U8_BIT_GET(x, idx)        ((uint8)(x) >> (idx) & 0x1)
+#define U8_BIT_SET(x, idx)        ((x) = (uint8)(x) | (uint8)(0x1 << (idx)))
+#define U8_BIT_CLEAR(x, idx)      ((x) = (uint8)(x) & ~(uint8)(0x1 << (idx)))
 
 #define PAGE_ALIGNED_P(p)         (((ptr_t)p & PAGE_MASK) == 0 ? true : false)
 #define PAGE_UNALIGNED_P(p)       (!PAGE_ALIGNED_P(p))

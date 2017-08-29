@@ -167,7 +167,8 @@ sub structure_interface_generate {
 
         $tmp = "$s_name" . "_$name";
         $f_set = "$tmp" . "_set";
-        $f_get = "$tmp" . "_p" if $type eq "bool";
+        $f_get = "$tmp";
+        $f_get = "$f_get" . "_p" if $type eq "bool";
 
         printf $file_opend "static inline $type" . "$pointer\n";
         printf $file_opend "$f_get" . "($s_alias *$s_name)\n";

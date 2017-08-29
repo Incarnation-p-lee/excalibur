@@ -2,6 +2,10 @@
 #define HAVE_DEFINED_EXTERNAL_H
 
 extern bool assert_complain(const char *msg, const char *file, const char *fun, uint32 line, bool exp);
+extern bool bitmap_clear_p(s_bitmap_t *bitmap, uint32 i);
+extern bool bitmap_illegal_p(s_bitmap_t *bitmap);
+extern bool bitmap_legal_p(s_bitmap_t *bitmap);
+extern bool bitmap_set_p(s_bitmap_t *bitmap, uint32 i);
 extern bool disk_buffer_illegal_p(s_disk_buf_t *disk_buffer);
 extern bool disk_buffer_legal_p(s_disk_buf_t *disk_buffer);
 extern bool disk_descriptor_is_active_p(e_disk_id_t device_id);
@@ -30,6 +34,8 @@ extern ptr_t multiboot_data_info_physical_memory_limit(void);
 extern ptr_t multiboot_data_info_physical_memory_lower(void);
 extern ptr_t multiboot_data_info_physical_memory_upper(void);
 extern ptr_t multiboot_env_module_addr_start(s_boot_module_t *module);
+extern s_bitmap_t * bitmap_create(uint32 map_size);
+extern s_bitmap_t * bitmap_place(void *array, uint32 array_size, uint32 map_size);
 extern s_boot_module_t * multiboot_data_info_boot_module(uint32 i);
 extern s_disk_buf_t * disk_buffer_create(uint32 size);
 extern s_disk_pt_t * disk_partition_table_array(s_disk_pt_table_t *disk_pt_table);
@@ -94,6 +100,9 @@ extern void * kmalloc(uint32 request_size);
 extern void * ordered_array_place(s_ordered_array_t *ordered_array, void *addr, uint32 size, ordered_compare_t compare);
 extern void * ordered_array_value(s_ordered_array_t *ordered_array, uint32 i);
 extern void ata_device_initialize(void);
+extern void bitmap_clear(s_bitmap_t *bitmap, uint32 i);
+extern void bitmap_destroy(s_bitmap_t **bitmap);
+extern void bitmap_set(s_bitmap_t *bitmap, uint32 i);
 extern void disk_buffer_array_set(s_disk_buf_t *disk_buffer, uint8 *array);
 extern void disk_buffer_destroy(s_disk_buf_t **disk_buf);
 extern void disk_buffer_dword_append(s_disk_buf_t *disk_buf, uint32 val);
