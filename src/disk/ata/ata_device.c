@@ -332,7 +332,12 @@ ata_device_lba_byte_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
         return SIZE_INVALID;
     }
 
-    sector_count = count / ata_device_info_sector_bytes(dev_info) + 1;
+    sector_count = count / ata_device_info_sector_bytes(dev_info);
+
+    if (count % ata_device_info_sector_bytes(dev_info) != 0) {
+        sector_count++;
+    }
+
     return ata_device_lba_sector_read_i(disk_buf, dev_info, lba, sector_count);
 }
 

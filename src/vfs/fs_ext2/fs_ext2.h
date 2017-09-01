@@ -92,6 +92,7 @@
 #define EXT2_DESCCRIPTOR_MAX       64u
 #define EXT2_BLOCK_GROUP_MAX       128u
 #define EXT2_ROOT_DIR_INODE        2u
+#define EXT2_BUFFER_MAX            4096u
 
 typedef struct fs_ext2_superblock             s_ext2_spbk_t;
 typedef struct fs_ext2_inode                  s_ext2_inode_t;
@@ -153,10 +154,10 @@ struct fs_ext2_superblock {
         struct {
             uint32 total_inode_count;
             uint32 total_block_count;
-            uint32 root_block_count;
+            uint32 superblock_reserved_count;
             uint32 unalloc_block_count;
             uint32 unalloc_inode_count;
-            uint32 superblock_count;
+            uint32 superblock_nmbr;
             uint32 block_size;           /* log2(block_size) - 10 */
             uint32 fragment_size;        /* log2(fragment_size) - 10 */
             uint32 group_block_count;
@@ -246,7 +247,10 @@ struct fs_ext2_block_group_info {
 };
 
 struct fs_ext2_block_group_data {
-    uint32 placeholder;
+    s_bitmap_t     *block_bitmap;
+    s_bitmap_t     *inode_bitmap;
+    uint32         inode_table_addr; /* block address of inode table */
+    uint32         data_block_addr;
 };
 
 struct fs_ext2_descriptor {

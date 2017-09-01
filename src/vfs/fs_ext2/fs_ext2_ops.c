@@ -44,7 +44,7 @@ fs_ext2_descriptor_create(e_disk_id_t device_id, s_disk_pt_t *pt,
     s_ext2_dspr_t *dspr;
 
     kassert(disk_partition_legal_p(pt));
-    kassert(fs_ext2_block_group_info_valid_p(bg_info));
+    kassert(fs_ext2_bg_info_valid_p(bg_info));
     kassert(device_id < disk_descriptor_limit());
 
     size = EXT2_BLOCK_GROUP_MAX;
@@ -76,7 +76,7 @@ fs_ext2_descriptor_destroy(s_ext2_dspr_t **dspr)
 }
 
 static inline s_ext2_bg_info_t *
-fs_ext2_block_group_info_create(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
+fs_ext2_bg_info_create(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
     uint32 sector_offset)
 {
     uint32 offset;
@@ -88,7 +88,6 @@ fs_ext2_block_group_info_create(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
 
     offset = EXT2_SBLOCK_OFFSET;
     bg_info = kmalloc(sizeof(*bg_info));
-
     read = disk_descriptor_read(device_id);
 
     read(disk_buf, device_id, sector_offset, offset + sizeof(*bg_info));
@@ -98,7 +97,7 @@ fs_ext2_block_group_info_create(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
 }
 
 static inline void
-fs_ext2_block_group_info_destroy(s_ext2_bg_info_t **bg_info)
+fs_ext2_bg_info_destroy(s_ext2_bg_info_t **bg_info)
 {
     kassert(bg_info);
     kassert(*bg_info);
@@ -162,6 +161,89 @@ fs_ext2_descriptor_vfs_tree_build(s_ext2_dspr_t *dspr)
 //     return dspr;
 // }
 
+static inline s_bitmap_t *
+fs_ext2_bitmap_place(s_disk_buf_t *buf, e_disk_id_t device_id,
+    uint32 sector_offset, uint32 bytes_count)
+{
+    uint8 *array;
+    s_bitmap_t *bitmap;
+    f_disk_read_t read;
+
+    kassert(bytes_count);
+    kassert(sector_offset);
+    kassert(disk_buffer_legal_p(buf));
+
+    array = kmalloc(bytes_count);
+    read = disk_descriptor_read(device_id);
+
+    read(buf, device_id, sector_offset, bytes_count);
+    disk_buffer_copy(array, buf, 0, bytes_count);
+    bitmap_place(array, bytes_count, bytes_count * 8);
+
+    return bitmap;
+}
+
+static inline s_ext2_bg_data_t *
+fs_ext2_block_group_data_normal_create(s_ext2_bg_info_t *bg_info,
+    s_disk_buf_t *buf, uint32 sector_offset, uint32 sector_bytes)
+{
+    uint32 sector, bytes_count;
+    uint32 block_bytes, b_bitmap_addr;
+    uint32 i_count, i_table_addr, i_bitmap_addr;
+
+    kassert(bg_info);
+    kassert(disk_buffer_legal_p(buf));
+
+    b_bitmap_addr = fs_ext2_bg_info_block_bitmap_addr(bg_info);
+    i_bitmap_addr = fs_ext2_bg_info_inode_bitmap_addr(bg_info);
+    i_table_addr = fs_ext2_bg_info_inode_table_addr(bg_info);
+    i_count = fs_ext2_bg_info_inode_count(bg_info);
+    block_bytes = fs_ext2_block_group_block_size(bg_info);
+
+    bytes_count = sizeof(s_ext2_inode_t) * i_count;
+    sector = sector_offset + i_bitmap_addr * block_bytes / sector_bytes;
+}
+
+static inline s_ext2_bg_data_t *
+fs_ext2_block_group_data_no_info_create(
+{
+
+
+}
+
+static inline void
+fs_ext2_block_group_data_initialize(s_ext2_dspr_t *dspr, s_disk_pt_t *pt,
+    e_disk_id_t device_id)
+{
+    s_disk_buf_t *buf;
+    s_ext2_bg_info_t *info;
+    uint32 sector_offset, sector_limit, sector_step;
+
+    kassert(fs_ext2_descriptor_legal_p(dspr));
+    kassert(disk_partition_legal_p(pt));
+    kassert(disk_partition_used_p(pt));
+
+    info = fs_ext2_descriptor_block_group_info(dspr);
+    sector_offset = disk_partition_sector_offset(pt);
+    sector_limit = sector_offset + disk_partition_sector_count(pt);
+    sector_step = fs_ext2_block_group_sector_count(info, device_id);
+
+    buf = disk_buffer_create(EXT2_BUFFER_MAX);
+
+    while (sector_offset < sector_limit) {
+        info = fs_ext2_bg_info_create(buf, device_id, sector_offset);
+
+        if (fs_ext2_bg_info_valid_p(info)) {
+        } else {
+        }
+
+        fs_ext2_bg_info_destroy(&info);
+        sector_offset += sector_step;
+    }
+
+    disk_buffer_destroy(&buf);
+}
+
 static inline s_ext2_dspr_t *
 fs_ext2_partition_initialize(s_disk_pt_t *pt, e_disk_id_t device_id)
 {
@@ -182,12 +264,13 @@ fs_ext2_partition_initialize(s_disk_pt_t *pt, e_disk_id_t device_id)
     bytes_count += ((sizeof(*bg_info) / sector_bytes) + 1) * sector_bytes;
 
     buf = disk_buffer_create(bytes_count);
-    bg_info = fs_ext2_block_group_info_create(buf, device_id, sector_offset);
+    bg_info = fs_ext2_bg_info_create(buf, device_id, sector_offset);
 
-    if (fs_ext2_block_group_info_invalid_p(bg_info)) {
-        fs_ext2_block_group_info_destroy(&bg_info);
+    if (fs_ext2_bg_info_invalid_p(bg_info)) {
+        fs_ext2_bg_info_destroy(&bg_info);
     } else {
         dspr = fs_ext2_descriptor_create(device_id, pt, bg_info);
+        fs_ext2_block_group_data_initialize(dspr, pt, device_id);
     }
 
     disk_buffer_destroy(&buf);
