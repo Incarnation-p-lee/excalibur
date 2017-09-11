@@ -35,20 +35,38 @@ fs_ext2_bg_info_print(s_ext2_bg_info_t *bg_info)
 }
 
 static inline void
+fs_ext2_bg_data_print(s_ext2_bg_data_t *data, uint32 i)
+{
+    uint32 inode_sector_addr, block_sector_addr;
+
+    kassert(data);
+
+    inode_sector_addr = fs_ext2_bg_data_inode_sector_addr(data);
+    block_sector_addr = fs_ext2_bg_data_block_sector_addr(data);
+
+    printf_vga_tk("Block group %d\n", i);
+    printf_vga_tk("    block bitmap %x\n", fs_ext2_bg_data_block_bitmap(data));
+    printf_vga_tk("    inode bitmap %x\n", fs_ext2_bg_data_inode_bitmap(data));
+    printf_vga_tk("    inode sector %d\n", inode_sector_addr);
+    printf_vga_tk("    block sector %d\n", block_sector_addr);
+}
+
+static inline void
 fs_ext2_descriptor_print(s_ext2_dspr_t *dspr)
 {
     uint32 i, limit;
-    // s_ext2_bg_data_t *bg_data;
+    s_ext2_bg_data_t *data;
 
     kassert(fs_ext2_descriptor_legal_p(dspr));
 
-    fs_ext2_bg_info_print(fs_ext2_descriptor_block_group_info(dspr));
+    fs_ext2_bg_info_print(fs_ext2_descriptor_bg_info(dspr));
 
     i = 0;
     limit = fs_ext2_descriptor_limit(dspr);
 
     while (i < limit) {
-        // bg_data = fs_ext2_descriptor_block_group_data_entry(dspr, i);
+        data = fs_ext2_descriptor_bg_data_entry(dspr, i);
+        fs_ext2_bg_data_print(data, i);
 
         i++;
     }

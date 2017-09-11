@@ -62,6 +62,7 @@ extern uint16 disk_partition_cylinder_start(s_disk_pt_t *disk_pt);
 extern uint16 disk_partition_sector_end(s_disk_pt_t *disk_pt);
 extern uint16 disk_partition_sector_start(s_disk_pt_t *disk_pt);
 extern uint16 io_bus_read_word(uint16 port);
+extern uint32 arithmetic_rate_up(uint32 a, uint32 base);
 extern uint32 ata_device_chs_sector_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id, uint16 c, uint8 h, uint8 s, uint32 count);
 extern uint32 ata_device_info_limit(void);
 extern uint32 ata_device_info_start(void);

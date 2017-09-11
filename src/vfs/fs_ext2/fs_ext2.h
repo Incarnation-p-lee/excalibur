@@ -192,7 +192,7 @@ struct fs_ext2_superblock {
 struct fs_ext2_block_group_descriptor {
     uint32 block_bitmap_addr;
     uint32 inode_bitmap_addr;
-    uint32 inode_table_addr;
+    uint32 inode_block_addr;
     uint16 unalloc_block_count;
     uint16 unalloc_inode_count;
     uint16 dir_count;
@@ -249,17 +249,17 @@ struct fs_ext2_block_group_info {
 struct fs_ext2_block_group_data {
     s_bitmap_t     *block_bitmap;
     s_bitmap_t     *inode_bitmap;
-    uint32         inode_table_addr; /* block address of inode table */
-    uint32         data_block_addr;
+    uint32         inode_sector_addr;
+    uint32         block_sector_addr;
 };
 
 struct fs_ext2_descriptor {
     e_disk_id_t      device_id;
     s_disk_pt_t      *disk_pt;
     s_ext2_bg_info_t *bg_info;
+    s_ext2_bg_data_t **bg_data_array;
     uint32           index;
     uint32           size;
-    s_ext2_bg_data_t **bg_data_array;
 };
 
 struct fs_ext2_descriptor_table {

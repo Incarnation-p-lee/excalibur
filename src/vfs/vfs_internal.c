@@ -185,6 +185,9 @@ vfs_root_node_initialize(void)
     return root;
 }
 
+/*
+ * Root node of vfs tree, static linked.
+ */
 static inline s_vfs_node_t *
 vfs_node_root(void)
 {

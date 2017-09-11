@@ -184,6 +184,74 @@ fs_ext2_superblock_valid_p(s_ext2_spbk_t *spbk)
     }
 }
 
+static inline s_bitmap_t *
+fs_ext2_bg_data_block_bitmap(s_ext2_bg_data_t *bg_data)
+{
+    kassert(bg_data);
+
+    return bg_data->block_bitmap;
+}
+
+static inline void
+fs_ext2_bg_data_block_bitmap_set(s_ext2_bg_data_t *bg_data, s_bitmap_t *bitmap)
+{
+    kassert(bg_data);
+    kassert(bitmap_legal_p(bitmap));
+
+    bg_data->block_bitmap = bitmap;
+}
+
+static inline s_bitmap_t *
+fs_ext2_bg_data_inode_bitmap(s_ext2_bg_data_t *bg_data)
+{
+    kassert(bg_data);
+
+    return bg_data->inode_bitmap;
+}
+
+static inline void
+fs_ext2_bg_data_inode_bitmap_set(s_ext2_bg_data_t *bg_data, s_bitmap_t *bitmap)
+{
+    kassert(bg_data);
+    kassert(bitmap_legal_p(bitmap));
+
+    bg_data->inode_bitmap = bitmap;
+}
+
+static inline uint32
+fs_ext2_bg_data_inode_sector_addr(s_ext2_bg_data_t *bg_data)
+{
+    kassert(bg_data);
+
+    return bg_data->inode_sector_addr;
+}
+
+static inline void
+fs_ext2_bg_data_inode_sector_addr_set(s_ext2_bg_data_t *bg_data,
+    uint32 addr)
+{
+    kassert(bg_data);
+
+    bg_data->inode_sector_addr = addr;
+}
+
+static inline uint32
+fs_ext2_bg_data_block_sector_addr(s_ext2_bg_data_t *bg_data)
+{
+    kassert(bg_data);
+
+    return bg_data->block_sector_addr;
+}
+
+static inline void
+fs_ext2_bg_data_block_sector_addr_set(s_ext2_bg_data_t *bg_data,
+    uint32 addr)
+{
+    kassert(bg_data);
+
+    bg_data->block_sector_addr = addr;
+}
+
 static inline s_ext2_spbk_t *
 fs_ext2_bg_info_superblock(s_ext2_bg_info_t *bg_info)
 {
@@ -359,15 +427,15 @@ fs_ext2_bg_info_inode_bitmap_addr(s_ext2_bg_info_t *bg_info)
 }
 
 static inline uint32
-fs_ext2_block_descriptor_inode_table_addr(s_ext2_bgd_t *bgd)
+fs_ext2_bgd_inode_table_block_addr(s_ext2_bgd_t *bgd)
 {
     kassert(bgd);
 
-    return bgd->inode_table_addr;
+    return bgd->inode_block_addr;
 }
 
 static inline uint32
-fs_ext2_bg_info_inode_table_addr(s_ext2_bg_info_t *bg_info)
+fs_ext2_bg_info_inode_table_block_addr(s_ext2_bg_info_t *bg_info)
 {
     s_ext2_bgd_t *bgd;
 
@@ -375,7 +443,7 @@ fs_ext2_bg_info_inode_table_addr(s_ext2_bg_info_t *bg_info)
 
     bgd = fs_ext2_bg_info_decriptor(bg_info);
 
-    return fs_ext2_block_descriptor_inode_table_addr(bgd);
+    return fs_ext2_bgd_inode_table_block_addr(bgd);
 }
 
 static inline uint32
@@ -387,7 +455,7 @@ fs_ext2_superblock_block_size(s_ext2_spbk_t *spbk)
 }
 
 static inline uint32
-fs_ext2_block_group_block_size(s_ext2_bg_info_t *bg_info)
+fs_ext2_bg_block_size(s_ext2_bg_info_t *bg_info)
 {
     s_ext2_spbk_t *spbk;
 
@@ -427,7 +495,7 @@ fs_ext2_superblock_major_version(s_ext2_spbk_t *spbk)
 }
 
 static inline uint32
-fs_ext2_block_group_major_version(s_ext2_bg_info_t *bg_info)
+fs_ext2_bg_major_version(s_ext2_bg_info_t *bg_info)
 {
     s_ext2_spbk_t *spbk;
 
@@ -465,13 +533,13 @@ fs_ext2_descriptor_group_inode_count(s_ext2_dspr_t *dspr)
 
     kassert(fs_ext2_descriptor_legal_p(dspr));
 
-    bg_info = fs_ext2_descriptor_block_group_info(dspr);
+    bg_info = fs_ext2_descriptor_bg_info(dspr);
 
     return fs_ext2_bg_info_inode_count(bg_info);
 }
 
 static inline uint32
-fs_ext2_block_group_sector_count(s_ext2_bg_info_t *bg_info,
+fs_ext2_bg_sector_count(s_ext2_bg_info_t *bg_info,
     e_disk_id_t device_id)
 {
     uint32 sector_bytes;
@@ -481,7 +549,7 @@ fs_ext2_block_group_sector_count(s_ext2_bg_info_t *bg_info,
     kassert(bg_info);
 
     sector_bytes = disk_descriptor_sector_bytes(device_id);
-    block_size = fs_ext2_block_group_block_size(bg_info);
+    block_size = fs_ext2_bg_block_size(bg_info);
     block_count = fs_ext2_bg_info_block_count(bg_info);
     sector_count = block_size * block_count / sector_bytes;
 
@@ -491,7 +559,7 @@ fs_ext2_block_group_sector_count(s_ext2_bg_info_t *bg_info,
 }
 
 static inline s_ext2_bg_data_t **
-fs_ext2_descriptor_block_group_data_array(s_ext2_dspr_t *dspr)
+fs_ext2_descriptor_bg_data_array(s_ext2_dspr_t *dspr)
 {
     kassert(fs_ext2_descriptor_legal_p(dspr));
 
@@ -499,20 +567,36 @@ fs_ext2_descriptor_block_group_data_array(s_ext2_dspr_t *dspr)
 }
 
 static inline s_ext2_bg_data_t *
-fs_ext2_descriptor_block_group_data_entry(s_ext2_dspr_t *dspr, uint32 i)
+fs_ext2_descriptor_bg_data_entry(s_ext2_dspr_t *dspr, uint32 i)
 {
     s_ext2_bg_data_t **bg_data_array;
 
     kassert(fs_ext2_descriptor_legal_p(dspr));
     kassert(i < fs_ext2_descriptor_limit(dspr));
 
-    bg_data_array = fs_ext2_descriptor_block_group_data_array(dspr);
+    bg_data_array = fs_ext2_descriptor_bg_data_array(dspr);
 
     return bg_data_array[i];
 }
 
+static inline void
+fs_ext2_descriptor_bg_data_appned(s_ext2_dspr_t *dspr, s_ext2_bg_data_t *data)
+{
+    uint32 index;
+    s_ext2_bg_data_t **bg_data_array;
+
+    kassert(data);
+    kassert(fs_ext2_descriptor_legal_p(dspr));
+
+    index = fs_ext2_descriptor_index(dspr);
+    bg_data_array = fs_ext2_descriptor_bg_data_array(dspr);
+
+    bg_data_array[index++] = data;
+    fs_ext2_descriptor_index_set(dspr, index);
+}
+
 static inline s_ext2_bg_info_t *
-fs_ext2_descriptor_block_group_info(s_ext2_dspr_t *dspr)
+fs_ext2_descriptor_bg_info(s_ext2_dspr_t *dspr)
 {
     kassert(fs_ext2_descriptor_legal_p(dspr));
 
