@@ -8,7 +8,8 @@
 #define KHEAP_HEADER_SIZE       sizeof(s_kernel_heap_header_t)
 #define KHEAP_FOOTER_SIZE       sizeof(s_kernel_heap_footer_t)
 #define KHEAP_INFO_SIZE         (KHEAP_HEADER_SIZE + KHEAP_FOOTER_SIZE)
-#define KHEAP_HOLE_MIN_SIZE     (sizeof(ptr_t) + KHEAP_INFO_SIZE)
+#define KHEAP_USER_MIN_SIZE     sizeof(ptr_t)
+#define KHEAP_HOLE_MIN_SIZE     (KHEAP_USER_MIN_SIZE + KHEAP_INFO_SIZE)
 
 #define KHEAP_HOLE_SIZE(s)      ((s) + KHEAP_INFO_SIZE)
 #define KHEAP_USER_TO_HEADER(u) (void *)((ptr_t)(u) - (ptr_t)KHEAP_HEADER_SIZE)

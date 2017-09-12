@@ -263,14 +263,22 @@ kernel_heap_hole_size(s_kernel_heap_header_t *header)
     return header->size;
 }
 
+static inline ptr_t
+kernel_heap_hole_usable_size(s_kernel_heap_header_t *header)
+{
+    kassert(kernel_heap_header_legal_p(header));
+
+    return kernel_heap_hole_size(header) - KHEAP_INFO_SIZE;
+}
+
 static inline s_kernel_heap_header_t *
 kernel_heap_minimal_hole_obtain(s_kernel_heap_t *heap, uint32 request_size,
-    ptr_t *usable_addr, bool is_page_aligned)
+    ptr_t *usable_addr)
 {
     uint32 i, limit;
+    ptr_t hole_addr;
     uint32 hole_size;
     s_ordered_array_t *ordered;
-    ptr_t request_addr, hole_addr;
     s_kernel_heap_header_t *header;
 
     kassert(kernel_heap_legal_p(heap));
@@ -284,18 +292,12 @@ kernel_heap_minimal_hole_obtain(s_kernel_heap_t *heap, uint32 request_size,
     while (i < limit) {
         header = ordered_array_value(ordered, i);
         hole_addr = (ptr_t)header;
-        request_addr = hole_addr + KHEAP_HEADER_SIZE;
-
-        if (is_page_aligned) {
-            page_align_i(&request_addr);
-        }
-
-        hole_size = request_addr - hole_addr + request_size;
-        hole_size += KHEAP_FOOTER_SIZE;
+        hole_size = KHEAP_INFO_SIZE + request_size;
 
         if (hole_size <= kernel_heap_hole_size(header)) {
-            *usable_addr = request_addr;
+            *usable_addr = hole_addr + (ptr_t)KHEAP_HEADER_SIZE;
             ordered_array_remove(ordered, i);
+
             return header;
         }
 
@@ -365,46 +367,38 @@ kernel_heap_block_make(void *hole_addr, uint32 size)
 }
 
 static inline uint32
-kernel_heap_hole_front_size(s_kernel_heap_header_t *header,
-    ptr_t usable_addr)
+kernel_heap_hole_rear_size(s_kernel_heap_header_t *header, uint32 req_size)
 {
-    kassert(kernel_heap_header_legal_p(header));
-    kassert(usable_addr >= kernel_heap_hole_size(header) + KHEAP_HEADER_SIZE);
-
-    return (uint32)(usable_addr - KHEAP_HEADER_SIZE - (ptr_t)header);
-}
-
-static inline uint32
-kernel_heap_hole_rear_size(s_kernel_heap_header_t *header,
-    ptr_t usable_addr, uint32 req_size)
-{
+    ptr_t usable_addr;
     ptr_t usable_limit;
 
     kassert(kernel_heap_header_legal_p(header));
-    kassert(usable_addr >= kernel_heap_hole_size(header) + KHEAP_HEADER_SIZE);
-    kassert(usable_addr + req_size <= kernel_heap_hole_usable_limit(header));
 
+    usable_addr = (ptr_t)header + KHEAP_HEADER_SIZE;
     usable_limit = (ptr_t)kernel_heap_hole_usable_limit(header);
 
     return (uint32)(usable_limit - usable_addr - (ptr_t)req_size);
 }
 
 /*
- *                                usable_addr
- *                                    |
- * |  <- front size  ->  |            |                       | <- rear size     -> |
- * +--------+------------+------------+----------+------------+------------+--------+
- * | header | free space | new_header | req_size | new footer | free space | footer |
- * +--------+------------+------------+----------+------------+------------+--------+
- *                                                                         |
- *                                                                  usable_limit
+ *       usable_addr
+ *          |
+ * |        |                       | <-   rear size   -> |
+ * +--------+----------+------------+------------+--------+
+ * | header | req_size | new footer | free space | footer |
+ * +--------+----------+------------+------------+--------+
+ *                                               |
+ *                                           usable_limit
+ *
+ * WE decide to make allocate simple and do not handle alignment here. So the
+ * usable_addr should be located after header immediately.
  */
 static inline void
-kernel_heap_hole_split(s_kernel_heap_header_t *header, ptr_t usable_addr,
-    uint32 req_size, s_ordered_array_t *ordered)
+kernel_heap_hole_split(s_kernel_heap_header_t *header, uint32 req_size,
+    s_ordered_array_t *ordered)
 {
     ptr_t hole_addr, addr_start;
-    uint32 hole_size, front_size, rear_size;
+    uint32 hole_size, rear_size;
 
     kassert(req_size);
     kassert(ordered_array_legal_p(ordered));
@@ -412,18 +406,7 @@ kernel_heap_hole_split(s_kernel_heap_header_t *header, ptr_t usable_addr,
 
     hole_size = kernel_heap_hole_size(header);
     hole_addr = (ptr_t)header;
-    front_size = kernel_heap_hole_front_size(header, usable_addr);
-    rear_size = kernel_heap_hole_rear_size(header, usable_addr, req_size);
-
-    if (front_size >= KHEAP_HOLE_MIN_SIZE) {
-        addr_start = hole_addr;
-
-        kernel_heap_hole_make((void *)addr_start, front_size);
-        ordered_array_insert(ordered, (void *)addr_start);
-
-        hole_addr += front_size;
-        hole_size -= front_size;
-    }
+    rear_size = kernel_heap_hole_rear_size(header, req_size);
 
     if (rear_size >= KHEAP_HOLE_MIN_SIZE) {
         addr_start = hole_addr + (ptr_t)(hole_size - rear_size);
@@ -504,8 +487,7 @@ kernel_heap_contract(s_kernel_heap_t *heap, uint32 new_size)
 }
 
 static inline void *
-kernel_heap_allocate_i(s_kernel_heap_t *heap, uint32 req_size,
-    bool is_page_aligned)
+kernel_heap_allocate(s_kernel_heap_t *heap, uint32 req_size)
 {
     uint32 expand_size;
     ptr_t usable_addr;
@@ -515,25 +497,23 @@ kernel_heap_allocate_i(s_kernel_heap_t *heap, uint32 req_size,
     kassert(req_size);
     kassert(kernel_heap_legal_p(heap));
 
+    if (req_size < KHEAP_USER_MIN_SIZE) {
+        req_size = KHEAP_USER_MIN_SIZE;
+    }
+
     ordered = kernel_heap_ordered_array(heap);
-    header = kernel_heap_minimal_hole_obtain(heap, req_size, &usable_addr,
-        is_page_aligned);
+    header = kernel_heap_minimal_hole_obtain(heap, req_size, &usable_addr);
 
     if (header == PTR_INVALID) { /* no suitable hole */
         expand_size = KHEAP_HOLE_SIZE(req_size);
-
-        if (is_page_aligned) {
-            expand_size += PAGE_SIZE;
-        }
-
         kernel_heap_expand(heap, expand_size);
-        header = kernel_heap_minimal_hole_obtain(heap, req_size, &usable_addr,
-            is_page_aligned);
+        header = kernel_heap_minimal_hole_obtain(heap, req_size, &usable_addr);
 
         kassert(header != PTR_INVALID);
     }
 
-    kernel_heap_hole_split(header, usable_addr, req_size, ordered);
+    kernel_heap_hole_split(header, req_size, ordered);
+
     return (void *)usable_addr;
 }
 
@@ -638,7 +618,7 @@ kernel_heap_hole_remove(s_kernel_heap_t *heap, s_kernel_heap_header_t *header)
 }
 
 static inline void
-kernel_heap_free_i(s_kernel_heap_t *heap, void *val)
+kernel_heap_free(s_kernel_heap_t *heap, void *val)
 {
     void *hole_addr;
     uint32 hole_size;
@@ -684,21 +664,45 @@ kernel_heap_free_i(s_kernel_heap_t *heap, void *val)
     }
 }
 
-static inline void
-kernel_heap_free(s_kernel_heap_t *heap, void *ptr)
+static inline void *
+kernel_heap_realloc(s_kernel_heap_t *heap, void *val, uint32 new_size)
 {
-    kassert(ptr);
+    void *new_val;
+    uint32 usable_size;
+    s_ordered_array_t *ordered;
+    s_kernel_heap_header_t *header;
+
+    kassert(val);
+    kassert(new_size);
     kassert(kernel_heap_legal_p(heap));
 
-    kernel_heap_free_i(heap, ptr);
+    header = KHEAP_USER_TO_HEADER(val);
+    usable_size = kernel_heap_hole_usable_size(header);
+
+    if (new_size + KHEAP_HOLE_MIN_SIZE <= usable_size) {
+        ordered = kernel_heap_ordered_array(heap);
+
+        kernel_heap_hole_split(header, new_size, ordered);
+
+        return val;
+    } else if (new_size > usable_size) {
+        new_val = kernel_heap_allocate(heap, new_size);
+
+        kmemory_copy_i(new_val, val, new_size);
+        kernel_heap_free(heap, val);
+
+        return new_val;
+    } else {
+        return val;
+    }
 }
 
 void
 kernel_heap_initialize(void)
 {
     /*
-     * Assume we create the page table from KHEAP_START to KHEAP_START + KHEAP_INITIAL_SIZE
-     * in page_initialize.
+     * Assume we create the page table from KHEAP_START to
+     * KHEAP_START + KHEAP_INITIAL_SIZE in page_initialize.
      */
     if (kernel_heap != NULL) {
         kernel_heap_initialize_i(kernel_heap, KHEAP_START,
@@ -716,8 +720,7 @@ kmalloc(uint32 request_size)
     } else if (request_size == 0) {
         return PTR_INVALID;
     } else {
-        /* is_page_aligned = false */
-        return kernel_heap_allocate_i(kernel_heap, request_size, false);
+        return kernel_heap_allocate(kernel_heap, request_size);
     }
 }
 
@@ -730,6 +733,18 @@ kfree(void *ptr)
         return;
     } else {
         kernel_heap_free(kernel_heap, ptr);
+    }
+}
+
+void *
+krealloc(void *ptr, uint32 new_size)
+{
+    if (ptr == NULL) {
+        return PTR_INVALID;
+    } else if (new_size == 0) {
+        return PTR_INVALID;
+    } else {
+        return kernel_heap_realloc(kernel_heap, ptr, new_size);
     }
 }
 

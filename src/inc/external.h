@@ -98,6 +98,7 @@ extern uint8 disk_partition_head_start(s_disk_pt_t *disk_pt);
 extern uint8 disk_partition_system_id(s_disk_pt_t *disk_pt);
 extern uint8 io_bus_byte_read(uint16 port);
 extern void * kmalloc(uint32 request_size);
+extern void * krealloc(void *ptr, uint32 new_size);
 extern void * ordered_array_place(s_ordered_array_t *ordered_array, void *addr, uint32 size, ordered_compare_t compare);
 extern void * ordered_array_value(s_ordered_array_t *ordered_array, uint32 i);
 extern void ata_device_initialize(void);

@@ -16,7 +16,7 @@ entry(uint32 magic, void *boot_header, void *boot_info)
     disk_initialize();
     vfs_initialize();
 
-    // test_main();
+    test_main();
 
     printf_vga_tk("Reach end of entry, will idle.\n");
     print_buffer_fs_initrd_write();
