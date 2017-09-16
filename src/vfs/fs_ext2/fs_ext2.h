@@ -94,15 +94,15 @@
 #define EXT2_ROOT_DIR_INODE        2u
 #define EXT2_BUFFER_MAX            4096u
 
-typedef struct fs_ext2_superblock             s_ext2_spbk_t;
-typedef struct fs_ext2_inode                  s_ext2_inode_t;
-typedef struct fs_ext2_extended_superblock    s_ext2_ext_spbk_t;
-typedef struct fs_ext2_block_group_descriptor s_ext2_bgd_t;
-typedef struct fs_ext2_dir                    s_ext2_dir_t;
-typedef struct fs_ext2_block_group_info       s_ext2_bg_info_t;
-typedef struct fs_ext2_block_group_data       s_ext2_bg_data_t;
-typedef struct fs_ext2_descriptor             s_ext2_dspr_t;
-typedef struct fs_ext2_descriptor_table       s_ext2_dspr_table_t;
+typedef struct fs_ext2_superblock                 s_ext2_spbk_t;
+typedef struct fs_ext2_inode                      s_ext2_inode_t;
+typedef struct fs_ext2_extended_superblock        s_ext2_ext_spbk_t;
+typedef struct fs_ext2_dir                        s_ext2_dir_t;
+typedef struct fs_ext2_block_group_descriptor     s_ext2_bgd_t;
+
+typedef struct fs_ext2_block_group_descriptor_map s_ext2_bgd_map_t;
+typedef struct fs_ext2_descriptor                 s_ext2_dspr_t;
+typedef struct fs_ext2_descriptor_table           s_ext2_dspr_table_t;
 
 /*
  *     Physical layout of the ext2 file system
@@ -190,9 +190,9 @@ struct fs_ext2_superblock {
  * the superblock. Blocks are numbered staring at 0.
  */
 struct fs_ext2_block_group_descriptor {
-    uint32 block_bitmap_addr;
+    uint32 block_bitmap_addr; /* addressed in block */
     uint32 inode_bitmap_addr;
-    uint32 inode_block_addr;
+    uint32 inode_table_addr;
     uint16 unalloc_block_count;
     uint16 unalloc_inode_count;
     uint16 dir_count;
@@ -241,25 +241,20 @@ struct fs_ext2_inode {
     uint32 os_sp_val_2;
 } __attribute__((packed));
 
-struct fs_ext2_block_group_info {
-    s_ext2_spbk_t superblock;
-    s_ext2_bgd_t  block_group_dspt;
-};
-
-struct fs_ext2_block_group_data {
+struct fs_ext2_block_group_descriptor_map {
+    bool           is_b_bitmap_dirty;
+    bool           is_i_bitmap_dirty;
     s_bitmap_t     *block_bitmap;
     s_bitmap_t     *inode_bitmap;
-    uint32         inode_sector_addr;
-    uint32         block_sector_addr;
 };
 
 struct fs_ext2_descriptor {
     e_disk_id_t      device_id;
+    s_ext2_spbk_t    *superblock;
     s_disk_pt_t      *disk_pt;
-    s_ext2_bg_info_t *bg_info;
-    s_ext2_bg_data_t **bg_data_array;
-    uint32           index;
-    uint32           size;
+    s_ext2_bgd_t     *bgd_table;
+    s_ext2_bgd_map_t **map_array;
+    uint32           bg_count;
 };
 
 struct fs_ext2_descriptor_table {
