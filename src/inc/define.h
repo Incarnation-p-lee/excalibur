@@ -25,12 +25,14 @@
 #define PTR_INVALID               (void *)(-1)
 #define INDEX_INVALID             (-1)
 #define LIMIT_INVALID             (-1)
-#define SIZE_INVALID              (-1)
+#define SIZE_INVALID              (uint32)(-1)
 #define ADDR_INVALID              (ptr_t)(-1)
 #define MEMORY_INVALID            0u
 #define FRAME_INVALID             ADDR_INVALID
 #define INODE_INVALID             (-1)
 #define COUNT_INVALID             (-1)
+
+#define IS_SIZE_INVALID_P(s)      ((s) == SIZE_INVALID ? true : false)
 
 #define ARRAY_CNT_OF(a)           (sizeof(a) / sizeof(a[0]))
 #define BIT_WIDTH(t)              (sizeof(t) * 8)

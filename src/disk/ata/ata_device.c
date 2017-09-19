@@ -93,17 +93,23 @@ static inline void
 ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info, e_disk_id_t device_id)
 {
     s_disk_buf_t *disk_buf;
+    uint32 cpy_retval, bytes;
     s_disk_pt_table_t *pt_table;
 
     kassert(ata_device_info_legal_p(dev_info));
     kassert(device_id < ata_device_info_limit_i());
     kassert(device_id >= ata_device_info_start_i());
 
+    bytes = DISK_PT_TABLE_BYTES;
     pt_table = disk_descriptor_pt_table(device_id);
     disk_buf = disk_buffer_create(ata_device_info_sector_bytes(dev_info));
 
     ata_device_lba_sector_read_i(disk_buf, dev_info, 0, 1);
-    disk_buffer_copy(pt_table, disk_buf, DISK_PT_OFFSET, DISK_PT_TABLE_BYTES);
+    cpy_retval = disk_buffer_copy(pt_table, disk_buf, DISK_PT_OFFSET, bytes);
+
+    if (IS_SIZE_INVALID_P(cpy_retval)) {
+        KERNEL_PANIC("Unable to detect mbr sector.\n");
+    }
 
     disk_buffer_destroy(&disk_buf);
 }
@@ -315,7 +321,7 @@ uint32
 ata_device_lba_byte_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
     uint32 lba, uint32 count)
 {
-    uint32 sector_count;
+    uint32 s_count;
     s_ata_dev_info_t *dev_info;
 
     if (disk_buffer_illegal_p(disk_buf)) {
@@ -332,13 +338,9 @@ ata_device_lba_byte_read(s_disk_buf_t *disk_buf, e_disk_id_t device_id,
         return SIZE_INVALID;
     }
 
-    sector_count = count / ata_device_info_sector_bytes(dev_info);
+    s_count = arithmetic_rate_up(count, ata_device_info_sector_bytes(dev_info));
 
-    if (count % ata_device_info_sector_bytes(dev_info) != 0) {
-        sector_count++;
-    }
-
-    return ata_device_lba_sector_read_i(disk_buf, dev_info, lba, sector_count);
+    return ata_device_lba_sector_read_i(disk_buf, dev_info, lba, s_count);
 }
 
 uint32
@@ -380,13 +382,13 @@ ata_device_sector_bytes(e_disk_id_t device_id)
     s_ata_dev_info_t *dev_info;
 
     if (device_id >= ATA_DEVICE_LIMIT) {
-        return SIZE_INVALID;
+        return (uint16)SIZE_INVALID;
     }
 
     dev_info = ata_device_information(device_id);
 
     if (ata_device_info_drive_no_exist_p(dev_info)) {
-        return SIZE_INVALID;
+        return (uint16)SIZE_INVALID;
     } else {
         return ata_device_info_sector_bytes(dev_info);
     }

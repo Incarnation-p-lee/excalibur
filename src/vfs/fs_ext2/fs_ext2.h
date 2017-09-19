@@ -190,12 +190,17 @@ struct fs_ext2_superblock {
  * the superblock. Blocks are numbered staring at 0.
  */
 struct fs_ext2_block_group_descriptor {
-    uint32 block_bitmap_addr; /* addressed in block */
-    uint32 inode_bitmap_addr;
-    uint32 inode_table_addr;
-    uint16 unalloc_block_count;
-    uint16 unalloc_inode_count;
-    uint16 dir_count;
+    union {
+        struct {
+            uint32 block_bitmap_addr; /* addressed in block */
+            uint32 inode_bitmap_addr;
+            uint32 inode_table_addr;
+            uint16 unalloc_block_count;
+            uint16 unalloc_inode_count;
+            uint16 dir_count;
+        };
+        uint8 padding[EXT2_BGD_BYTES];
+    };
 } __attribute__((packed));
 
 /*
@@ -242,8 +247,8 @@ struct fs_ext2_inode {
 } __attribute__((packed));
 
 struct fs_ext2_block_group_descriptor_map {
-    bool           is_b_bitmap_dirty;
-    bool           is_i_bitmap_dirty;
+    bool           b_bitmap_is_dirty;
+    bool           i_bitmap_is_dirty;
     s_bitmap_t     *block_bitmap;
     s_bitmap_t     *inode_bitmap;
 };

@@ -90,7 +90,7 @@ uint8
 disk_partition_head_start(s_disk_pt_t *disk_pt)
 {
     if (disk_partition_illegal_ip(disk_pt)) {
-        return SIZE_INVALID;
+        return (uint8)SIZE_INVALID;
     } else {
         return disk_partition_head_start_i(disk_pt);
     }
@@ -126,7 +126,7 @@ uint16
 disk_partition_sector_start(s_disk_pt_t *disk_pt)
 {
     if (disk_partition_illegal_ip(disk_pt)) {
-        return SIZE_INVALID;
+        return (uint16)SIZE_INVALID;
     } else {
         return disk_partition_sector_start_i(disk_pt);
     }
@@ -162,7 +162,7 @@ uint16
 disk_partition_cylinder_start(s_disk_pt_t *disk_pt)
 {
     if (disk_partition_illegal_ip(disk_pt)) {
-        return SIZE_INVALID;
+        return (uint16)SIZE_INVALID;
     } else {
         return disk_partition_cylinder_start_i(disk_pt);
     }
@@ -198,7 +198,7 @@ uint8
 disk_partition_system_id(s_disk_pt_t *disk_pt)
 {
     if (disk_partition_illegal_ip(disk_pt)) {
-        return SIZE_INVALID;
+        return (uint8)SIZE_INVALID;
     } else {
         return disk_partition_system_id_i(disk_pt);
     }
@@ -234,7 +234,7 @@ uint8
 disk_partition_head_end(s_disk_pt_t *disk_pt)
 {
     if (disk_partition_illegal_ip(disk_pt)) {
-        return SIZE_INVALID;
+        return (uint8)SIZE_INVALID;
     } else {
         return disk_partition_head_end_i(disk_pt);
     }
@@ -270,7 +270,7 @@ uint16
 disk_partition_sector_end(s_disk_pt_t *disk_pt)
 {
     if (disk_partition_illegal_ip(disk_pt)) {
-        return SIZE_INVALID;
+        return (uint16)SIZE_INVALID;
     } else {
         return disk_partition_sector_end_i(disk_pt);
     }
@@ -306,7 +306,7 @@ uint16
 disk_partition_cylinder_end(s_disk_pt_t *disk_pt)
 {
     if (disk_partition_illegal_ip(disk_pt)) {
-        return SIZE_INVALID;
+        return (uint16)SIZE_INVALID;
     } else {
         return disk_partition_cylinder_end_i(disk_pt);
     }

@@ -28,8 +28,11 @@ static inline s_ext2_spbk_t * fs_ext2_superblock_create(s_disk_buf_t *buf, e_dis
 static inline s_vfs_node_t * fs_ext2_dspr_vfs_tree_build(s_ext2_dspr_t *dspr);
 static inline uint16 fs_ext2_superblock_signature(s_ext2_spbk_t *spbk);
 static inline uint32 fs_ext2_bgd_block_bitmap_addr(s_ext2_bgd_t *bgd);
+static inline uint32 fs_ext2_bgd_dir_count(s_ext2_bgd_t *bgd);
 static inline uint32 fs_ext2_bgd_inode_bitmap_addr(s_ext2_bgd_t *bgd);
 static inline uint32 fs_ext2_bgd_inode_table_addr(s_ext2_bgd_t *bgd);
+static inline uint32 fs_ext2_bgd_unalloc_block_count(s_ext2_bgd_t *bgd);
+static inline uint32 fs_ext2_bgd_unalloc_inode_count(s_ext2_bgd_t *bgd);
 static inline uint32 fs_ext2_block_addr_to_sector(uint32 block_addr, uint32 block_bytes, uint32 sector_offset, uint32 sector_bytes);
 static inline uint32 fs_ext2_dspr_bg_count(s_ext2_dspr_t *dspr);
 static inline uint32 fs_ext2_dspr_block_size(s_ext2_dspr_t *dspr);
@@ -49,9 +52,12 @@ static inline uint32 fs_ext2_superblock_reserved_count(s_ext2_spbk_t *spbk);
 static inline uint32 fs_ext2_superblock_total_block_count(s_ext2_spbk_t *spbk);
 static inline uint32 fs_ext2_superblock_unallocated_block_count(s_ext2_spbk_t *spbk);
 static inline uint32 fs_ext2_superblock_unallocated_inode_count(s_ext2_spbk_t *spbk);
+static inline void fs_ext2_bgd_map_b_bitmap_is_dirty_set(s_ext2_bgd_map_t *map, bool is_dirty);
 static inline void fs_ext2_bgd_map_block_bitmap_set(s_ext2_bgd_map_t *map, s_bitmap_t *bitmap);
 static inline void fs_ext2_bgd_map_destroy(s_ext2_bgd_map_t **map);
+static inline void fs_ext2_bgd_map_i_bitmap_is_dirty_set(s_ext2_bgd_map_t *map, bool is_dirty);
 static inline void fs_ext2_bgd_map_inode_bitmap_set(s_ext2_bgd_map_t *map, s_bitmap_t *bitmap);
+static inline void fs_ext2_bgd_print(s_ext2_bgd_t *bgd, uint32 i);
 static inline void fs_ext2_bgd_table_destroy(s_ext2_bgd_t **bgd_table);
 static inline void fs_ext2_device_initialize(s_vfs_node_t *root, e_disk_id_t device_id, s_ext2_dspr_table_t *dspr_table);
 static inline void fs_ext2_dspr_bgd_bitmap_destroy(s_ext2_dspr_t *dspr);
@@ -68,6 +74,7 @@ static inline void fs_ext2_dspr_table_print(s_ext2_dspr_table_t *dspr_table);
 static inline void fs_ext2_dspr_table_size_set(s_ext2_dspr_table_t *dspr_table, uint32 size);
 static inline void fs_ext2_initialize_i(s_vfs_node_t *root);
 static inline void fs_ext2_superblock_destroy(s_ext2_spbk_t **superblock);
+static inline void fs_ext2_superblock_print(s_ext2_spbk_t *superblock);
 void fs_ext2_initialize(s_vfs_node_t *root);
 
 #endif

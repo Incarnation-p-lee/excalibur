@@ -279,8 +279,8 @@ fs_ext2_superblock_invalid_p(s_ext2_spbk_t *spbk)
 static inline void
 fs_ext2_bgd_map_block_bitmap_set(s_ext2_bgd_map_t *map, s_bitmap_t *bitmap)
 {
+    kassert(map);
     kassert(bitmap_legal_p(bitmap));
-    kassert(fs_ext2_bgd_map_legal_p(map));
 
     map->block_bitmap = bitmap;
 }
@@ -288,10 +288,26 @@ fs_ext2_bgd_map_block_bitmap_set(s_ext2_bgd_map_t *map, s_bitmap_t *bitmap)
 static inline void
 fs_ext2_bgd_map_inode_bitmap_set(s_ext2_bgd_map_t *map, s_bitmap_t *bitmap)
 {
+    kassert(map);
     kassert(bitmap_legal_p(bitmap));
-    kassert(fs_ext2_bgd_map_legal_p(map));
 
     map->inode_bitmap = bitmap;
+}
+
+static inline void
+fs_ext2_bgd_map_b_bitmap_is_dirty_set(s_ext2_bgd_map_t *map, bool is_dirty)
+{
+    kassert(map);
+
+    map->b_bitmap_is_dirty = is_dirty;
+}
+
+static inline void
+fs_ext2_bgd_map_i_bitmap_is_dirty_set(s_ext2_bgd_map_t *map, bool is_dirty)
+{
+    kassert(map);
+
+    map->i_bitmap_is_dirty = is_dirty;
 }
 
 static inline uint32
@@ -382,6 +398,30 @@ fs_ext2_bgd_inode_table_addr(s_ext2_bgd_t *bgd)
     kassert(bgd);
 
     return bgd->inode_table_addr;
+}
+
+static inline uint32
+fs_ext2_bgd_unalloc_block_count(s_ext2_bgd_t *bgd)
+{
+    kassert(bgd);
+
+    return bgd->unalloc_block_count;
+}
+
+static inline uint32
+fs_ext2_bgd_unalloc_inode_count(s_ext2_bgd_t *bgd)
+{
+    kassert(bgd);
+
+    return bgd->unalloc_inode_count;
+}
+
+static inline uint32
+fs_ext2_bgd_dir_count(s_ext2_bgd_t *bgd)
+{
+    kassert(bgd);
+
+    return bgd->dir_count;
 }
 
 static inline uint32
