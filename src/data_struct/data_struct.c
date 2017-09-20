@@ -4,4 +4,5 @@
 #include "ordered_array.c"
 #include "linked_list.c"
 #include "bitmap.c"
+#include "stack.c"
 
