@@ -4,6 +4,7 @@
 #include "fs_ext2_declaration.h"
 
 #include "fs_ext2_ops.c"
+#include "fs_ext2_init.c"
 #include "fs_ext2_util.c"
 #include "fs_ext2_print.c"
 

@@ -19,10 +19,10 @@ static inline void irq_1_keyboard_pressed_key_remove(uint8 key);
 static inline void irq_1_keyboard_pressed_key_set(uint8 key, uint32 i);
 uint32 irq_0_timer_tick(void);
 void irq_0_timer_handler(s_pro_context_t *context);
-void timer_initialize(uint32 freq);
 void irq_14_ata_channel_primary(s_pro_context_t *context);
 void irq_1_keyboard_handler(s_pro_context_t *context);
 void irq_7_handler(s_pro_context_t *context);
 void irq_handler_main(s_pro_context_t context);
+void timer_initialize(uint32 freq);
 
 #endif

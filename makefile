@@ -92,8 +92,10 @@ $(decl):
 
 $(dep_c):%.d:%.c
 	@echo "    Depend   $(notdir $@)"
-	$(CC) -M -MT '$(basename $<).o $(basename $<).d' $(CFLAG) $< | sed -e 's: $(external)::' > $@
-	$(if $(filter %main.c, $<),,$(update_decl_depend))
+	$(CC) -M -MT '$(basename $<).o $(basename $<).d' $(CFLAG) $< \
+            | sed -e 's: $(external)::'                              \
+            | sed -e 's: $(basename $<)_declaration.h::' > $@
+	$(if $(filter %main.c, $<),,$(append_decl_depend))
 
 $(dep_asm):%.d:%.s
 	@echo "    Depend   $(notdir $@)"
@@ -112,12 +114,6 @@ $(obj_asm):%.o:%.s
 	@echo "    Assembly $(notdir $<)"
 	$(ASM) $(ASMFLAG) $< -o $@
 
-clean:
-	@echo "    Clean    Object"
-	@$(RM) $(obj) $(initrd_obj)
-	@echo "    Clean    Depend"
-	@$(RM) $(dep) $(initrd_dep)
-
 help:
 	@echo
 	@echo "  make            :Default debug build"
@@ -127,8 +123,8 @@ help:
 	@echo
 
 ## define list ##
-define update_decl_depend
-    @echo "$(basename $<)_declaration.h: $(addprefix $(dir @),$(shell ls $(dir $@)*.c ))" >> $@
+define append_decl_depend
+    @echo "$(basename $<)_declaration.h: $(basename $<).d $(addprefix $(dir @),$(shell ls $(dir $@)*.c ))" >> $@
 endef
 
 ## Initrd ##
@@ -154,8 +150,9 @@ $(initrd_decl):
 
 $(initrd_dep):%.d:%.c
 	@echo "    Depend   $(notdir $@)"
-	$(CC) -M -MT '$(basename $<).o $(basename $<).d' $(INITRD_CC_FLAG) $< > $@
-	$(update_decl_depend)
+	$(CC) -M -MT '$(basename $<).o $(basename $<).d' $(INITRD_CC_FLAG) $< \
+            | sed -e 's: $(basename $<)_declaration.h::' > $@
+	$(append_decl_depend)
 
 $(INITRD_TARGET):$(initrd_obj)
 	@echo "    Link     $(notdir $@)"
@@ -164,4 +161,10 @@ $(INITRD_TARGET):$(initrd_obj)
 $(initrd_obj):$(initrd_src)
 	@echo "    Compile  $(notdir $<)"
 	$(CC) $(INITRD_CC_FLAG) $< -o $@
+
+clean:
+	@echo "    Clean    Object"
+	@$(RM) $(obj) $(initrd_obj)
+	@echo "    Clean    Depend"
+	@$(RM) $(dep) $(initrd_dep)
 
