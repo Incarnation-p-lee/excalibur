@@ -97,8 +97,8 @@ static inline s_ext2_spbk_t *
 fs_ext2_superblock_create(s_disk_buf_t *buf, e_disk_id_t device_id,
     uint32 sector_offset)
 {
-    uint32 cpy_retval;
-    uint32 read_retval;
+    uint32 cpy_bytes;
+    uint32 read_bytes;
     f_disk_read_t read;
     s_ext2_spbk_t *superblock;
 
@@ -108,15 +108,15 @@ fs_ext2_superblock_create(s_disk_buf_t *buf, e_disk_id_t device_id,
     superblock = kmalloc(sizeof(*superblock));
     read = disk_descriptor_read(device_id);
 
-    read_retval = read(buf, device_id, sector_offset, sizeof(*superblock));
+    read_bytes = read(buf, device_id, sector_offset, sizeof(*superblock));
 
-    if (IS_SIZE_INVALID_P(read_retval)) {
+    if (IS_SIZE_INVALID_P(read_bytes)) {
         KERNEL_PANIC("Failed to read data from device.\n");
     }
 
-    cpy_retval = disk_buffer_copy(superblock, buf, 0, sizeof(*superblock));
+    cpy_bytes = disk_buffer_copy(superblock, buf, 0, sizeof(*superblock));
 
-    if (IS_SIZE_INVALID_P(cpy_retval)) {
+    if (IS_SIZE_INVALID_P(cpy_bytes)) {
         KERNEL_PANIC("Unable to create superblock of ext2 filesystem.\n");
     }
 
@@ -138,8 +138,8 @@ static inline s_ext2_bgd_t *
 fs_ext2_bgd_table_create(s_disk_buf_t *buf, e_disk_id_t device_id,
     uint32 sector_offset, uint32 size)
 {
-    uint32 cpy_retval;
-    uint32 read_retval;
+    uint32 cpy_bytes;
+    uint32 read_bytes;
     uint32 bytes_count;
     f_disk_read_t read;
     s_ext2_bgd_t *bgd_table;
@@ -152,15 +152,15 @@ fs_ext2_bgd_table_create(s_disk_buf_t *buf, e_disk_id_t device_id,
     bgd_table = kmalloc(bytes_count);
     read = disk_descriptor_read(device_id);
 
-    read_retval = read(buf, device_id, sector_offset, bytes_count);
+    read_bytes = read(buf, device_id, sector_offset, bytes_count);
 
-    if (IS_SIZE_INVALID_P(read_retval)) {
+    if (IS_SIZE_INVALID_P(read_bytes)) {
         KERNEL_PANIC("Failed to read data from device.\n");
     }
 
-    cpy_retval = disk_buffer_copy(bgd_table, buf, 0, bytes_count);
+    cpy_bytes = disk_buffer_copy(bgd_table, buf, 0, bytes_count);
 
-    if (IS_SIZE_INVALID_P(cpy_retval)) {
+    if (IS_SIZE_INVALID_P(cpy_bytes)) {
         KERNEL_PANIC("Unable to create bgd table of ext2 filesystem.\n");
     }
 
@@ -183,8 +183,8 @@ fs_ext2_bitmap_place(s_disk_buf_t *buf, e_disk_id_t device_id,
     uint32 sector, uint32 bytes_count)
 {
     uint8 *array;
-    uint32 cpy_retval;
-    uint32 read_retval;
+    uint32 cpy_bytes;
+    uint32 read_bytes;
     s_bitmap_t *bitmap;
     f_disk_read_t read;
 
@@ -195,15 +195,15 @@ fs_ext2_bitmap_place(s_disk_buf_t *buf, e_disk_id_t device_id,
     array = kmalloc(bytes_count);
     read = disk_descriptor_read(device_id);
 
-    read_retval = read(buf, device_id, sector, bytes_count);
+    read_bytes = read(buf, device_id, sector, bytes_count);
 
-    if (IS_SIZE_INVALID_P(read_retval)) {
+    if (IS_SIZE_INVALID_P(read_bytes)) {
         KERNEL_PANIC("Failed to read data from device.\n");
     }
 
-    cpy_retval = disk_buffer_copy(array, buf, 0, bytes_count);
+    cpy_bytes = disk_buffer_copy(array, buf, 0, bytes_count);
 
-    if (IS_SIZE_INVALID_P(cpy_retval)) {
+    if (IS_SIZE_INVALID_P(cpy_bytes)) {
         KERNEL_PANIC("Unable to create array of bitmap.\n");
     }
 
@@ -409,7 +409,7 @@ fs_ext2_initialize_i(s_vfs_node_t *root)
         i++;
     }
 
-    fs_ext2_dspr_table_print(dspr_table);
+    // fs_ext2_dspr_table_print(dspr_table);
 }
 
 void

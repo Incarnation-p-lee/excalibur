@@ -93,7 +93,7 @@ static inline void
 ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info, e_disk_id_t device_id)
 {
     s_disk_buf_t *disk_buf;
-    uint32 cpy_retval, bytes;
+    uint32 cpy_bytes, bytes;
     s_disk_pt_table_t *pt_table;
 
     kassert(ata_device_info_legal_p(dev_info));
@@ -105,9 +105,9 @@ ata_device_info_mbr_detect(s_ata_dev_info_t *dev_info, e_disk_id_t device_id)
     disk_buf = disk_buffer_create(ata_device_info_sector_bytes(dev_info));
 
     ata_device_lba_sector_read_i(disk_buf, dev_info, 0, 1);
-    cpy_retval = disk_buffer_copy(pt_table, disk_buf, DISK_PT_OFFSET, bytes);
+    cpy_bytes = disk_buffer_copy(pt_table, disk_buf, DISK_PT_OFFSET, bytes);
 
-    if (IS_SIZE_INVALID_P(cpy_retval)) {
+    if (IS_SIZE_INVALID_P(cpy_bytes)) {
         KERNEL_PANIC("Unable to detect mbr sector.\n");
     }
 

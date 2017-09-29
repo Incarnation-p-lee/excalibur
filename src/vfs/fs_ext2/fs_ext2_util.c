@@ -19,6 +19,26 @@ fs_ext2_dspr_legal_p(s_ext2_dspr_t *dspr)
 }
 
 static inline bool
+fs_ext2_dir_legal_p(s_ext2_dir_t *dir)
+{
+    if (dir == NULL) {
+        return false;
+    } else if (dir->inode == NULL) {
+        return false;
+    } else if (dir->size <= sizeof(*dir)) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+static inline bool
+fs_ext2_dir_illegal_p(s_ext2_dir_t *dir)
+{
+    return !fs_ext2_dir_legal_p(dir);
+}
+
+static inline bool
 fs_ext2_bgd_map_legal_p(s_ext2_bgd_map_t *map)
 {
     if (map == NULL) {
@@ -152,6 +172,64 @@ fs_ext2_dspr_sector_offset(s_ext2_dspr_t *dspr)
     pt = fs_ext2_dspr_disk_pt(dspr);
 
     return disk_partition_sector_offset(pt);
+}
+
+static inline uint32
+fs_ext2_dspr_sector_bytes(s_ext2_dspr_t *dspr)
+{
+    e_disk_id_t device_id;
+
+    kassert(fs_ext2_dspr_legal_p(dspr));
+
+    device_id = fs_ext2_dspr_device_id(dspr);
+
+    return disk_descriptor_sector_bytes(device_id);
+}
+
+/*
+ * Return two values here, as device is read in sector. We need which sector
+ * and the offset to the start of sector.
+ */
+static inline uint32
+fs_ext2_dspr_inode_addr_to_sector(s_ext2_dspr_t *dspr, uint32 inode_addr,
+    uint32 *bytes_offset)
+{
+    uint32 sector;
+    uint32 b_bytes, b_addr;
+    uint32 s_offset, s_bytes;
+    uint32 group_inode_count, index, reminder;
+
+    kassert(fs_ext2_dspr_legal_p(dspr));
+    kassert(inode_addr != EXT2_INODE_ADDR_NULL);
+
+    b_bytes = fs_ext2_dspr_block_size(dspr);
+    s_offset = fs_ext2_dspr_sector_offset(dspr);
+    s_bytes = fs_ext2_dspr_sector_bytes(dspr);
+
+    group_inode_count = fs_ext2_dspr_group_inode_count(dspr);
+    index = EXT2_INODE_INDEX(inode_addr) / group_inode_count;
+    reminder = EXT2_INODE_INDEX(inode_addr) % group_inode_count;
+
+    b_addr = fs_ext2_dspr_bgd_inode_table_addr(dspr, index);
+    sector = fs_ext2_block_addr_to_sector(b_addr, b_bytes, s_offset, s_bytes);
+    sector += reminder * sizeof(s_ext2_inode_t) / s_bytes;
+
+    *bytes_offset = reminder * sizeof(s_ext2_inode_t) % s_bytes;
+
+    return sector;
+}
+
+static inline uint32
+fs_ext2_dspr_bgd_inode_table_addr(s_ext2_dspr_t *dspr, uint32 i)
+{
+    s_ext2_bgd_t *bgd;
+
+    kassert(fs_ext2_dspr_legal_p(dspr));
+    kassert(i < fs_ext2_dspr_bg_count(dspr));
+
+    bgd = fs_ext2_dspr_bgd(dspr, i);
+
+    return fs_ext2_bgd_inode_table_addr(bgd);
 }
 
 static inline s_ext2_dspr_table_t *
@@ -491,5 +569,77 @@ fs_ext2_dspr_table_entry(s_ext2_dspr_table_t *dspr_table, uint32 i)
     dspr_array = fs_ext2_dspr_table_dspr_array(dspr_table);
 
     return dspr_array[i];
+}
+
+static inline uint32
+fs_ext2_dspr_block_addr_to_sector(s_ext2_dspr_t *dspr, uint32 b_addr)
+{
+    uint32 sector;
+    uint32 b_bytes, s_offset, s_bytes;
+
+    kassert(fs_ext2_dspr_legal_p(dspr));
+
+    b_bytes = fs_ext2_dspr_block_size(dspr);
+    s_offset = fs_ext2_dspr_sector_offset(dspr);
+    s_bytes = fs_ext2_dspr_sector_bytes(dspr);
+
+    sector = fs_ext2_block_addr_to_sector(b_addr, b_bytes, s_offset, s_bytes);
+
+    return sector;
+}
+
+static inline uint32
+fs_ext2_inode_hard_link_count(s_ext2_inode_t *inode)
+{
+    kassert(inode);
+
+    return inode->hard_link_count;
+}
+
+static inline uint32
+fs_ext2_inode_dir_entry_count(s_ext2_inode_t *inode)
+{
+    return fs_ext2_inode_hard_link_count(inode);
+}
+
+static inline uint16
+fs_ext2_inode_type(s_ext2_inode_t *inode)
+{
+    kassert(inode);
+
+    return inode->type;
+}
+
+static inline bool
+fs_ext2_inode_is_dir_p(s_ext2_inode_t *inode)
+{
+    uint16 type;
+
+    kassert(inode);
+
+    type = fs_ext2_inode_type(inode);
+
+    if ((type & EXT2_INODE_T_DIR) != 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+static inline uint32
+fs_ext2_inode_direct_block_addr(s_ext2_inode_t *inode, uint32 i)
+{
+    kassert(inode);
+    kassert(i < EXT2_DIRECT_BLOCK_SIZE);
+
+    return inode->direct_block_pointer[i];
+}
+
+static inline uint32
+fs_ext2_dir_size(s_ext2_dir_t *dir)
+{
+    kassert(fs_ext2_dir_legal_p(dir));
+
+    return dir->size;
 }
 

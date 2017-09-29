@@ -93,6 +93,10 @@
 #define EXT2_BLOCK_GROUP_MAX       128u
 #define EXT2_ROOT_DIR_INODE        2u
 #define EXT2_BUFFER_MAX            4096u
+#define EXT2_INODE_ADDR_NULL       0u    /* inode addr start at 1 */
+#define EXT2_OS_SV2_SIZE           12u
+
+#define EXT2_INODE_INDEX(i)        ((i) - 1)
 
 typedef struct fs_ext2_superblock                 s_ext2_spbk_t;
 typedef struct fs_ext2_inode                      s_ext2_inode_t;
@@ -213,7 +217,7 @@ struct fs_ext2_block_group_descriptor {
  *
  *     block-group     = (inode - 1) / INODE_PER_GROUP
  *     index           = (inode - 1) % INODE_PER_GROUP
- *     contained-block = (inode * INODE_SIZE) / BLOCK_SIZE 
+ *     contained-block = (inode * INODE_SIZE) / BLOCK_SIZE
  *
  *     EACH inode contains 12 direct pointers, one singly indirect pointer, one
  * doubly indirect pointer and one triply indirect pointer.
@@ -243,7 +247,7 @@ struct fs_ext2_inode {
     uint32 extended_attr_block; /* only availabe in Version >= 1 */
     uint32 bytes_size_high;     /* only availabe in Version >= 1 */
     uint32 fragment_block_addr;
-    uint32 os_sp_val_2;
+    uint8  os_sp_val_2[EXT2_OS_SV2_SIZE];
 } __attribute__((packed));
 
 struct fs_ext2_block_group_descriptor_map {
@@ -285,6 +289,12 @@ struct fs_ext2_dir {
     };
     char           name[0];
 } __attribute__((packed));
+
+
+/* It will trigger kernel panic if size is invalid. */
+#define PANIC_IF_INV_SIZE(size) if (IS_SIZE_INVALID_P(size)) {       \
+                                    KERNEL_PANIC("Invalid size.\n"); \
+                                }
 
 #endif
 
