@@ -22,6 +22,7 @@ static inline s_ext2_bgd_t * fs_ext2_bgd_table_create(s_disk_buf_t *buf, e_disk_
 static inline s_ext2_bgd_t * fs_ext2_dspr_bgd(s_ext2_dspr_t *dspr, uint32 i);
 static inline s_ext2_bgd_t * fs_ext2_dspr_bgd_table(s_ext2_dspr_t *dspr);
 static inline s_ext2_dir_t * fs_ext2_dir_create(uint32 size);
+static inline s_ext2_dir_t * fs_ext2_dir_disk_buffer_create(s_disk_buf_t *buf, uint32 offset);
 static inline s_ext2_dspr_t * fs_ext2_dspr_create(e_disk_id_t device_id, s_disk_pt_t *pt, s_ext2_spbk_t *superblock, s_ext2_bgd_t *bgd_table);
 static inline s_ext2_dspr_t * fs_ext2_dspr_table_entry(s_ext2_dspr_table_t *dspr_table, uint32 i);
 static inline s_ext2_dspr_t * fs_ext2_partition_initialize(s_disk_pt_t *pt, e_disk_id_t device_id);

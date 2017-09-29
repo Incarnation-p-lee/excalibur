@@ -12,14 +12,35 @@ fs_ext2_dir_create(uint32 size)
     return dir;
 }
 
+static inline s_ext2_dir_t *
+fs_ext2_dir_disk_buffer_create(s_disk_buf_t *buf, uint32 offset)
+{
+    uint32 size;
+    s_ext2_dir_t dir_tmp, *dir;
+
+    kassert(disk_buffer_legal_p(buf));
+    kassert(offset + sizeof(dir_tmp) < disk_buffer_limit(buf));
+
+    PANIC_IF_INV_SIZE(disk_buffer_copy(&dir_tmp, buf, offset, sizeof(dir_tmp)));
+
+    size = fs_ext2_dir_size(&dir_tmp);
+
+    dir = fs_ext2_dir_create(size);
+
+    PANIC_IF_INV_SIZE(disk_buffer_copy(dir, buf, offset, size));
+    printf_vga("pli28 -> %s size -> %d inode %d name least %d\n", dir->name, size, dir->inode, dir->name_length_least);
+
+    return dir;
+}
+
 static inline uint32
 fs_ext2_dspr_inode_direct_children_add(s_ext2_dspr_t *dspr, s_stack_t *stack,
     s_disk_buf_t *buf, s_ext2_inode_t *inode, uint32 dir_off)
 {
+    s_ext2_dir_t *dir;
     f_disk_read_t read;
     e_disk_id_t device_id;
-    s_ext2_dir_t dt, *dir;
-    uint32 b_addr, b_bytes, dir_count, sector, i, off, size;
+    uint32 b_addr, b_bytes, dir_count, sector, i, off;
 
     kassert(inode);
     kassert(stack_legal_p(stack));
@@ -44,13 +65,8 @@ fs_ext2_dspr_inode_direct_children_add(s_ext2_dspr_t *dspr, s_stack_t *stack,
         off = 0;
 
         while (off < b_bytes) {
-            PANIC_IF_INV_SIZE(disk_buffer_copy(&dt, buf, off, sizeof(dt)));
-            size = fs_ext2_dir_size(&dt);
-
-            dir = fs_ext2_dir_create(size);
-            PANIC_IF_INV_SIZE(disk_buffer_copy(dir, buf, off, size));
-            printf_vga("pli28 -> %s  size -> %d\n", dir->name, size);
-            off += size;
+            dir = fs_ext2_dir_disk_buffer_create(buf, off);
+            off += fs_ext2_dir_size(dir);
             dir_count++;
 
             if (dir_count + dir_off == fs_ext2_inode_dir_entry_count(inode)) {
@@ -78,6 +94,7 @@ fs_ext2_dspr_inode_children_add(s_ext2_dspr_t *dspr, s_ext2_inode_t *inode,
     d = 0;
 
     d += fs_ext2_dspr_inode_direct_children_add(dspr, stack, buf, inode, d);
+    // To-Do: indirected block of inode
 }
 
 static inline s_vfs_node_t *
