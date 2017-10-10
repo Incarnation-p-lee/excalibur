@@ -23,7 +23,7 @@ fs_ext2_dir_legal_p(s_ext2_dir_t *dir)
 {
     if (dir == NULL) {
         return false;
-    } else if (dir->inode == NULL) {
+    } else if (dir->inode_nmbr == 0) {
         return false;
     } else if (dir->size <= sizeof(*dir)) {
         return false;
@@ -641,5 +641,53 @@ fs_ext2_dir_size(s_ext2_dir_t *dir)
     kassert(fs_ext2_dir_legal_p(dir));
 
     return dir->size;
+}
+
+static inline uint8
+fs_ext2_dir_type(s_ext2_dir_t *dir)
+{
+    kassert(fs_ext2_dir_legal_p(dir));
+
+    return dir->type;
+}
+
+static inline bool
+fs_ext2_dir_type_directory_p(s_ext2_dir_t *dir)
+{
+    kassert(fs_ext2_dir_legal_p(dir));
+
+    if (fs_ext2_dir_type(dir) & EXT2_DIR_ENTRY_T_DIR) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+static inline bool
+fs_ext2_dir_type_regular_p(s_ext2_dir_t *dir)
+{
+    kassert(fs_ext2_dir_legal_p(dir));
+
+    if (fs_ext2_dir_type(dir) & EXT2_DIR_ENTRY_T_REGULAR) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+static inline uint32
+fs_ext2_dir_inode_nmbr(s_ext2_dir_t *dir)
+{
+    kassert(fs_ext2_dir_legal_p(dir));
+
+    return dir->inode_nmbr;
+}
+
+static inline char *
+fs_ext2_dir_name(s_ext2_dir_t *dir)
+{
+    kassert(fs_ext2_dir_legal_p(dir));
+
+    return dir->name;
 }
 

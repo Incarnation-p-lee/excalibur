@@ -1,6 +1,7 @@
 #ifndef SRC_VFS_DECLARATION_H
 #define SRC_VFS_DECLARATION_H
 
+bool vfs_node_directory_p(s_vfs_node_t *vfs_node);
 bool vfs_node_file_p(s_vfs_node_t *vfs_node);
 bool vfs_node_illegal_p(s_vfs_node_t *vfs_node);
 bool vfs_node_legal_p(s_vfs_node_t *vfs_node);
@@ -15,7 +16,7 @@ static inline bool vfs_node_dir_findable_p(s_vfs_node_t *vfs_node);
 static inline bool vfs_node_dir_readable_p(s_vfs_node_t *vfs_node);
 static inline bool vfs_node_dir_unfindable_p(s_vfs_node_t *vfs_node);
 static inline bool vfs_node_dir_unreadable_p(s_vfs_node_t *vfs_node);
-static inline bool vfs_node_directory_p(s_vfs_node_t *vfs_node);
+static inline bool vfs_node_directory_ip(s_vfs_node_t *vfs_node);
 static inline bool vfs_node_file_ip(s_vfs_node_t *vfs_node);
 static inline bool vfs_node_illegal_ip(s_vfs_node_t *vfs_node);
 static inline bool vfs_node_legal_ip(s_vfs_node_t *vfs_node);

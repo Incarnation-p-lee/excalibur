@@ -137,7 +137,7 @@ vfs_node_dir_unfindable_p(s_vfs_node_t *vfs_node)
 }
 
 static inline bool
-vfs_node_directory_p(s_vfs_node_t *vfs_node)
+vfs_node_directory_ip(s_vfs_node_t *vfs_node)
 {
     kassert(vfs_node_legal_ip(vfs_node));
 
@@ -148,10 +148,20 @@ vfs_node_directory_p(s_vfs_node_t *vfs_node)
     }
 }
 
+bool
+vfs_node_directory_p(s_vfs_node_t *vfs_node)
+{
+    if (vfs_node_illegal_ip(vfs_node)) {
+        return false;
+    } else {
+        return vfs_node_directory_ip(vfs_node);
+    }
+}
+
 static inline bool
 vfs_node_not_directory_p(s_vfs_node_t *vfs_node)
 {
-    return !vfs_node_directory_p(vfs_node);
+    return !vfs_node_directory_ip(vfs_node);
 }
 
 static inline uint32

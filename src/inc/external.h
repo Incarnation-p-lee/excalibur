@@ -25,6 +25,7 @@ extern bool stack_empty_p(s_stack_t *stack);
 extern bool stack_full_p(s_stack_t *stack);
 extern bool stack_illegal_p(s_stack_t *stack);
 extern bool stack_legal_p(s_stack_t *stack);
+extern bool vfs_node_directory_p(s_vfs_node_t *vfs_node);
 extern bool vfs_node_file_p(s_vfs_node_t *vfs_node);
 extern bool vfs_node_illegal_p(s_vfs_node_t *vfs_node);
 extern bool vfs_node_legal_p(s_vfs_node_t *vfs_node);

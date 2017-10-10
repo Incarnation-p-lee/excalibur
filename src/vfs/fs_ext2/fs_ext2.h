@@ -280,14 +280,14 @@ struct fs_ext2_descriptor_table {
  *     DIRECTORY entries are not allowed to span multiple blocks.
  */
 struct fs_ext2_dir {
-    s_ext2_inode_t *inode;
-    uint16         size;
-    uint8          name_length_least; /* least-significant 8 bits */
+    uint32    inode_nmbr;
+    uint16    size;
+    uint8     name_length_least; /* least-significant 8 bits */
     union {
-        uint8      type;
-        uint8      name_length_most;
+        uint8 type;
+        uint8 name_length_most;
     };
-    char           name[0];
+    char      name[0];
 } __attribute__((packed));
 
 
