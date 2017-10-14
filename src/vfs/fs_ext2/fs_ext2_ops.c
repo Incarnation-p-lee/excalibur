@@ -12,6 +12,9 @@ fs_ext2_dir_create(uint32 size)
     return dir;
 }
 
+/*
+ * Will return NULL if illegal s_ext2_dir_t
+ */
 static inline s_ext2_dir_t *
 fs_ext2_dir_disk_buffer_create(s_disk_buf_t *buf, uint32 offset)
 {
@@ -23,8 +26,11 @@ fs_ext2_dir_disk_buffer_create(s_disk_buf_t *buf, uint32 offset)
 
     PANIC_IF_INV_SIZE(disk_buffer_copy(&dir_tmp, buf, offset, sizeof(dir_tmp)));
 
-    size = fs_ext2_dir_size(&dir_tmp);
+    if (fs_ext2_dir_illegal_p(&dir_tmp)) {
+        return NULL;
+    }
 
+    size = fs_ext2_dir_size(&dir_tmp);
     dir = fs_ext2_dir_create(size);
 
     PANIC_IF_INV_SIZE(disk_buffer_copy(dir, buf, offset, size));
@@ -59,31 +65,32 @@ fs_ext2_vfs_node_child_add(s_stack_t *stack, s_ext2_dir_t *dir,
     stack_push(stack, vfs_node);
 }
 
-static inline uint32
-fs_ext2_inode_direct_children_add(s_ext2_dspr_t *dspr, s_vfs_node_t *vfs_node,
-     s_ext2_inode_t *inode, s_stack_t *stack, s_disk_buf_t *buf)
+static inline void
+fs_ext2_inode_direct_block_children_add(s_ext2_dspr_t *dspr,
+    s_vfs_node_t *vfs_node, s_ext2_inode_t *inode, s_stack_t *stack,
+    s_disk_buf_t *buf)
 {
     s_ext2_dir_t *dir;
+    uint64 block_count;
     f_disk_read_t read;
     e_disk_id_t device_id;
-    uint32 b_addr, b_bytes, dir_count, sector, i, off;
+    uint32 i, b_addr, b_bytes, sector, off;
 
     kassert(inode);
     kassert(stack_legal_p(stack));
     kassert(disk_buffer_legal_p(buf));
     kassert(fs_ext2_dspr_legal_p(dspr));
+    kassert(vfs_node_legal_p(vfs_node) && vfs_node_directory_p(vfs_node));
 
-    i = dir_count = 0;
+    i = 0;
     device_id = fs_ext2_dspr_device_id(dspr);
     read = disk_descriptor_read(device_id);
     b_bytes = fs_ext2_dspr_block_size(dspr);
+    block_count = fs_ext2_inode_direct_block_count(inode, b_bytes);
 
-    while (i < EXT2_DIRECT_BLOCK_SIZE) {
-        b_addr = fs_ext2_inode_direct_block_addr(inode, i);
-
-        if (b_addr == 0) {
-            return dir_count;
-        }
+    while (i < block_count) {
+        b_addr = fs_ext2_inode_direct_block_addr(inode, i++);
+        kassert(b_addr);
 
         sector = fs_ext2_dspr_block_addr_to_sector(dspr, b_addr);
         PANIC_IF_INV_SIZE(read(buf, device_id, sector, b_bytes));
@@ -92,40 +99,33 @@ fs_ext2_inode_direct_children_add(s_ext2_dspr_t *dspr, s_vfs_node_t *vfs_node,
 
         while (off < b_bytes) {
             dir = fs_ext2_dir_disk_buffer_create(buf, off);
-            off += fs_ext2_dir_size(dir);
-            dir_count++;
 
-            fs_ext2_vfs_node_child_add(stack, dir, vfs_node);
-
-            if (dir_count == fs_ext2_inode_dir_entry_count(inode)) {
-                return dir_count;
+            if (dir == NULL) {
+                return;
             }
+
+            off += fs_ext2_dir_size(dir);
+            fs_ext2_vfs_node_child_add(stack, dir, vfs_node);
         }
-
-        i++;
     }
-
-    return dir_count;
 }
 
 static inline void
 fs_ext2_vfs_node_children_add(s_ext2_dspr_t *dspr, s_vfs_node_t *vfs_node,
     s_stack_t *stack, s_disk_buf_t *buf)
 {
-    uint32 d; /* dir number offset */
     s_ext2_inode_t *inode;
 
     kassert(stack_legal_p(stack));
     kassert(disk_buffer_legal_p(buf));
-    kassert(vfs_node_legal_p(vfs_node));
     kassert(fs_ext2_dspr_legal_p(dspr));
+    kassert(vfs_node_legal_p(vfs_node));
     kassert(vfs_node_directory_p(vfs_node));
 
     inode = fs_ext2_dspr_inode_create(dspr, buf, vfs_node_inode(vfs_node));
 
-    d = fs_ext2_inode_direct_children_add(dspr, vfs_node, inode, stack, buf);
-    // To-Do: indirected block of inode
-    printf_vga("pli28 dir entry number for direct %d\n", d);
+    fs_ext2_inode_direct_block_children_add(dspr, vfs_node, inode, stack, buf);
+    // To-Do: take care of indirected block
 
     fs_ext2_dspr_inode_destroy(&inode);
 }
@@ -143,7 +143,9 @@ fs_ext2_dspr_vfs_tree_dfs_build(s_ext2_dspr_t *dspr, s_stack_t *stack,
     while (!stack_empty_p(stack)) {
         vfs_node = stack_pop(stack);
 
-        if (vfs_node_directory_p(vfs_node)) {
+        if (fs_ext2_vfs_node_implicit_dir_p(vfs_node)) {
+            continue;
+        } else if (vfs_node_directory_p(vfs_node)) {
             fs_ext2_vfs_node_children_add(dspr, vfs_node, stack, buf);
         }
     }
@@ -170,6 +172,8 @@ fs_ext2_dspr_vfs_tree_build(s_ext2_dspr_t *dspr)
 
     stack_destroy(&stack);
     disk_buffer_destroy(&buf);
+
+    fs_ext2_vfs_node_tree_print(ext2_root);
 
     return ext2_root;
 }

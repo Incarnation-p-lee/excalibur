@@ -96,6 +96,9 @@
 #define EXT2_INODE_ADDR_NULL       0u    /* inode addr start at 1 */
 #define EXT2_OS_SV2_SIZE           12u
 
+#define EXT2_DIR_CURRENT           "."
+#define EXT2_DIR_PARENT            ".."
+
 #define EXT2_INODE_INDEX(i)        ((i) - 1)
 
 typedef struct fs_ext2_superblock                 s_ext2_spbk_t;

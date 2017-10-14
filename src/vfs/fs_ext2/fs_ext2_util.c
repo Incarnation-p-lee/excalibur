@@ -602,6 +602,59 @@ fs_ext2_inode_dir_entry_count(s_ext2_inode_t *inode)
     return fs_ext2_inode_hard_link_count(inode);
 }
 
+static inline uint32
+fs_ext2_inode_bytes_size_low(s_ext2_inode_t *inode)
+{
+    kassert(inode);
+
+    return inode->bytes_size_low;
+}
+
+static inline uint32
+fs_ext2_inode_bytes_size_high(s_ext2_inode_t *inode)
+{
+    kassert(inode);
+
+    return inode->bytes_size_high;
+}
+
+static inline uint64
+fs_ext2_inode_bytes_size(s_ext2_inode_t *inode)
+{
+    uint64 low, high;
+
+    kassert(inode);
+
+    low = fs_ext2_inode_bytes_size_low(inode);
+    high = fs_ext2_inode_bytes_size_high(inode);
+
+    return low + (high << 32);
+}
+
+static inline uint64
+fs_ext2_inode_direct_block_count(s_ext2_inode_t *inode, uint32 block_bytes)
+{
+    uint64 bytes_size;
+    uint64 block_count;
+    uint32 bytes_high, bytes_low;
+
+    kassert(inode);
+    kassert(block_bytes);
+
+    bytes_size = fs_ext2_inode_bytes_size(inode);
+    bytes_high = bytes_size >> 32;
+    bytes_low = bytes_size & (uint32)-1;
+
+    block_count = (uint64)(bytes_high / block_bytes) << 32;
+    block_count += bytes_low / block_bytes;
+
+    if (block_count > EXT2_DIRECT_BLOCK_SIZE) {
+        return EXT2_DIRECT_BLOCK_SIZE;
+    } else {
+        return block_count;
+    }
+}
+
 static inline uint16
 fs_ext2_inode_type(s_ext2_inode_t *inode)
 {
@@ -689,5 +742,35 @@ fs_ext2_dir_name(s_ext2_dir_t *dir)
     kassert(fs_ext2_dir_legal_p(dir));
 
     return dir->name;
+}
+
+static inline bool
+fs_ext2_vfs_node_implicit_dir_p(s_vfs_node_t *vfs_node)
+{
+    kassert(vfs_node_legal_p(vfs_node));
+
+    if (vfs_node_not_directory_p(vfs_node)) {
+        return false;
+    } else if (string_compare(vfs_node_name(vfs_node), EXT2_DIR_CURRENT) == 0) {
+        return true;
+    } else if (string_compare(vfs_node_name(vfs_node), EXT2_DIR_PARENT) == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+static inline bool
+fs_ext2_vfs_node_obvious_dir_p(s_vfs_node_t *vfs_node)
+{
+    kassert(vfs_node_legal_p(vfs_node));
+
+    if (fs_ext2_vfs_node_implicit_dir_p(vfs_node)) {
+        return false;
+    } else if (vfs_node_directory_p(vfs_node)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 

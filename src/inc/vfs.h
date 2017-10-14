@@ -2,7 +2,6 @@
 #define HAVE_DEFINED_FILESYSTEM_H
 
 typedef struct vfs_node       s_vfs_node_t;
-typedef struct vfs_descriptor s_vfs_dspr_t;
 
 typedef uint32 (*f_read_t)(s_vfs_node_t *, uint32, uint32, uint8 *);
 typedef uint32 (*f_write_t)(s_vfs_node_t *, uint32, uint32, uint8 *);

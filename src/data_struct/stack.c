@@ -216,9 +216,9 @@ stack_push(s_stack_t *stack, void *member)
     } else if (stack_full_ip(stack)) {
         capacity = stack_capacity_i(stack) * 2;
         stack_resize_i(stack, capacity);
-
-        *stack->sp++ = member;
     }
+
+    *stack->sp++ = member;
 }
 
 void *
@@ -273,6 +273,29 @@ stack_cleanup(s_stack_t *stack)
     if (stack_legal_ip(stack)) {
         kmemset(stack_bp(stack), 0, sizeof(void *) * stack_capacity_i(stack));
         stack_sp_set(stack, stack_bp(stack));
+    }
+}
+
+static inline void
+stack_fill_i(s_stack_t *stack_to, s_stack_t *stack_from)
+{
+    kassert(stack_legal_ip(stack_to));
+    kassert(stack_legal_ip(stack_from));
+
+    while (!stack_empty_ip(stack_from)) {
+        stack_push(stack_to, stack_pop(stack_from));
+    }
+}
+
+void
+stack_fill(s_stack_t *stack_to, s_stack_t *stack_from)
+{
+    if (stack_illegal_ip(stack_to)) {
+        return;
+    } else if (stack_illegal_ip(stack_from)) {
+        return;
+    } else {
+        stack_fill_i(stack_to, stack_from);
     }
 }
 

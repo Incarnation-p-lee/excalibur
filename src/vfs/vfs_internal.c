@@ -152,7 +152,7 @@ vfs_readdir(s_vfs_node_t *vfs_node, uint32 index)
         return PTR_INVALID;
     } else if (vfs_node_dir_unreadable_p(vfs_node)) {
         return PTR_INVALID;
-    } else if (vfs_node_not_directory_p(vfs_node)) {
+    } else if (vfs_node_not_directory_ip(vfs_node)) {
         return PTR_INVALID;
     } else {
         return vfs_node->readdir(vfs_node, index);

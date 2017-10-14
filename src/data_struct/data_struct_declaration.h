@@ -81,6 +81,7 @@ static inline void ordered_array_value_append(s_ordered_array_t *ordered_array, 
 static inline void ordered_array_value_set(s_ordered_array_t *ordered_array, uint32 i, void *val);
 static inline void stack_bp_set(s_stack_t *stack, void **bp);
 static inline void stack_capacity_set(s_stack_t *stack, uint32 capacity);
+static inline void stack_fill_i(s_stack_t *stack_to, s_stack_t *stack_from);
 static inline void stack_resize_i(s_stack_t *stack, uint32 capacity);
 static inline void stack_sp_set(s_stack_t *stack, void **sp);
 uint32 ordered_array_limit(s_ordered_array_t *ordered_array);
@@ -102,6 +103,7 @@ void ordered_array_insert(s_ordered_array_t *ordered_array, void *val);
 void ordered_array_remove(s_ordered_array_t *ordered_array, uint32 i);
 void stack_cleanup(s_stack_t *stack);
 void stack_destroy(s_stack_t **stack);
+void stack_fill(s_stack_t *stack_to, s_stack_t *stack_from);
 void stack_push(s_stack_t *stack, void *member);
 void stack_resize(s_stack_t *stack, uint32 capacity);
 

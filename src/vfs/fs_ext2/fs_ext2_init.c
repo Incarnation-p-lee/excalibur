@@ -409,7 +409,7 @@ fs_ext2_initialize_i(s_vfs_node_t *root)
         i++;
     }
 
-    // fs_ext2_dspr_table_print(dspr_table);
+    fs_ext2_dspr_table_print(dspr_table);
 }
 
 void

@@ -69,3 +69,48 @@ fs_ext2_dspr_table_print(s_ext2_dspr_table_t *dspr_table)
     printf_vga_tk("Ext2 filesystem initialized.\n");
 }
 
+static inline void
+fs_ext2_vfs_node_tree_print(s_vfs_node_t *vfs_root)
+{
+    uint32 i;
+    char buf[256];
+    s_stack_t *stack_slave;
+    s_stack_t *stack_master;
+    s_vfs_node_t *node, *child;
+
+    kassert(vfs_node_legal_p(vfs_root));
+
+    stack_slave = stack_create();
+    stack_master = stack_create();
+
+    stack_push(stack_master, vfs_root);
+
+    while (!stack_empty_p(stack_master)) {
+        i = 0;
+        node = stack_pop(stack_master);
+
+        if (fs_ext2_vfs_node_obvious_dir_p(node)) {
+            i += string_copy(buf + i, vfs_node_name(node));
+            i--;
+            i += string_copy(buf + i, " -> ");
+            i--;
+
+            child = vfs_sub_list_first(node);
+
+            while (child != NULL) {
+                i += string_copy(buf + i, vfs_node_name(child));
+                buf[i - 1] = ' ';
+                stack_push(stack_slave, child);
+                child = vfs_node_next(child);
+            }
+
+            buf[i] = CHAR_NULL;
+            printf_vga_tk("%s\n", buf);
+        }
+
+        if (stack_empty_p(stack_master)) {
+            stack_fill(stack_master, stack_slave);
+        }
+    }
+}
+
