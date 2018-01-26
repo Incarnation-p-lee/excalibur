@@ -8,8 +8,10 @@
 #include "error_code.h"
 #include "external_data.h"
 
-#include "vfs.h"
+#include "device.h"
+#include "block.h"
 #include "initrd.h"
+#include "vfs.h"
 #include "disk.h"
 #include "kernel_heap.h"
 #include "multiboot.h"

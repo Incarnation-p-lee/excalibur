@@ -58,20 +58,20 @@ fs_ext2_dspr_illegal_p(s_ext2_dspr_t *dspr)
     return !fs_ext2_dspr_legal_p(dspr);
 }
 
-static inline e_disk_id_t
-fs_ext2_dspr_device_id(s_ext2_dspr_t *dspr)
+static inline e_dev_id_t
+fs_ext2_dspr_id(s_ext2_dspr_t *dspr)
 {
     kassert(fs_ext2_dspr_legal_p(dspr));
 
-    return dspr->device_id;
+    return dspr->id;
 }
 
 static inline void
-fs_ext2_dspr_device_id_set(s_ext2_dspr_t *dspr, e_disk_id_t device_id)
+fs_ext2_dspr_id_set(s_ext2_dspr_t *dspr, e_dev_id_t id)
 {
     kassert(fs_ext2_dspr_legal_p(dspr));
 
-    dspr->device_id = device_id;
+    dspr->id = id;
 }
 
 static inline s_disk_pt_t *
@@ -177,13 +177,13 @@ fs_ext2_dspr_sector_offset(s_ext2_dspr_t *dspr)
 static inline uint32
 fs_ext2_dspr_sector_bytes(s_ext2_dspr_t *dspr)
 {
-    e_disk_id_t device_id;
+    e_dev_id_t id;
 
     kassert(fs_ext2_dspr_legal_p(dspr));
 
-    device_id = fs_ext2_dspr_device_id(dspr);
+    id = fs_ext2_dspr_id(dspr);
 
-    return disk_descriptor_sector_bytes(device_id);
+    return disk_descriptor_sector_bytes(id);
 }
 
 /*

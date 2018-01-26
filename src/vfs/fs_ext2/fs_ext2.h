@@ -262,7 +262,7 @@ struct fs_ext2_block_group_descriptor_map {
 };
 
 struct fs_ext2_descriptor {
-    e_disk_id_t      device_id;
+    e_dev_id_t       id;
     uint32           bg_count;
     s_ext2_spbk_t    *superblock;
     s_ext2_bgd_t     *bgd_table;

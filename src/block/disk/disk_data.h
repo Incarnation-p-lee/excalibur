@@ -7,7 +7,7 @@ static s_disk_dspt_t disk_descripotr[] = {
         false, /* is_active */
         0,
         &ata_device_lba_byte_read,
-        "/",
+        "",
         { /* s_disk_pt_table_t */
             {
                 {0, 0, {0, 0}, 0, 0, {0, 0}, 0, 0},
@@ -23,7 +23,7 @@ static s_disk_dspt_t disk_descripotr[] = {
         false, /* is_active */
         0,
         &ata_device_lba_byte_read,
-        "/",
+        "",
         { /* s_disk_pt_table_t */
             {
                 {0, 0, {0, 0}, 0, 0, {0, 0}, 0, 0},

@@ -21,12 +21,12 @@ ata_device_info_type_print(uint32 type)
 }
 
 static inline void
-ata_device_info_drive_print(s_ata_dev_info_t *dev_info, e_disk_id_t device_id)
+ata_device_info_drive_print(s_ata_dev_info_t *dev_info, e_dev_id_t id)
 {
     kassert(ata_device_info_legal_p(dev_info));
 
     if (ata_device_info_drive_exist_p(dev_info)) {
-        printf_vga_tk("Detected ATA device %d: ", device_id);
+        printf_vga_tk("Detected ATA device %d: ", id);
         ata_device_info_type_print(ata_device_info_type(dev_info));
         printf_vga(".");
         printf_vga(" c %d, h %d, s/t %d, s byte %d",
@@ -36,7 +36,7 @@ ata_device_info_drive_print(s_ata_dev_info_t *dev_info, e_disk_id_t device_id)
             ata_device_info_sector_bytes(dev_info));
         printf_vga(".\n");
 
-        disk_partition_table_print(disk_descriptor_pt_table(device_id));
+        disk_partition_table_print(disk_descriptor_pt_table(id));
     }
 }
 

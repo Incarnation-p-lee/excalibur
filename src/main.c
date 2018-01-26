@@ -13,7 +13,7 @@ entry(uint32 magic, void *boot_header, void *boot_info)
     timer_initialize(1000);
     page_initialize();
     kernel_heap_initialize();
-    disk_initialize();
+    block_initialize();
     vfs_initialize();
 
     // test_main();

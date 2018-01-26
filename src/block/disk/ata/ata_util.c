@@ -81,11 +81,11 @@ ata_device_info_type_set(s_ata_dev_info_t *dev_info, uint32 type)
 }
 
 static inline s_ata_dev_info_t *
-ata_device_information(e_disk_id_t device_id)
+ata_device_information(e_dev_id_t id)
 {
-    kassert(ATA_DEVICE_OFFSET(device_id) < ata_device_info_limit_i());
+    kassert(ATA_DEVICE_OFFSET(id) < ata_device_info_limit_i());
 
-    return &dev_info_array[ATA_DEVICE_OFFSET(device_id)];
+    return &dev_info_array[ATA_DEVICE_OFFSET(id)];
 }
 
 static inline bool

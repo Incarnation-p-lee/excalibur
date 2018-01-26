@@ -516,7 +516,7 @@ disk_descriptor_limit(void)
 }
 
 static inline s_disk_dspt_t *
-disk_descriptor_entry(e_disk_id_t device_id)
+disk_descriptor_entry(e_dev_id_t device_id)
 {
     kassert(device_id < disk_descriptor_limit_i());
 
@@ -546,7 +546,7 @@ disk_descriptor_illegal_ip(s_disk_dspt_t *disk_dspt)
 }
 
 static inline bool
-disk_descriptor_is_active_ip(e_disk_id_t device_id)
+disk_descriptor_is_active_ip(e_dev_id_t device_id)
 {
     s_disk_dspt_t *disk_dspt;
 
@@ -558,7 +558,7 @@ disk_descriptor_is_active_ip(e_disk_id_t device_id)
 }
 
 static inline void
-disk_descriptor_is_active_set_i(e_disk_id_t device_id, bool is_active)
+disk_descriptor_is_active_set_i(e_dev_id_t device_id, bool is_active)
 {
     s_disk_dspt_t *disk_dspt;
 
@@ -570,7 +570,7 @@ disk_descriptor_is_active_set_i(e_disk_id_t device_id, bool is_active)
 }
 
 bool
-disk_descriptor_is_active_p(e_disk_id_t device_id)
+disk_descriptor_is_active_p(e_dev_id_t device_id)
 {
     if (device_id >= disk_descriptor_limit_i()) {
         return false;
@@ -580,7 +580,7 @@ disk_descriptor_is_active_p(e_disk_id_t device_id)
 }
 
 void
-disk_descriptor_is_active_set(e_disk_id_t device_id, bool is_active)
+disk_descriptor_is_active_set(e_dev_id_t device_id, bool is_active)
 {
     if (device_id >= disk_descriptor_limit_i()) {
         return;
@@ -590,7 +590,7 @@ disk_descriptor_is_active_set(e_disk_id_t device_id, bool is_active)
 }
 
 static inline f_disk_read_t
-disk_descriptor_read_i(e_disk_id_t device_id)
+disk_descriptor_read_i(e_dev_id_t device_id)
 {
     s_disk_dspt_t *disk_dspt;
 
@@ -602,7 +602,7 @@ disk_descriptor_read_i(e_disk_id_t device_id)
 }
 
 f_disk_read_t
-disk_descriptor_read(e_disk_id_t device_id)
+disk_descriptor_read(e_dev_id_t device_id)
 {
     if (device_id >= disk_descriptor_limit_i()) {
         return PTR_INVALID;
@@ -612,7 +612,7 @@ disk_descriptor_read(e_disk_id_t device_id)
 }
 
 static inline void
-disk_descriptor_sector_bytes_set_i(e_disk_id_t device_id, uint32 sector_bytes)
+disk_descriptor_sector_bytes_set_i(e_dev_id_t device_id, uint32 sector_bytes)
 {
     s_disk_dspt_t *disk_dspt;
 
@@ -624,7 +624,7 @@ disk_descriptor_sector_bytes_set_i(e_disk_id_t device_id, uint32 sector_bytes)
 }
 
 void
-disk_descriptor_sector_bytes_set(e_disk_id_t device_id, uint32 bytes)
+disk_descriptor_sector_bytes_set(e_dev_id_t device_id, uint32 bytes)
 {
     if (device_id >= disk_descriptor_limit_i()) {
         return;
@@ -634,7 +634,7 @@ disk_descriptor_sector_bytes_set(e_disk_id_t device_id, uint32 bytes)
 }
 
 static inline uint32
-disk_descriptor_sector_bytes_i(e_disk_id_t device_id)
+disk_descriptor_sector_bytes_i(e_dev_id_t device_id)
 {
     s_disk_dspt_t *disk_dspt;
 
@@ -646,7 +646,7 @@ disk_descriptor_sector_bytes_i(e_disk_id_t device_id)
 }
 
 uint32
-disk_descriptor_sector_bytes(e_disk_id_t device_id)
+disk_descriptor_sector_bytes(e_dev_id_t device_id)
 {
     if (device_id >= disk_descriptor_limit_i()) {
         return SIZE_INVALID;
@@ -656,7 +656,7 @@ disk_descriptor_sector_bytes(e_disk_id_t device_id)
 }
 
 static inline s_disk_pt_table_t *
-disk_descriptor_pt_table_i(e_disk_id_t device_id)
+disk_descriptor_pt_table_i(e_dev_id_t device_id)
 {
     s_disk_dspt_t *disk_dspt;
 
@@ -668,7 +668,7 @@ disk_descriptor_pt_table_i(e_disk_id_t device_id)
 }
 
 s_disk_pt_table_t *
-disk_descriptor_pt_table(e_disk_id_t device_id)
+disk_descriptor_pt_table(e_dev_id_t device_id)
 {
     if (device_id >= disk_descriptor_limit_i()) {
         return PTR_INVALID;

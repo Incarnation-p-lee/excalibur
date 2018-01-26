@@ -18,7 +18,7 @@ fs_ext2_dspr_table_append(s_ext2_dspr_table_t *dspr_table,
 }
 
 static inline s_ext2_dspr_t *
-fs_ext2_dspr_create(e_disk_id_t device_id, s_disk_pt_t *pt,
+fs_ext2_dspr_create(e_dev_id_t id, s_disk_pt_t *pt,
     s_ext2_spbk_t *superblock, s_ext2_bgd_t *bgd_table)
 {
     uint32 bg_count;
@@ -26,7 +26,7 @@ fs_ext2_dspr_create(e_disk_id_t device_id, s_disk_pt_t *pt,
 
     kassert(bgd_table);
     kassert(disk_partition_legal_p(pt));
-    kassert(device_id < disk_descriptor_limit());
+    kassert(id < disk_descriptor_limit());
     kassert(fs_ext2_superblock_valid_p(superblock));
 
     bg_count = fs_ext2_superblock_block_group_count(superblock);
@@ -34,7 +34,7 @@ fs_ext2_dspr_create(e_disk_id_t device_id, s_disk_pt_t *pt,
     dspr = kmalloc(sizeof(*dspr));
     dspr->map_array = kmalloc(sizeof(dspr->map_array[0]) * bg_count);
 
-    dspr->device_id = device_id;
+    dspr->id = id;
     dspr->disk_pt = pt;
     dspr->superblock = superblock;
     dspr->bgd_table = bgd_table;
@@ -94,7 +94,7 @@ fs_ext2_dspr_destroy(s_ext2_dspr_t **dspr)
 }
 
 static inline s_ext2_spbk_t *
-fs_ext2_superblock_create(s_disk_buf_t *buf, e_disk_id_t device_id,
+fs_ext2_superblock_create(s_block_buf_t *buf, e_dev_id_t id,
     uint32 sector_offset)
 {
     uint32 cpy_bytes;
@@ -103,18 +103,18 @@ fs_ext2_superblock_create(s_disk_buf_t *buf, e_disk_id_t device_id,
     s_ext2_spbk_t *superblock;
 
     kassert(sector_offset);
-    kassert(disk_buffer_legal_p(buf));
+    kassert(block_buffer_legal_p(buf));
 
     superblock = kmalloc(sizeof(*superblock));
-    read = disk_descriptor_read(device_id);
+    read = disk_descriptor_read(id);
 
-    read_bytes = read(buf, device_id, sector_offset, sizeof(*superblock));
+    read_bytes = read(buf, id, sector_offset, sizeof(*superblock));
 
     if (IS_SIZE_INVALID_P(read_bytes)) {
         KERNEL_PANIC("Failed to read data from device.\n");
     }
 
-    cpy_bytes = disk_buffer_copy(superblock, buf, 0, sizeof(*superblock));
+    cpy_bytes = block_buffer_copy(superblock, buf, 0, sizeof(*superblock));
 
     if (IS_SIZE_INVALID_P(cpy_bytes)) {
         KERNEL_PANIC("Unable to create superblock of ext2 filesystem.\n");
@@ -135,7 +135,7 @@ fs_ext2_superblock_destroy(s_ext2_spbk_t **superblock)
 }
 
 static inline s_ext2_bgd_t *
-fs_ext2_bgd_table_create(s_disk_buf_t *buf, e_disk_id_t device_id,
+fs_ext2_bgd_table_create(s_block_buf_t *buf, e_dev_id_t id,
     uint32 sector_offset, uint32 size)
 {
     uint32 cpy_bytes;
@@ -146,19 +146,19 @@ fs_ext2_bgd_table_create(s_disk_buf_t *buf, e_disk_id_t device_id,
 
     kassert(size);
     kassert(sector_offset);
-    kassert(disk_buffer_legal_p(buf));
+    kassert(block_buffer_legal_p(buf));
 
     bytes_count = sizeof(*bgd_table) * size;
     bgd_table = kmalloc(bytes_count);
-    read = disk_descriptor_read(device_id);
+    read = disk_descriptor_read(id);
 
-    read_bytes = read(buf, device_id, sector_offset, bytes_count);
+    read_bytes = read(buf, id, sector_offset, bytes_count);
 
     if (IS_SIZE_INVALID_P(read_bytes)) {
         KERNEL_PANIC("Failed to read data from device.\n");
     }
 
-    cpy_bytes = disk_buffer_copy(bgd_table, buf, 0, bytes_count);
+    cpy_bytes = block_buffer_copy(bgd_table, buf, 0, bytes_count);
 
     if (IS_SIZE_INVALID_P(cpy_bytes)) {
         KERNEL_PANIC("Unable to create bgd table of ext2 filesystem.\n");
@@ -179,7 +179,7 @@ fs_ext2_bgd_table_destroy(s_ext2_bgd_t **bgd_table)
 }
 
 static inline s_bitmap_t *
-fs_ext2_bitmap_place(s_disk_buf_t *buf, e_disk_id_t device_id,
+fs_ext2_bitmap_place(s_block_buf_t *buf, e_dev_id_t id,
     uint32 sector, uint32 bytes_count)
 {
     uint8 *array;
@@ -190,18 +190,18 @@ fs_ext2_bitmap_place(s_disk_buf_t *buf, e_disk_id_t device_id,
 
     kassert(bytes_count);
     kassert(sector);
-    kassert(disk_buffer_legal_p(buf));
+    kassert(block_buffer_legal_p(buf));
 
     array = kmalloc(bytes_count);
-    read = disk_descriptor_read(device_id);
+    read = disk_descriptor_read(id);
 
-    read_bytes = read(buf, device_id, sector, bytes_count);
+    read_bytes = read(buf, id, sector, bytes_count);
 
     if (IS_SIZE_INVALID_P(read_bytes)) {
         KERNEL_PANIC("Failed to read data from device.\n");
     }
 
-    cpy_bytes = disk_buffer_copy(array, buf, 0, bytes_count);
+    cpy_bytes = block_buffer_copy(array, buf, 0, bytes_count);
 
     if (IS_SIZE_INVALID_P(cpy_bytes)) {
         KERNEL_PANIC("Unable to create array of bitmap.\n");
@@ -229,7 +229,7 @@ fs_ext2_block_addr_to_sector(uint32 block_addr, uint32 block_bytes,
 }
 
 static inline s_ext2_bgd_map_t *
-fs_ext2_bgd_map_create(s_disk_buf_t *buf, e_disk_id_t device_id,
+fs_ext2_bgd_map_create(s_block_buf_t *buf, e_dev_id_t id,
     s_ext2_dspr_t *dspr, s_ext2_bgd_t *bgd)
 {
     uint32 addr;
@@ -240,12 +240,12 @@ fs_ext2_bgd_map_create(s_disk_buf_t *buf, e_disk_id_t device_id,
     uint32 sector, s_offset, s_bytes;
 
     kassert(bgd);
-    kassert(disk_buffer_legal_p(buf));
+    kassert(block_buffer_legal_p(buf));
     kassert(fs_ext2_dspr_legal_p(dspr));
 
     b_bytes = fs_ext2_dspr_block_size(dspr);
     s_offset = fs_ext2_dspr_sector_offset(dspr);
-    s_bytes = disk_descriptor_sector_bytes(device_id);
+    s_bytes = disk_descriptor_sector_bytes(id);
 
     map = kmalloc(sizeof(*map));
 
@@ -255,7 +255,7 @@ fs_ext2_bgd_map_create(s_disk_buf_t *buf, e_disk_id_t device_id,
     bytes_count = arithmetic_rate_up(b_count, 8);
     sector = fs_ext2_block_addr_to_sector(addr, b_bytes, s_offset, s_bytes);
 
-    bitmap = fs_ext2_bitmap_place(buf, device_id, sector, bytes_count);
+    bitmap = fs_ext2_bitmap_place(buf, id, sector, bytes_count);
     fs_ext2_bgd_map_block_bitmap_set(map, bitmap);
 
     /* inode bitmap */
@@ -264,7 +264,7 @@ fs_ext2_bgd_map_create(s_disk_buf_t *buf, e_disk_id_t device_id,
     bytes_count = arithmetic_rate_up(i_count, 8);
     sector = fs_ext2_block_addr_to_sector(addr, b_bytes, s_offset, s_bytes);
 
-    bitmap = fs_ext2_bitmap_place(buf, device_id, sector, bytes_count);
+    bitmap = fs_ext2_bitmap_place(buf, id, sector, bytes_count);
     fs_ext2_bgd_map_inode_bitmap_set(map, bitmap);
 
     fs_ext2_bgd_map_b_bitmap_is_dirty_set(map, /* is_dirty = */false);
@@ -274,14 +274,14 @@ fs_ext2_bgd_map_create(s_disk_buf_t *buf, e_disk_id_t device_id,
 }
 
 static inline void
-fs_ext2_dspr_map_array_initialize(s_ext2_dspr_t *dspr, s_disk_buf_t *buf,
-    e_disk_id_t device_id)
+fs_ext2_dspr_map_array_initialize(s_ext2_dspr_t *dspr, s_block_buf_t *buf,
+    e_dev_id_t id)
 {
     uint32 i, limit;
     s_ext2_bgd_t *bgd;
     s_ext2_bgd_map_t *map;
 
-    kassert(disk_buffer_legal_p(buf));
+    kassert(block_buffer_legal_p(buf));
     kassert(fs_ext2_dspr_legal_p(dspr));
 
     i = 0;
@@ -289,7 +289,7 @@ fs_ext2_dspr_map_array_initialize(s_ext2_dspr_t *dspr, s_disk_buf_t *buf,
 
     while (i < limit) {
         bgd = fs_ext2_dspr_bgd(dspr, i);
-        map = fs_ext2_bgd_map_create(buf, device_id, dspr, bgd);
+        map = fs_ext2_bgd_map_create(buf, id, dspr, bgd);
         fs_ext2_dspr_bgd_map_set(dspr, i, map);
 
         i++;
@@ -297,9 +297,9 @@ fs_ext2_dspr_map_array_initialize(s_ext2_dspr_t *dspr, s_disk_buf_t *buf,
 }
 
 static inline s_ext2_dspr_t *
-fs_ext2_partition_initialize(s_disk_pt_t *pt, e_disk_id_t device_id)
+fs_ext2_partition_initialize(s_disk_pt_t *pt, e_dev_id_t id)
 {
-    s_disk_buf_t *buf;
+    s_block_buf_t *buf;
     s_ext2_dspr_t *dspr;
     s_ext2_bgd_t *bgd_table;
     s_ext2_spbk_t *superblock;
@@ -307,34 +307,34 @@ fs_ext2_partition_initialize(s_disk_pt_t *pt, e_disk_id_t device_id)
 
     kassert(disk_partition_legal_p(pt));
     kassert(disk_partition_used_p(pt));
-    kassert(device_id < disk_descriptor_limit());
+    kassert(id < disk_descriptor_limit());
 
     dspr = NULL;
-    s_bytes = disk_descriptor_sector_bytes(device_id);
+    s_bytes = disk_descriptor_sector_bytes(id);
     s_offset = disk_partition_sector_offset(pt);
     s_offset += EXT2_SBLOCK_OFFSET / s_bytes; /* skip reserved block */
 
-    buf = disk_buffer_create(EXT2_BUFFER_MAX);
-    superblock = fs_ext2_superblock_create(buf, device_id, s_offset);
+    buf = block_buffer_create(EXT2_BUFFER_MAX);
+    superblock = fs_ext2_superblock_create(buf, id, s_offset);
 
     if (fs_ext2_superblock_invalid_p(superblock)) {
         fs_ext2_superblock_destroy(&superblock);
     } else {
         s_offset += fs_ext2_superblock_block_size(superblock) / s_bytes;
         size = fs_ext2_superblock_block_group_count(superblock);
-        bgd_table = fs_ext2_bgd_table_create(buf, device_id, s_offset, size);
+        bgd_table = fs_ext2_bgd_table_create(buf, id, s_offset, size);
 
-        dspr = fs_ext2_dspr_create(device_id, pt, superblock, bgd_table);
-        fs_ext2_dspr_map_array_initialize(dspr, buf, device_id);
+        dspr = fs_ext2_dspr_create(id, pt, superblock, bgd_table);
+        fs_ext2_dspr_map_array_initialize(dspr, buf, id);
     }
 
-    disk_buffer_destroy(&buf);
+    block_buffer_destroy(&buf);
 
     return dspr;
 }
 
 static inline void
-fs_ext2_device_initialize(s_vfs_node_t *root, e_disk_id_t device_id,
+fs_ext2_device_initialize(s_vfs_node_t *root, e_dev_id_t id,
     s_ext2_dspr_table_t *dspr_table)
 {
     uint32 i, limit;
@@ -345,9 +345,9 @@ fs_ext2_device_initialize(s_vfs_node_t *root, e_disk_id_t device_id,
 
     kassert(vfs_node_legal_p(root));
     kassert(fs_ext2_dspr_table_legal_p(dspr_table));
-    kassert(device_id < disk_descriptor_limit());
+    kassert(id < disk_descriptor_limit());
 
-    disk_pt_table = disk_descriptor_pt_table(device_id);
+    disk_pt_table = disk_descriptor_pt_table(id);
 
     i = 0;
     limit = DISK_PT_TABLE_SIZE;
@@ -357,7 +357,7 @@ fs_ext2_device_initialize(s_vfs_node_t *root, e_disk_id_t device_id,
         disk_pt = disk_partition_table_entry(disk_pt_table, i);
 
         if (disk_partition_used_p(disk_pt)) {
-            dspr = fs_ext2_partition_initialize(disk_pt, device_id);
+            dspr = fs_ext2_partition_initialize(disk_pt, id);
         }
 
         if (dspr) {
