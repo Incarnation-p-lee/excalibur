@@ -1,4 +1,4 @@
-local_dir    :=src/disk/ata
+local_dir    :=src/block/disk/ata
 local_module :=$(notdir $(local_dir))
 local_src    :=$(addprefix $(local_dir)/, $(addsuffix .c, $(local_module)))
 

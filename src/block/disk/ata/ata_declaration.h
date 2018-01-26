@@ -1,5 +1,5 @@
-#ifndef SRC_DISK_ATA_DECLARATION_H
-#define SRC_DISK_ATA_DECLARATION_H
+#ifndef SRC_BLOCK_DISK_ATA_DECLARATION_H
+#define SRC_BLOCK_DISK_ATA_DECLARATION_H
 
 static inline bool ata_device_info_drive_exist_p(s_ata_dev_info_t *dev_info);
 static inline bool ata_device_info_drive_no_exist_p(s_ata_dev_info_t *dev_info);

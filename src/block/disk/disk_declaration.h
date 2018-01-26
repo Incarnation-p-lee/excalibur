@@ -1,5 +1,5 @@
-#ifndef SRC_DISK_DECLARATION_H
-#define SRC_DISK_DECLARATION_H
+#ifndef SRC_BLOCK_DISK_DECLARATION_H
+#define SRC_BLOCK_DISK_DECLARATION_H
 
 bool disk_buffer_illegal_p(s_disk_buf_t *disk_buffer);
 bool disk_buffer_legal_p(s_disk_buf_t *disk_buffer);

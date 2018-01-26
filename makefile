@@ -49,8 +49,8 @@ include src/bus/makefile.mk
 include src/common/makefile.mk
 include src/common/print/makefile.mk
 include src/data_struct/makefile.mk
-include src/disk/makefile.mk
-include src/disk/ata/makefile.mk
+include src/block/disk/makefile.mk
+include src/block/disk/ata/makefile.mk
 include src/interrupt/makefile.mk
 include src/interrupt/isr/makefile.mk
 include src/interrupt/isr/irq/makefile.mk

@@ -95,6 +95,7 @@
 #define EXT2_BUFFER_MAX            4096u
 #define EXT2_INODE_ADDR_NULL       0u    /* inode addr start at 1 */
 #define EXT2_OS_SV2_SIZE           12u
+#define EXT2_MOUNT_NAME_LEN        32u
 
 #define EXT2_DIR_CURRENT           "."
 #define EXT2_DIR_PARENT            ".."
@@ -262,14 +263,15 @@ struct fs_ext2_block_group_descriptor_map {
 
 struct fs_ext2_descriptor {
     e_disk_id_t      device_id;
+    uint32           bg_count;
     s_ext2_spbk_t    *superblock;
-    s_disk_pt_t      *disk_pt;
     s_ext2_bgd_t     *bgd_table;
     s_ext2_bgd_map_t **map_array;
-    uint32           bg_count;
+    s_disk_pt_t      *disk_pt;
 };
 
 struct fs_ext2_descriptor_table {
+    char          mountpoint[EXT2_MOUNT_NAME_LEN];
     uint32        index;
     uint32        size;
     s_ext2_dspr_t **dspr_array;
